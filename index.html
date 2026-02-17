@@ -113,6 +113,51 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .reset-btn{font-size:0.7rem;color:var(--red);background:none;border:none;cursor:pointer;font-weight:600;padding:0.35rem;font-family:inherit}
 .reset-btn:hover{text-decoration:underline}
 
+/* Body Weight Input */
+.bw-strip{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.6rem 1rem}
+.bw-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:0.6rem}
+.bw-label{font-size:0.75rem;font-weight:700;color:var(--text2);white-space:nowrap}
+.bw-input{width:80px;padding:0.4rem 0.5rem;border:1px solid var(--border);border-radius:8px;font-size:0.85rem;font-family:inherit;background:var(--bg3);color:var(--text);text-align:center}
+.bw-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(22,163,74,0.15)}
+.bw-btn{padding:0.4rem 0.75rem;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background 0.2s}
+.bw-btn:hover{background:var(--accent2)}
+.bw-last{font-size:0.7rem;color:var(--text3);margin-left:auto;white-space:nowrap}
+
+/* Weight Log Tab */
+.wlog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem}
+.wlog-header h2{font-size:1.1rem;font-weight:800;color:var(--text)}
+.wlog-range-btns{display:flex;gap:0.25rem}
+.wlog-range-btn{padding:0.35rem 0.65rem;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.wlog-range-btn:hover{border-color:var(--accent)}
+.wlog-range-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.wlog-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:0.5rem;margin-bottom:1rem}
+.wlog-stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;text-align:center}
+.wlog-stat .val{font-size:1.2rem;font-weight:800;color:var(--accent)}
+.wlog-stat .lbl{font-size:0.65rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-top:0.15rem}
+.wlog-chart{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;min-height:180px;position:relative}
+.wlog-chart canvas{width:100%!important;height:160px!important}
+.wlog-table{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.wlog-table table{width:100%;border-collapse:collapse;font-size:0.8rem}
+.wlog-table th{background:var(--bg3);padding:0.5rem 0.75rem;text-align:left;font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text3);border-bottom:1px solid var(--border)}
+.wlog-table td{padding:0.5rem 0.75rem;border-bottom:1px solid var(--border);color:var(--text2)}
+.wlog-table tr:last-child td{border-bottom:none}
+.wlog-table .change-up{color:var(--red);font-weight:600}
+.wlog-table .change-down{color:var(--accent);font-weight:600}
+.wlog-table .change-same{color:var(--text3)}
+.wlog-empty{text-align:center;padding:2rem;color:var(--text3);font-size:0.85rem}
+.wlog-delete{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.75rem;padding:0.2rem;opacity:0.5;transition:opacity 0.2s}
+.wlog-delete:hover{opacity:1;color:var(--red)}
+
+/* Exercise Info Dropdown */
+.ex-info-toggle{font-size:0.68rem;font-weight:600;color:var(--blue);cursor:pointer;display:inline-flex;align-items:center;gap:0.25rem;margin-top:0.3rem;user-select:none;transition:color 0.2s}
+.ex-info-toggle:hover{color:#2563eb}
+.ex-info-toggle .arrow{display:inline-block;font-size:0.5rem;transition:transform 0.2s}
+.ex-info-toggle.open .arrow{transform:rotate(90deg)}
+.ex-info-box{max-height:0;overflow:hidden;transition:max-height 0.3s ease,opacity 0.3s ease;opacity:0}
+.ex-info-box.open{max-height:300px;opacity:1}
+.ex-info-content{margin-top:0.4rem;padding:0.6rem 0.75rem;background:var(--bg3);border-radius:8px;border-left:3px solid var(--blue);font-size:0.75rem;color:var(--text2);line-height:1.6}
+.ex-info-content strong{color:var(--text);font-weight:700}
+
 /* Mobile */
 @media(max-width:640px){
 .tab{padding:0.5rem 0.6rem;font-size:0.7rem}
@@ -153,6 +198,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 </div>
 </div>
 
+<div class="bw-strip">
+<div class="bw-inner">
+<span class="bw-label">Today's Weight:</span>
+<input class="bw-input" id="bwInput" type="number" step="0.1" placeholder="lbs">
+<button class="bw-btn" onclick="logBodyWeight()">Log</button>
+<span class="bw-last" id="bwLast"></span>
+</div>
+</div>
+
 <div class="content" id="content"></div>
 
 <button class="timer-toggle" id="timerToggle" onclick="showTimer()">&#9201;</button>
@@ -175,7 +229,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 <script>
 // ============ WORKOUT DATA ============
-const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','Guide'];
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','Weight Log','Guide'];
 const WORKOUTS = {
 Monday: [
 {phase:'Pre-Workout Stretch',exercise:'World\'s Greatest Stretch',sets:'2',reps:'5 each side',rest:0,tempo:'Slow',notes:'Hip flexor + thoracic rotation opener, hold each position 3 sec',equipment:'Bodyweight'},
@@ -316,6 +370,113 @@ Sunday: [
 ]
 };
 
+// ============ EXERCISE DESCRIPTIONS ============
+const EX_DESC = {
+"World's Greatest Stretch":"Start in a lunge position. Place your inside hand on the ground and rotate your other arm toward the ceiling. This opens your hip flexors, chest, and upper back all at once. Hold each position for about 3 seconds before switching sides.",
+"Arm Circles (Forward/Backward)":"Stand tall with arms extended straight out to the sides. Make small circles, gradually increasing to larger circles. Do forward circles, then switch to backward. Warms up the shoulder joints for pressing movements.",
+"Cat-Cow Spine Waves":"On all fours, alternate between arching your back (looking up) and rounding your back (tucking chin). Move slowly with your breath—inhale on cow (arch), exhale on cat (round). Mobilizes the entire spine.",
+"Scapular Wall Slides":"Stand with your back flat against a wall, arms in a 'goalpost' position. Slowly slide your arms up overhead and back down while keeping your back, elbows, and wrists touching the wall. Activates the shoulder blade muscles.",
+"Standing Torso Rotations":"Stand with feet shoulder-width apart and arms at chest height. Rotate your upper body side to side in a controlled manner, keeping your hips facing forward. Mimics the golf swing rotation pattern.",
+"Incline Chest Press Machine":"Sit in the machine with the seat adjusted so handles are at upper chest level. Press the handles forward and upward until arms are extended, then slowly lower back. The incline angle targets the upper chest.",
+"Standing Cable Chest Fly":"Stand between two cable machines set at chest height. With a slight bend in elbows, bring both handles together in front of your chest in a hugging motion. Squeeze your chest at the center, then slowly open back up.",
+"Seated Overhead Press Machine":"Sit with back supported, grip the handles at shoulder level. Press straight up overhead until arms are extended, then lower back to shoulder height. Builds shoulder strength for overhead stability.",
+"Cable Lateral Raise":"Stand sideways to a low cable, grab the handle with the far hand. Raise your arm out to the side until it's parallel to the floor, then slowly lower. Isolates the middle part of the shoulder.",
+"Tricep Rope Pushdown":"Attach a rope to a high cable. Grip the rope with both hands, elbows tucked at your sides. Push down by straightening your arms and spreading the rope apart at the bottom. Slowly return to start.",
+"Cable Pallof Press":"Stand sideways to a cable at chest height. Hold the handle at your chest with both hands. Press your arms straight out in front of you, resisting the cable's pull to rotate you. This trains your core to resist rotation—essential for golf.",
+"Cable Woodchop High-to-Low":"Set a cable at the highest position. Stand sideways, grab the handle with both hands. Pull diagonally across your body from high to low, rotating your torso. Mimics the golf downswing motion.",
+"Cable Woodchop Low-to-High":"Set a cable at the lowest position. Stand sideways, grab the handle with both hands. Pull diagonally across your body from low to high, rotating your torso. Mimics the golf backswing motion.",
+"Decline Sit-Up or Weighted Crunch":"Hook your feet on a decline bench and lie back. Cross arms over chest or hold a weight plate. Curl your torso up by contracting your abs, then slowly lower back down. The decline angle increases difficulty.",
+"Plank with Shoulder Taps":"Get into a push-up position. While keeping your hips as still as possible, lift one hand and tap the opposite shoulder. Alternate sides. This trains your core to resist rotation while maintaining stability.",
+"Face Pulls":"Attach a rope to a high cable. Pull toward your face with elbows high and wide, squeezing your shoulder blades together. Pause at your face, then slowly extend back. Great for shoulder health and posture.",
+"Incline DB Chest Fly":"Lie on an incline bench with dumbbells above your chest, palms facing each other. Lower the weights out to the sides in a wide arc, feeling a stretch in your chest, then bring them back together overhead.",
+"Hanging Knee Raises":"Hang from a pull-up bar with arms extended. Raise your knees toward your chest by contracting your abs, then slowly lower back down. Avoid swinging—the movement should come from your core.",
+"Dead Bug":"Lie on your back with arms reaching toward the ceiling and knees bent at 90 degrees. Slowly extend one arm overhead and the opposite leg straight, keeping your lower back pressed to the floor. Return and switch sides.",
+"Chest and Shoulder Static Stretch":"Stand in a doorway with your arm against the frame at shoulder height. Step through until you feel a stretch in your chest. Hold for 30-60 seconds. Then cross one arm across your body for a shoulder stretch.",
+"90/90 Hip Stretch":"Sit on the floor with one leg bent in front of you at 90 degrees and the other bent behind you at 90 degrees. Lean forward over your front leg to feel a stretch in the hip. This improves both internal and external hip rotation.",
+"Standing Quad Stretch with Reach":"Stand on one leg, grab your other ankle behind you. Pull your heel toward your glute while reaching your free arm overhead. This stretches your quad and hip flexor simultaneously while challenging balance.",
+"Cossack Squat":"Stand with feet wide apart. Shift your weight to one side, bending that knee deeply while keeping the other leg straight. Go as low as comfortable, then shift to the other side. Opens up the inner thighs and hips.",
+"Glute Bridge Pulses":"Lie on your back with knees bent, feet flat on the floor. Push your hips up by squeezing your glutes, creating a straight line from knees to shoulders. Do small pulses at the top to activate the glutes before heavier work.",
+"Ankle Circles + Calf Raises":"Circle each ankle 10 times in each direction to mobilize the joint. Then rise up onto your toes slowly and lower back down for calf raises. Prepares the lower legs for squatting and lunging.",
+"Leg Press (Feet Mid-Platform)":"Sit in the leg press with feet placed in the middle of the platform, about shoulder width. Push the platform away by extending your legs, then slowly bend your knees to lower it back. Keep your back flat against the pad.",
+"Romanian Deadlift (Smith Machine or DB)":"Hold dumbbells or use a Smith machine. Stand tall, then push your hips back while lowering the weight along your legs, keeping a slight bend in your knees. You should feel a strong stretch in your hamstrings. Reverse by squeezing your glutes.",
+"Bulgarian Split Squat (DB)":"Hold dumbbells at your sides. Place one foot behind you on a bench. Lower straight down by bending your front knee until your thigh is parallel to the floor. Push back up through your front heel. Builds single-leg strength and balance.",
+"Leg Extension Machine":"Sit in the machine with the pad on your shins just above the ankles. Extend your legs by straightening your knees, squeezing your quads at the top. Lower slowly and avoid locking out completely to protect the knee joint.",
+"Seated or Lying Leg Curl":"Position yourself so the pad is behind your ankles. Curl your legs by bending your knees, pulling the pad toward your glutes. Squeeze your hamstrings at the top, then slowly extend back. Isolates the hamstrings.",
+"Cable Hip Abduction":"Attach an ankle cuff to a low cable. Stand sideways to the machine and lift your outside leg away from your body against the cable's resistance. This targets the glute medius, which stabilizes your hips during the golf swing.",
+"Single-Leg Glute Bridge":"Lie on your back with one knee bent and the other leg extended straight. Push through the planted foot to raise your hips, squeezing the glute at the top. Lower slowly. Builds single-leg hip strength.",
+"Standing Calf Raises (Smith Machine)":"Stand with the balls of your feet on a raised surface, heels hanging off. Rise up as high as possible onto your toes, hold briefly, then lower your heels below the platform for a full stretch. Use the Smith machine bar for added weight.",
+"Copenhagen Plank (or Side Plank)":"Lie on your side with your top leg on a bench and bottom leg underneath. Lift your hips and bottom leg off the ground, creating a straight line. This targets the inner thigh (adductors) and lateral core. Side plank is the easier alternative.",
+"Goblet Squat Hold":"Hold a dumbbell at your chest with both hands. Squat down as deep as comfortable and hold the bottom position. Keep your chest up and elbows inside your knees. This builds hip and ankle mobility under load.",
+"Step-Ups (DB)":"Hold dumbbells at your sides. Step onto a bench with one foot, driving through that heel to stand up fully. Step back down with control. Builds single-leg power and mimics climbing movements.",
+"Seated Hip Flexor Stretch":"Kneel on one knee with the other foot forward. Push your hips forward gently while keeping your torso upright. You should feel a stretch in the front of the hip of your back leg. Hold for 60 seconds each side.",
+"Pigeon Pose":"From a push-up position, bring one knee forward toward the same-side wrist, laying the shin on the floor. Extend the back leg straight behind you. Sink your hips toward the floor for a deep hip opener. Hold and breathe.",
+"Standing Hamstring Stretch":"Stand tall, extend one leg forward with the heel on the floor and toes pointing up. Hinge at the hips to lean forward with a flat back until you feel a stretch in the back of the extended leg. Hold 45 seconds each side.",
+"Thread the Needle (Thoracic Rotation)":"Start on all fours. Reach one arm under your body and through to the other side, lowering your shoulder toward the floor. Then reverse and reach that arm toward the ceiling. This mobilizes the upper back for rotation.",
+"Band Pull-Aparts":"Hold a resistance band in front of you at shoulder height with arms extended. Pull the band apart by squeezing your shoulder blades together until the band touches your chest. Slowly return to start.",
+"Scapular Shrugs (Hanging or Supported)":"Hang from a pull-up bar with arms fully extended. Without bending your elbows, push your shoulders down and away from your ears by engaging your lats. Then let yourself hang normally. Activates the scapular muscles.",
+"Doorway Chest Stretch":"Stand in a doorway with both arms on the door frame at 90 degrees. Step forward through the doorway until you feel a stretch across your chest and front of shoulders. Hold for 30 seconds. Opens up the chest before pulling work.",
+"Wrist Circles + Forearm Stretch":"Circle your wrists 10 times in each direction. Then extend one arm forward with palm up, gently pull fingers back with the other hand to stretch the forearm flexors. Switch to palm down for extensors.",
+"Lat Pulldown (Wide Grip)":"Sit at the pulldown machine, grip the bar wider than shoulder-width. Pull the bar down to your upper chest by driving your elbows down and back. Squeeze your lats, then slowly let the bar return to the top.",
+"Seated Cable Row (Neutral Grip)":"Sit at a cable row station with feet on the platform, knees slightly bent. Pull the handle to your lower chest/upper abdomen by squeezing your shoulder blades together. Slowly extend back. Builds mid-back thickness.",
+"Single-Arm Dumbbell Row":"Place one hand and knee on a bench, the other foot on the floor. Hold a dumbbell in the hanging arm. Pull it to your hip by driving your elbow up and back. Lower with control. Builds unilateral back strength.",
+"Face Pulls (Rope Attachment)":"Attach a rope to a high cable. Pull toward your face with elbows high, separating the rope ends past your ears. Squeeze your upper back and rear delts at the end position. Excellent for shoulder health and posture.",
+"EZ-Bar or Cable Bicep Curl":"Grip an EZ-bar (curved barbell) or cable handle with palms facing up. Curl the weight by bending your elbows, keeping upper arms stationary. Squeeze at the top, then lower slowly. Builds bicep size and strength.",
+"Cable Hammer Curl (Rope)":"Attach a rope to a low cable. Grip the rope ends with thumbs up (neutral grip). Curl by bending your elbows while keeping them at your sides. This targets the brachialis muscle and forearms for grip strength.",
+"Pallof Press (Isometric Hold)":"Stand sideways to a cable at chest height. Press the handle out in front of you and hold for 20-30 seconds, resisting the cable pulling you into rotation. Keep your abs braced and hips squared. Switch sides.",
+"Bird Dog":"Start on all fours with a neutral spine. Simultaneously extend one arm forward and the opposite leg backward. Hold briefly, then return and switch sides. This challenges core stability and spinal control.",
+"Russian Twist (Weighted)":"Sit on the floor with knees bent, feet slightly off the ground. Hold a weight at your chest. Rotate your torso from side to side, touching the weight to the floor on each side. Keep your core tight throughout.",
+"Straight-Arm Lat Pulldown":"Stand facing a high cable with a straight bar. With arms nearly straight, pull the bar down to your thighs by engaging your lats. Keep a slight bend in the elbows. Slowly return to the top.",
+"Farmer's Carry":"Hold heavy dumbbells at your sides. Walk slowly with tall posture, shoulders back, core braced. This builds grip strength, core stability, and total body endurance. Walk for 40-60 seconds per set.",
+"Hanging L-Sit Hold":"Hang from a pull-up bar. Raise your legs until they're parallel to the floor, forming an L-shape with your body. Hold this position as long as possible. Strengthens the core and hip flexors.",
+"Upper Back and Lat Stretch":"Kneel down and reach your arms forward on the floor (child's pose). Walk your hands to one side to stretch the opposite lat. Also try grabbing a pole and leaning back to stretch the lats.",
+"Inchworm to Push-Up":"Stand tall, bend forward and walk your hands out to a push-up position. Do one push-up, then walk your hands back to your feet and stand up. This warms up the whole body—shoulders, core, hamstrings, and chest.",
+"Spiderman Lunge with Rotation":"Step forward into a deep lunge. Place the hand on the same side as your front foot on the ground. Rotate your other arm toward the ceiling. This opens the hip flexors and thoracic spine simultaneously.",
+"Hip Hinge Practice (Unweighted)":"Stand with feet hip-width apart. Push your hips back as if closing a car door with your butt, letting your torso lean forward. Keep your back flat and knees slightly bent. Stand back up by squeezing your glutes.",
+"Arm Swings (Across Body)":"Stand tall and swing both arms simultaneously across your body, alternating which arm goes on top. This dynamic movement increases blood flow and warms up the chest and shoulder joints.",
+"Leg Swings (Forward/Lateral)":"Hold onto something for balance. Swing one leg forward and backward like a pendulum, then side to side. Keep the movement controlled. This warms up the hip joint in all directions.",
+"Trap Bar Deadlift or Smith Machine Deadlift":"Stand inside a trap bar or at a Smith machine. Grip the handles, push through your feet to stand up straight. Keep your chest up and back flat throughout. This is a safer deadlift variation that builds total-body power.",
+"Goblet Squat (Slow Eccentric)":"Hold a dumbbell at your chest. Squat down slowly (taking 5 seconds to lower) to a deep position. Keep your chest up and knees tracking over toes. Push back up to standing. The slow lowering builds strength and mobility.",
+"Single-Leg Romanian Deadlift (DB)":"Hold a dumbbell in one hand. Stand on the opposite leg. Hinge forward at the hips, extending the free leg behind you for balance. Lower the dumbbell toward the floor. Return to standing by squeezing your glute.",
+"Landmine Press (or DB Arnold Press)":"Grip the end of a barbell anchored in a corner (landmine). Press it forward and up at an angle. For Arnold Press: hold dumbbells at shoulders with palms facing you, rotate and press overhead. Both build rotational shoulder strength.",
+"Cable Row to Rotation":"Sit at a cable row. Pull the handle toward you, then rotate your torso to one side. Return the cable with control. This combines pulling strength with golf-specific rotation—great for swing power.",
+"Medicine Ball Rotational Slam":"Hold a medicine ball at one hip. Rotate explosively and slam it to the opposite side. Mimic your golf swing's power transfer. Pick it up and repeat on the other side. Builds explosive rotational strength.",
+"TRX or Suspension Row":"Hold TRX handles, lean back with arms extended and body straight. Pull yourself up by driving your elbows back and squeezing your shoulder blades. Lower slowly. Adjust difficulty by changing your body angle.",
+"Ab Wheel Rollout (or Stability Ball)":"Kneel on the floor holding an ab wheel. Roll it forward by extending your arms, letting your body lower toward the floor while keeping your core tight. Pull back to the starting position. Builds anti-extension core strength.",
+"Side Plank with Rotation":"Get into a side plank position. Reach your top arm toward the ceiling, then rotate and thread it under your body. Return to the open position. This builds rotational core control and oblique strength.",
+"Yoga Flow Sequence":"Move through a flowing sequence: Down Dog, step forward to Low Lunge, rise to Warrior 2, reach forward to Triangle, then back through Down Dog and repeat on the other side. Connects movement with breath.",
+"Deep Squat Hold (Goblet)":"Hold a light dumbbell at your chest. Squat as deep as you can and hold at the bottom for 60-90 seconds. Use your elbows to push your knees out. This deeply opens the hips and ankles.",
+"Thoracic Extension (Foam Roller)":"Place a foam roller under your upper back. Support your head with your hands. Gently arch backward over the roller, then return to neutral. Roll to different spots along the upper back.",
+"Hip 90/90 Stretch (Loaded)":"Sit in the 90/90 position (described above) and place a light dumbbell on your front knee for gentle pressure. Lean forward to deepen the stretch. This enhances hip mobility under mild load.",
+"Standing Figure-4 Stretch":"Stand on one leg. Cross the other ankle over the standing knee, creating a figure-4 shape. Sit your hips back as if sitting in a chair. You'll feel a stretch in the glute and outer hip of the crossed leg.",
+"Cat-Cow to Child's Pose Flow":"Start on all fours. Flow through cat (round back) and cow (arch back) for a few reps, then sit your hips back toward your heels into child's pose. Reach your arms forward for a lat stretch. Repeat the sequence.",
+"Thoracic Rotation (Quadruped)":"On all fours, place one hand behind your head. Rotate that elbow down toward the opposite hand, then open up toward the ceiling. Keep your hips still—the movement comes from your upper back. Essential for golf swing mobility.",
+"Hip Circles (Standing)":"Stand on one leg and draw large circles in the air with the other knee. This mobilizes the hip joint through its full range of motion. Do both directions on each leg.",
+"Arm Circles with Torso Lean":"Make arm circles while slightly leaning your torso to one side. This adds an oblique stretch component to the standard shoulder warmup. Switch lean directions to warm up both sides.",
+"Marching High Knees":"Stand tall and march in place, bringing each knee as high as comfortable. Drive your opposite arm forward as each knee rises. Activates the hip flexors and core while raising your heart rate.",
+"Bicycle Crunches":"Lie on your back with hands behind your head. Bring one knee toward your chest while rotating your opposite elbow to meet it. Extend the other leg straight. Alternate sides in a pedaling motion.",
+"Plank to Down Dog (Pike)":"Start in a plank position. Push your hips up and back into a downward dog/pike position, pressing your heels toward the floor. Return to plank. This dynamically challenges core and shoulder stability.",
+"Hanging Leg Raises":"Hang from a pull-up bar. Raise your straight legs until they're parallel to the floor or higher. Lower slowly with control. This is an advanced lower ab exercise. Bend knees if straight legs are too difficult.",
+"Landmine Rotation (Single-Arm)":"Hold the end of a barbell in one hand at chest height. Rotate your torso to move the barbell in an arc from one side to the other. Keep your hips relatively stable. Builds loaded rotational power.",
+"Turkish Get-Up (Light Weight)":"Lie on your back holding a weight straight up with one arm. Stand up while keeping the weight overhead through a series of specific positions: roll to elbow, post to hand, sweep leg, kneel, stand. Reverse to lie back down.",
+"Sun Salutation Flow (Yoga)":"A flowing yoga sequence: stand tall, reach overhead, fold forward, step back to plank, lower to floor, cobra, push to down dog, step forward, rise to standing. Warms up the entire body.",
+"Hip 90/90 Transition":"Sit with both legs bent at 90 degrees. Rotate both knees to one side, then sweep them to the other side. Your legs transition between internal and external rotation. Builds functional hip mobility.",
+"Thoracic Bridge":"Sit on the floor with hands behind you, fingers pointing backward. Lift your hips and reach one arm over and behind you in a rotational bridge. This opens the chest and mobilizes the upper back.",
+"Bretzel Stretch":"Lie on your side. Grab your top foot behind you (quad stretch). Rotate your top shoulder toward the floor. This stretch targets the hip flexors, quads, and thoracic spine all at once.",
+"Wrist and Ankle Mobility":"Circle your wrists and ankles in both directions. These small joint movements prepare the extremities for gripping and balance work. Spend about 20 circles per joint, each direction.",
+"Incline Walk or Bike":"Walk on a treadmill at a moderate incline (5-8%) or ride a stationary bike at low resistance. Keep the pace conversational—you should be able to talk easily. This is active recovery to promote blood flow.",
+"TRX Face Pulls":"Hold TRX handles with palms facing down. Lean back, then pull yourself forward by driving elbows high and wide, rotating hands to face you at the top. Squeeze your upper back. Great for posture.",
+"Banded Lateral Walks":"Place a resistance band around your ankles or just above your knees. Get into a slight squat position. Step sideways, keeping tension on the band. This fires up the glute medius for hip stability.",
+"Glute Bridge (Bodyweight or Banded)":"Lie on your back with knees bent. Push through your heels to raise your hips, squeezing your glutes at the top. Hold briefly, then lower. Add a band above the knees for extra glute medius activation.",
+"Banded Pull-Aparts":"Hold a band at shoulder height with arms extended. Pull the band apart by squeezing your shoulder blades together until the band touches your chest. Control the return. Builds upper back endurance.",
+"Calf Raises (Bodyweight)":"Stand on the edge of a step or flat on the floor. Rise up onto your toes as high as possible, then lower slowly. Light bodyweight work for recovery and ankle stability.",
+"Wall Slides":"Stand with your back against a wall, arms in a 'goalpost' position. Slowly slide your arms up and down the wall while maintaining contact. This trains scapular control and shoulder mobility.",
+"Yoga Flexibility Sequence":"A series of held yoga poses: Pigeon (hip opener), Lizard (deep hip flexor), Half Split (hamstring), Seated Forward Fold (full posterior chain), Supine Twist (spinal rotation). Hold each 60-90 seconds.",
+"Foam Roll Targeted Areas":"Slowly roll over sore or tight muscles using a foam roller. Apply moderate pressure and pause on tender spots for 20-30 seconds. Focus on areas that feel tight from the week's training.",
+"Lacrosse Ball Foot Release":"Stand with a lacrosse ball under one foot. Roll it along your arch, applying pressure to release the plantar fascia. This is especially beneficial for golfers who spend hours standing and walking the course.",
+"Couch Stretch":"Kneel with one knee on the floor, foot pressed against a wall or couch behind you. Step the other foot forward into a lunge. Push your hips forward for an intense hip flexor and quad stretch.",
+"Weighted Hang (Decompression)":"Hang from a pull-up bar with arms fully extended, letting your body weight decompress the spine. Relax your shoulders and breathe deeply. This relieves pressure between vertebrae after a week of lifting."
+};
+
 // ============ STATE ============
 let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
 if (!state.week) state.week = 1;
@@ -338,10 +499,10 @@ function init() {
 function renderTabs() {
   const t = document.getElementById('tabs');
   t.innerHTML = DAYS.map(d => {
-    const label = d === 'Guide' ? 'Program Guide' : d.slice(0, 3);
+    let label = d === 'Guide' ? 'Guide' : d === 'Weight Log' ? '&#9878; Weight' : d.slice(0, 3);
     const isActive = state.day === d ? ' active' : '';
     let check = '';
-    if (d !== 'Sunday' && d !== 'Guide' && WORKOUTS[d]) {
+    if (d !== 'Sunday' && d !== 'Guide' && d !== 'Weight Log' && WORKOUTS[d]) {
       const total = WORKOUTS[d].filter(e => e.phase === 'Main Workout').length;
       const done = WORKOUTS[d].filter((e, i) => e.phase === 'Main Workout' && getExState(d, i).done).length;
       if (total > 0 && done === total) check = '<span class="tab-check">&#10003;</span>';
@@ -355,6 +516,7 @@ function switchDay(d) { state.day = d; save(); renderTabs(); renderDay(d); }
 function renderDay(day) {
   const c = document.getElementById('content');
   if (day === 'Guide') { renderGuide(c); updateProgress(day); return; }
+  if (day === 'Weight Log') { renderWeightLog(c); updateProgress(day); return; }
   if (day === 'Sunday') { renderSunday(c); updateProgress(day); return; }
   const exercises = WORKOUTS[day] || [];
   let phases = {};
@@ -380,6 +542,7 @@ function renderDay(day) {
           <div class="ex-notes">${ex.notes}</div>
           <div class="ex-equip">${ex.equipment}</div>
           ${ex.phase === 'Main Workout' || ex.phase.includes('Bonus') ? `<div class="weight-row"><span class="weight-label">Weight:</span><input class="weight-input" type="text" placeholder="lbs" value="${s.weight || ''}" onchange="setWeight('${day}',${ex._idx},this.value)"></div>` : ''}
+          ${EX_DESC[ex.exercise] ? `<span class="ex-info-toggle" onclick="toggleInfo(this)"><span class="arrow">&#9654;</span> How to do this</span><div class="ex-info-box"><div class="ex-info-content"><strong>${ex.exercise}:</strong> ${EX_DESC[ex.exercise]}</div></div>` : ''}
         </div>
       </div>`;
     });
@@ -426,10 +589,16 @@ function setWeight(day, idx, val) {
   setExState(day, idx, s);
 }
 
+function toggleInfo(el) {
+  el.classList.toggle('open');
+  const box = el.nextElementSibling;
+  box.classList.toggle('open');
+}
+
 function updateProgress(day) {
-  if (day === 'Guide' || day === 'Sunday') {
+  if (day === 'Guide' || day === 'Sunday' || day === 'Weight Log') {
     document.getElementById('progressFill').style.width = '0%';
-    document.getElementById('progressText').innerText = day === 'Sunday' ? 'Rest Day' : 'Program Guide';
+    document.getElementById('progressText').innerText = day === 'Sunday' ? 'Rest Day' : day === 'Weight Log' ? 'Weight Tracker' : 'Program Guide';
     return;
   }
   const exercises = WORKOUTS[day] || [];
@@ -575,9 +744,217 @@ const GUIDE_HTML = `
 </ul>
 `;
 
+// ============ BODY WEIGHT LOG ============
+function getWeightLog() { return JSON.parse(localStorage.getItem('wt_weight_log') || '[]'); }
+function saveWeightLog(log) { localStorage.setItem('wt_weight_log', JSON.stringify(log)); }
+
+function logBodyWeight() {
+  const input = document.getElementById('bwInput');
+  const val = parseFloat(input.value);
+  if (!val || val < 50 || val > 700) return;
+  const log = getWeightLog();
+  const now = new Date();
+  log.push({ weight: val, ts: now.toISOString() });
+  saveWeightLog(log);
+  input.value = '';
+  updateBwLast();
+  if (state.day === 'Weight Log') renderDay('Weight Log');
+}
+
+function updateBwLast() {
+  const log = getWeightLog();
+  const el = document.getElementById('bwLast');
+  if (log.length === 0) { el.innerText = ''; return; }
+  const last = log[log.length - 1];
+  const d = new Date(last.ts);
+  el.innerText = `Last: ${last.weight} lbs (${d.toLocaleDateString()} ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})})`;
+}
+
+function deleteWeightEntry(idx) {
+  const log = getWeightLog();
+  log.splice(idx, 1);
+  saveWeightLog(log);
+  updateBwLast();
+  renderDay('Weight Log');
+}
+
+let wlogRange = '1w';
+
+function renderWeightLog(c) {
+  const log = getWeightLog();
+  if (log.length === 0) {
+    c.innerHTML = '<div class="wlog-empty"><p>No weight entries yet.</p><p>Use the input above to log your daily weight.</p></div>';
+    return;
+  }
+
+  const now = new Date();
+  const ranges = { '1w': 7, '2w': 14, '1m': 31, 'all': 99999 };
+  const days = ranges[wlogRange] || 7;
+  const cutoff = new Date(now.getTime() - days * 86400000);
+  const filtered = wlogRange === 'all' ? log : log.filter(e => new Date(e.ts) >= cutoff);
+  const display = filtered.length > 0 ? filtered : log;
+
+  // Stats
+  const weights = display.map(e => e.weight);
+  const current = weights[weights.length - 1];
+  const first = weights[0];
+  const high = Math.max(...weights);
+  const low = Math.min(...weights);
+  const avg = (weights.reduce((a, b) => a + b, 0) / weights.length).toFixed(1);
+  const change = (current - first).toFixed(1);
+  const changeSign = change > 0 ? '+' : '';
+  const trend = weights.length >= 2 ? (weights[weights.length - 1] - weights[weights.length - 2]).toFixed(1) : '0.0';
+
+  let html = `<div class="wlog-header">
+    <h2>Weight Log</h2>
+    <div class="wlog-range-btns">
+      <button class="wlog-range-btn ${wlogRange==='1w'?'active':''}" onclick="wlogRange='1w';renderDay('Weight Log')">1 Week</button>
+      <button class="wlog-range-btn ${wlogRange==='2w'?'active':''}" onclick="wlogRange='2w';renderDay('Weight Log')">2 Weeks</button>
+      <button class="wlog-range-btn ${wlogRange==='1m'?'active':''}" onclick="wlogRange='1m';renderDay('Weight Log')">Month</button>
+      <button class="wlog-range-btn ${wlogRange==='all'?'active':''}" onclick="wlogRange='all';renderDay('Weight Log')">All</button>
+    </div>
+  </div>`;
+
+  html += `<div class="wlog-stats">
+    <div class="wlog-stat"><div class="val">${current}</div><div class="lbl">Current (lbs)</div></div>
+    <div class="wlog-stat"><div class="val">${avg}</div><div class="lbl">Average</div></div>
+    <div class="wlog-stat"><div class="val">${changeSign}${change}</div><div class="lbl">Change</div></div>
+    <div class="wlog-stat"><div class="val">${low} - ${high}</div><div class="lbl">Range</div></div>
+  </div>`;
+
+  // Chart
+  html += `<div class="wlog-chart"><canvas id="wlogCanvas"></canvas></div>`;
+
+  // Table
+  html += `<div class="wlog-table"><table><thead><tr><th>Date & Time</th><th>Weight</th><th>Change</th><th></th></tr></thead><tbody>`;
+  const reversed = [...display].reverse();
+  reversed.forEach((entry, ri) => {
+    const realIdx = log.indexOf(entry);
+    const d = new Date(entry.ts);
+    const dateStr = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const prevIdx = display.length - 1 - ri - 1;
+    let changeHtml = '<span class="change-same">--</span>';
+    if (prevIdx >= 0) {
+      const diff = (entry.weight - display[display.length - 1 - ri - 1 + (display.length - 1 - ri - 1 < display.length - 1 - ri ? 0 : 0)].weight);
+      // recalc properly
+      const origIdx = display.indexOf(entry);
+      if (origIdx > 0) {
+        const d2 = (entry.weight - display[origIdx - 1].weight).toFixed(1);
+        if (d2 > 0) changeHtml = `<span class="change-up">+${d2}</span>`;
+        else if (d2 < 0) changeHtml = `<span class="change-down">${d2}</span>`;
+        else changeHtml = `<span class="change-same">0.0</span>`;
+      }
+    }
+    html += `<tr><td>${dateStr} ${timeStr}</td><td><strong>${entry.weight}</strong> lbs</td><td>${changeHtml}</td><td><button class="wlog-delete" onclick="deleteWeightEntry(${realIdx})" title="Delete">&#10005;</button></td></tr>`;
+  });
+  html += '</tbody></table></div>';
+
+  c.innerHTML = html;
+
+  // Draw chart
+  setTimeout(() => drawWeightChart(display), 50);
+}
+
+function drawWeightChart(data) {
+  const canvas = document.getElementById('wlogCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = 160 * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = '160px';
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = 160;
+  const pad = { top: 20, right: 15, bottom: 30, left: 45 };
+  const cW = W - pad.left - pad.right;
+  const cH = H - pad.top - pad.bottom;
+
+  const weights = data.map(e => e.weight);
+  const minW = Math.floor(Math.min(...weights) - 1);
+  const maxW = Math.ceil(Math.max(...weights) + 1);
+  const range = maxW - minW || 1;
+
+  const isDark = document.body.classList.contains('dark');
+  const textColor = isDark ? '#94a3b8' : '#64748b';
+  const gridColor = isDark ? 'rgba(148,163,184,0.1)' : 'rgba(0,0,0,0.06)';
+  const lineColor = '#16a34a';
+  const dotColor = '#22c55e';
+  const fillColor = isDark ? 'rgba(22,163,74,0.15)' : 'rgba(22,163,74,0.1)';
+
+  // Grid lines
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  const gridLines = 4;
+  for (let i = 0; i <= gridLines; i++) {
+    const y = pad.top + (cH / gridLines) * i;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+    const val = (maxW - (range / gridLines) * i).toFixed(0);
+    ctx.fillStyle = textColor; ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(val, pad.left - 6, y + 3);
+  }
+
+  if (data.length < 2) {
+    // Single point
+    const x = pad.left + cW / 2;
+    const y = pad.top + cH / 2;
+    ctx.fillStyle = dotColor;
+    ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = textColor; ctx.font = 'bold 11px Inter,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(weights[0] + ' lbs', x, y - 10);
+    return;
+  }
+
+  // Plot points
+  const points = data.map((e, i) => ({
+    x: pad.left + (i / (data.length - 1)) * cW,
+    y: pad.top + (1 - (e.weight - minW) / range) * cH
+  }));
+
+  // Fill
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, H - pad.bottom);
+  points.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(points[points.length - 1].x, H - pad.bottom);
+  ctx.closePath();
+  ctx.fillStyle = fillColor;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+  ctx.strokeStyle = lineColor; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.stroke();
+
+  // Dots
+  points.forEach((p, i) => {
+    ctx.fillStyle = dotColor;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2); ctx.fill();
+  });
+
+  // X-axis labels
+  const labelCount = Math.min(data.length, 7);
+  const step = Math.max(1, Math.floor(data.length / labelCount));
+  ctx.fillStyle = textColor; ctx.font = '9px Inter,sans-serif'; ctx.textAlign = 'center';
+  for (let i = 0; i < data.length; i += step) {
+    const d = new Date(data[i].ts);
+    const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    ctx.fillText(label, points[i].x, H - pad.bottom + 14);
+  }
+  // Always label last
+  if ((data.length - 1) % step !== 0) {
+    const d = new Date(data[data.length - 1].ts);
+    const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    ctx.fillText(label, points[points.length - 1].x, H - pad.bottom + 14);
+  }
+}
+
 // ============ START ============
 init();
 if (state.dark) document.getElementById('darkToggle').innerHTML = '&#9728;';
+updateBwLast();
 </script>
 </body>
 </html>
