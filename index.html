@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Golf Training Program - 6 Week Cycle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#f1f5f9;--bg2:#ffffff;--bg3:#f8fafc;--text:#1e293b;--text2:#475569;--text3:#94a3b8;
+--border:#e2e8f0;--accent:#16a34a;--accent2:#22c55e;--accent-bg:#f0fdf4;
+--red:#ef4444;--blue:#3b82f6;--amber:#f59e0b;--purple:#8b5cf6;
+--radius:12px;--shadow:0 1px 3px rgba(0,0,0,0.08);
+}
+.dark{
+--bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--text:#f1f5f9;--text2:#cbd5e1;--text3:#64748b;
+--border:#334155;--accent-bg:#064e3b;--shadow:0 1px 3px rgba(0,0,0,0.3);
+}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent}
+
+/* Header */
+.header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.75rem 1rem;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.header-top{display:flex;justify-content:space-between;align-items:center;max-width:900px;margin:0 auto}
+.logo{font-size:1.1rem;font-weight:800;color:var(--accent)}
+.logo span{color:var(--text3)}
+.header-controls{display:flex;gap:0.5rem;align-items:center}
+.week-select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:0.35rem 0.5rem;font-size:0.8rem;font-weight:600;color:var(--text);font-family:inherit;cursor:pointer}
+.dark-toggle{background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:all 0.2s}
+.dark-toggle:hover{border-color:var(--accent)}
+
+/* Day Tabs */
+.tabs-wrap{background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs-wrap::-webkit-scrollbar{display:none}
+.tabs{display:flex;max-width:900px;margin:0 auto;padding:0 0.5rem;gap:0.25rem}
+.tab{padding:0.6rem 0.75rem;font-size:0.75rem;font-weight:600;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all 0.2s}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab .tab-check{color:var(--accent2);margin-left:3px;font-size:0.65rem}
+
+/* Progress Bar */
+.progress-bar-wrap{background:var(--bg2);padding:0.5rem 1rem;border-bottom:1px solid var(--border)}
+.progress-bar-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:0.75rem}
+.progress-track{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:4px;transition:width 0.4s ease}
+.progress-text{font-size:0.7rem;font-weight:700;color:var(--accent);white-space:nowrap}
+
+/* Content */
+.content{max-width:900px;margin:0 auto;padding:0.75rem}
+.day-content{display:none}
+.day-content.active{display:block}
+
+/* Phase Section */
+.phase{margin-bottom:1rem}
+.phase-header{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.5rem 0.75rem;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;gap:0.4rem}
+.phase-header.stretch{background:#eff6ff;color:#1d4ed8}.dark .phase-header.stretch{background:#1e3a5f;color:#93c5fd}
+.phase-header.main{background:var(--accent-bg);color:#166534}.dark .phase-header.main{background:#064e3b;color:#86efac}
+.phase-header.bonus{background:#fef3c7;color:#92400e}.dark .phase-header.bonus{background:#451a03;color:#fcd34d}
+
+/* Exercise Cards */
+.ex-card{background:var(--bg2);border:1px solid var(--border);border-top:none;padding:0.75rem;display:flex;gap:0.6rem;align-items:flex-start;transition:background 0.2s}
+.ex-card:last-child{border-radius:0 0 var(--radius) var(--radius)}
+.ex-card.done{background:var(--accent-bg);opacity:0.75}
+.ex-check{width:24px;height:24px;border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;margin-top:2px;font-size:0.8rem;color:transparent}
+.ex-check.checked{background:var(--accent);border-color:var(--accent);color:#fff}
+.ex-body{flex:1;min-width:0}
+.ex-name{font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:0.3rem}
+.ex-meta{display:flex;flex-wrap:wrap;gap:0.35rem;margin-bottom:0.35rem}
+.ex-tag{font-size:0.65rem;font-weight:600;padding:0.15rem 0.45rem;border-radius:4px;background:var(--bg3);color:var(--text2)}
+.ex-tag.sets{background:#dbeafe;color:#1e40af}.dark .ex-tag.sets{background:#1e3a5f;color:#93c5fd}
+.ex-tag.rest{background:#fce7f3;color:#9d174d}.dark .ex-tag.rest{background:#4a0e2e;color:#f9a8d4}
+.ex-tag.tempo{background:#f3e8ff;color:#6b21a8}.dark .ex-tag.tempo{background:#3b0764;color:#c4b5fd}
+.ex-notes{font-size:0.72rem;color:var(--text3);line-height:1.4;margin-bottom:0.3rem}
+.ex-equip{font-size:0.65rem;color:var(--text3);font-style:italic}
+.weight-row{display:flex;gap:0.4rem;align-items:center;margin-top:0.35rem}
+.weight-input{width:65px;padding:0.25rem 0.4rem;border:1px solid var(--border);border-radius:6px;font-size:0.78rem;font-family:inherit;background:var(--bg3);color:var(--text);text-align:center}
+.weight-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(22,163,74,0.15)}
+.weight-label{font-size:0.68rem;color:var(--text3)}
+
+/* Rest Timer */
+.timer-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:0.6rem 1rem;z-index:99;box-shadow:0 -2px 8px rgba(0,0,0,0.1);transform:translateY(100%);transition:transform 0.3s}
+.timer-bar.visible{transform:translateY(0)}
+.timer-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:0.75rem}
+.timer-display{font-size:1.5rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;min-width:60px}
+.timer-btns{display:flex;gap:0.35rem}
+.timer-btn{padding:0.4rem 0.8rem;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.timer-btn:hover{border-color:var(--accent)}
+.timer-btn.go{background:var(--accent);color:#fff;border-color:var(--accent)}
+.timer-presets{display:flex;gap:0.25rem;margin-left:auto}
+.timer-preset{padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:0.65rem;font-weight:600;cursor:pointer;font-family:inherit}
+.timer-preset:hover{border-color:var(--accent)}
+.timer-toggle{position:fixed;bottom:1rem;right:1rem;width:50px;height:50px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 12px rgba(22,163,74,0.3);z-index:98;display:flex;align-items:center;justify-content:center}
+
+/* Sunday */
+.sunday-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:0.75rem}
+.sunday-card h3{font-size:0.85rem;font-weight:700;margin-bottom:0.3rem;display:flex;align-items:center;gap:0.4rem}
+.sunday-card p{font-size:0.8rem;color:var(--text2);line-height:1.5}
+.sunday-card .dur{font-size:0.7rem;color:var(--text3);margin-top:0.2rem}
+
+/* Guide */
+.guide-content{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;font-size:0.82rem;color:var(--text2);line-height:1.7}
+.guide-content h2{font-size:1rem;font-weight:800;color:var(--text);margin:1.25rem 0 0.5rem;padding-bottom:0.3rem;border-bottom:2px solid var(--accent)}
+.guide-content h2:first-child{margin-top:0}
+.guide-content h3{font-size:0.88rem;font-weight:700;color:var(--text);margin:0.75rem 0 0.35rem}
+.guide-content ul,
+.guide-content ol{margin:0.35rem 0 0.5rem 1.25rem}
+.guide-content li{margin-bottom:0.2rem}
+.guide-content strong{color:var(--text)}
+.guide-content p{margin-bottom:0.5rem}
+
+/* Reset Dialog */
+.reset-btn{font-size:0.7rem;color:var(--red);background:none;border:none;cursor:pointer;font-weight:600;padding:0.35rem;font-family:inherit}
+.reset-btn:hover{text-decoration:underline}
+
+/* Mobile */
+@media(max-width:640px){
+.tab{padding:0.5rem 0.6rem;font-size:0.7rem}
+.ex-card{padding:0.6rem}
+.timer-presets{display:none}
+}
+@media(min-width:641px){
+.timer-toggle{display:none}
+.timer-bar{transform:translateY(0) !important}
+.timer-bar.visible{transform:translateY(0)}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+<div class="header-top">
+<div class="logo">Golf Training <span>6-Week Cycle</span></div>
+<div class="header-controls">
+<select class="week-select" id="weekSelect" onchange="setWeek(this.value)">
+<option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option>
+<option value="4">Week 4</option><option value="5">Week 5</option><option value="6">Week 6 (Deload)</option>
+</select>
+<button class="dark-toggle" id="darkToggle" onclick="toggleDark()">&#9790;</button>
+<button class="reset-btn" onclick="if(confirm('Reset ALL progress for this week?')){resetWeek()}">Reset</button>
+</div>
+</div>
+</div>
+
+<div class="tabs-wrap">
+<div class="tabs" id="tabs"></div>
+</div>
+
+<div class="progress-bar-wrap">
+<div class="progress-bar-inner">
+<div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+<span class="progress-text" id="progressText">0/0</span>
+</div>
+</div>
+
+<div class="content" id="content"></div>
+
+<button class="timer-toggle" id="timerToggle" onclick="showTimer()">&#9201;</button>
+<div class="timer-bar" id="timerBar">
+<div class="timer-inner">
+<div class="timer-display" id="timerDisplay">0:00</div>
+<div class="timer-btns">
+<button class="timer-btn go" id="timerStartBtn" onclick="timerStart()">Start</button>
+<button class="timer-btn" onclick="timerReset()">Reset</button>
+</div>
+<div class="timer-presets">
+<button class="timer-preset" onclick="timerSet(30)">30s</button>
+<button class="timer-preset" onclick="timerSet(45)">45s</button>
+<button class="timer-preset" onclick="timerSet(60)">60s</button>
+<button class="timer-preset" onclick="timerSet(90)">90s</button>
+<button class="timer-preset" onclick="timerSet(120)">2m</button>
+</div>
+</div>
+</div>
+
+<script>
+// ============ WORKOUT DATA ============
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','Guide'];
+const WORKOUTS = {
+Monday: [
+{phase:'Pre-Workout Stretch',exercise:'World\'s Greatest Stretch',sets:'2',reps:'5 each side',rest:0,tempo:'Slow',notes:'Hip flexor + thoracic rotation opener, hold each position 3 sec',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Arm Circles (Forward/Backward)',sets:'2',reps:'10 each direction',rest:0,tempo:'Controlled',notes:'Shoulder warmup for pressing movements',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Cat-Cow Spine Waves',sets:'2',reps:'10 reps',rest:0,tempo:'Smooth',notes:'Spinal mobility and core activation',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Scapular Wall Slides',sets:'2',reps:'12 reps',rest:0,tempo:'Controlled',notes:'Shoulder blade activation before pressing',equipment:'Wall'},
+{phase:'Pre-Workout Stretch',exercise:'Standing Torso Rotations',sets:'2',reps:'10 each side',rest:0,tempo:'Smooth',notes:'Golf-specific rotational warmup',equipment:'Bodyweight'},
+{phase:'Main Workout',exercise:'Incline Chest Press Machine',sets:'4',reps:'8-10',rest:90,tempo:'3010',notes:'Primary push - safer for shoulders than flat. SUB: Incline DB Press',equipment:'Machine'},
+{phase:'Main Workout',exercise:'Standing Cable Chest Fly',sets:'3',reps:'12-15',rest:60,tempo:'2020',notes:'Horizontal adduction for pec development. SUB: Pec Deck Machine',equipment:'Cable'},
+{phase:'Main Workout',exercise:'Seated Overhead Press Machine',sets:'4',reps:'8-10',rest:90,tempo:'3010',notes:'Vertical push for shoulders. SUB: DB Shoulder Press seated',equipment:'Machine'},
+{phase:'Main Workout',exercise:'Cable Lateral Raise',sets:'3',reps:'12-15',rest:60,tempo:'2011',notes:'Medial deltoid isolation. SUB: DB Lateral Raise',equipment:'Cable'},
+{phase:'Main Workout',exercise:'Tricep Rope Pushdown',sets:'3',reps:'12-15',rest:60,tempo:'2011',notes:'Elbow extension. SUB: Overhead Cable Tricep Extension',equipment:'Cable'},
+{phase:'Main Workout',exercise:'Cable Pallof Press',sets:'3',reps:'10 each side',rest:45,tempo:'2120',notes:'Anti-rotation core - hold cable at chest, press out. SUB: Band Pallof Press',equipment:'Cable'},
+{phase:'Main Workout',exercise:'Cable Woodchop High-to-Low',sets:'3',reps:'12 each side',rest:45,tempo:'2010',notes:'Rotational power for golf swing. SUB: Medicine Ball Slam diagonal',equipment:'Cable'},
+{phase:'Main Workout',exercise:'Decline Sit-Up or Weighted Crunch',sets:'4',reps:'15-20',rest:45,tempo:'2011',notes:'Direct ab work for visible definition. SUB: Cable Crunch kneeling',equipment:'Bench/Machine'},
+{phase:'Main Workout',exercise:'Plank with Shoulder Taps',sets:'3',reps:'20 total taps',rest:45,tempo:'Controlled',notes:'Anti-rotation and core stability',equipment:'Mat'},
+{phase:'Bonus (Optional)',exercise:'Face Pulls',sets:'3',reps:'15-20',rest:45,tempo:'2021',notes:'Rear delt and upper back health. SUB: Reverse Pec Deck',equipment:'Cable'},
+{phase:'Bonus (Optional)',exercise:'Incline DB Chest Fly',sets:'2',reps:'12-15',rest:60,tempo:'3020',notes:'Additional chest volume with stretch emphasis',equipment:'Dumbbells'},
+{phase:'Bonus (Optional)',exercise:'Hanging Knee Raises',sets:'3',reps:'12-15',rest:60,tempo:'2011',notes:'Lower ab focus. SUB: Lying Leg Raises if no pull-up bar',equipment:'Pull-up Bar'},
+{phase:'Bonus (Optional)',exercise:'Dead Bug',sets:'2',reps:'10 each side',rest:30,tempo:'Slow',notes:'Core stability and coordination',equipment:'Mat'},
+{phase:'Bonus (Optional)',exercise:'Chest and Shoulder Static Stretch',sets:'1',reps:'60 sec each',rest:0,tempo:'Hold',notes:'Doorway pec stretch, cross-body shoulder stretch, tricep stretch',equipment:'Doorway/Wall'}
+],
+Tuesday: [
+{phase:'Pre-Workout Stretch',exercise:'90/90 Hip Stretch',sets:'2',reps:'30 sec each side',rest:0,tempo:'Hold',notes:'Internal and external hip rotation mobility',equipment:'Mat'},
+{phase:'Pre-Workout Stretch',exercise:'Standing Quad Stretch with Reach',sets:'2',reps:'30 sec each side',rest:0,tempo:'Hold',notes:'Hip flexor and quad opener - reach overhead',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Cossack Squat',sets:'2',reps:'8 each side',rest:0,tempo:'Controlled',notes:'Lateral hip mobility and adductor stretch',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Glute Bridge Pulses',sets:'2',reps:'15 reps',rest:0,tempo:'Controlled',notes:'Glute activation before loading',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Ankle Circles + Calf Raises',sets:'2',reps:'10 each',rest:0,tempo:'Smooth',notes:'Lower leg prep for squat/lunge patterns',equipment:'Bodyweight'},
+{phase:'Main Workout',exercise:'Leg Press (Feet Mid-Platform)',sets:'4',reps:'10-12',rest:90,tempo:'3010',notes:'Primary leg builder - keep knees tracking over toes. SUB: Smith Machine Squat',equipment:'Machine'},
+{phase:'Main Workout',exercise:'Romanian Deadlift (Smith Machine or DB)',sets:'4',reps:'10-12',rest:90,tempo:'3110',notes:'Hamstring and glute focus - hinge pattern. SUB: Lying Leg Curl Machine',equipment:'Smith/DB'},
+{phase:'Main Workout',exercise:'Bulgarian Split Squat (DB)',sets:'3',reps:'10 each leg',rest:60,tempo:'3010',notes:'Unilateral strength and balance - rear foot elevated. SUB: Walking Lunges',equipment:'Dumbbells'},
+{phase:'Main Workout',exercise:'Leg Extension Machine',sets:'3',reps:'12-15',rest:60,tempo:'2012',notes:'Quad isolation - avoid locking out fully for knee safety. SUB: Goblet Squat',equipment:'Machine'},
+{phase:'Main Workout',exercise:'Seated or Lying Leg Curl',sets:'3',reps:'12-15',rest:60,tempo:'2012',notes:'Hamstring isolation. SUB: Stability Ball Hamstring Curl',equipment:'Machine'},
+{phase:'Main Workout',exercise:'Cable Hip Abduction',sets:'3',reps:'15 each leg',rest:45,tempo:'2011',notes:'Glute medius for hip stability. SUB: Lateral Band Walks',equipment:'Cable/Band'},
+{phase:'Main Workout',exercise:'Single-Leg Glute Bridge',sets:'3',reps:'12 each leg',rest:45,tempo:'2021',notes:'Glute isolation and hip stability - squeeze at top',equipment:'Bodyweight'},
+{phase:'Main Workout',exercise:'Standing Calf Raises (Smith Machine)',sets:'4',reps:'15-20',rest:60,tempo:'2012',notes:'Calf development and ankle stability. SUB: Seated Calf Raise Machine',equipment:'Smith/Machine'},
+{phase:'Main Workout',exercise:'Copenhagen Plank (or Side Plank)',sets:'3',reps:'20-30 sec each',rest:45,tempo:'Hold',notes:'Adductor and lateral core strength. SUB: Standard side plank',equipment:'Bench'},
+{phase:'Bonus (Optional)',exercise:'Goblet Squat Hold',sets:'3',reps:'30-45 sec',rest:60,tempo:'Hold',notes:'Hip and ankle mobility with load',equipment:'Dumbbell'},
+{phase:'Bonus (Optional)',exercise:'Step-Ups (DB)',sets:'3',reps:'12 each leg',rest:60,tempo:'Controlled',notes:'Single leg power. SUB: Box Squats',equipment:'Bench/DB'},
+{phase:'Bonus (Optional)',exercise:'Seated Hip Flexor Stretch',sets:'1',reps:'60 sec each',rest:0,tempo:'Hold',notes:'Release hip flexor tightness from sitting',equipment:'Mat'},
+{phase:'Bonus (Optional)',exercise:'Pigeon Pose',sets:'1',reps:'60 sec each',rest:0,tempo:'Hold',notes:'Deep hip opener for external rotation',equipment:'Mat'},
+{phase:'Bonus (Optional)',exercise:'Standing Hamstring Stretch',sets:'1',reps:'45 sec each',rest:0,tempo:'Hold',notes:'Post-workout hamstring mobility',equipment:'Bodyweight'}
+],
+Wednesday: [
+{phase:'Pre-Workout Stretch',exercise:'Thread the Needle (Thoracic Rotation)',sets:'2',reps:'8 each side',rest:0,tempo:'Smooth',notes:'Upper back and shoulder mobility',equipment:'Mat'},
+{phase:'Pre-Workout Stretch',exercise:'Band Pull-Aparts',sets:'2',reps:'15 reps',rest:0,tempo:'Controlled',notes:'Scapular retraction and rear delt warmup',equipment:'Resistance Band'},
+{phase:'Pre-Workout Stretch',exercise:'Scapular Shrugs (Hanging or Supported)',sets:'2',reps:'10 reps',rest:0,tempo:'Controlled',notes:'Lat and scapular activation',equipment:'Pull-up Bar'},
+{phase:'Pre-Workout Stretch',exercise:'Doorway Chest Stretch',sets:'2',reps:'30 sec each side',rest:0,tempo:'Hold',notes:'Open chest before pulling movements',equipment:'Doorway'},
+{phase:'Pre-Workout Stretch',exercise:'Wrist Circles + Forearm Stretch',sets:'2',reps:'10 each direction',rest:0,tempo:'Smooth',notes:'Grip prep for rowing and pulling',equipment:'Bodyweight'},
+{phase:'Main Workout',exercise:'Lat Pulldown (Wide Grip)',sets:'4',reps:'8-10',rest:90,tempo:'3011',notes:'Primary vertical pull. SUB: Assisted Pull-Up Machine',equipment:'Machine'},
+{phase:'Main Workout',exercise:'Seated Cable Row (Neutral Grip)',sets:'4',reps:'10-12',rest:90,tempo:'3011',notes:'Horizontal pull for mid-back. SUB: Chest-Supported Row Machine',equipment:'Cable/Machine'},
+{phase:'Main Workout',exercise:'Single-Arm Dumbbell Row',sets:'3',reps:'10-12 each',rest:60,tempo:'3011',notes:'Unilateral back strength. SUB: Single-Arm Cable Row',equipment:'Dumbbells'},
+{phase:'Main Workout',exercise:'Face Pulls (Rope Attachment)',sets:'3',reps:'15-20',rest:60,tempo:'2021',notes:'Rear delt and upper back health. SUB: Reverse Fly Machine',equipment:'Cable'},
+{phase:'Main Workout',exercise:'EZ-Bar or Cable Bicep Curl',sets:'3',reps:'10-12',rest:60,tempo:'3010',notes:'Bicep development. SUB: Dumbbell Hammer Curl',equipment:'Cable/Barbell'},
+{phase:'Main Workout',exercise:'Cable Hammer Curl (Rope)',sets:'3',reps:'12-15',rest:60,tempo:'2010',notes:'Brachialis and forearm focus. SUB: DB Hammer Curl',equipment:'Cable'},
+{phase:'Main Workout',exercise:'Pallof Press (Isometric Hold)',sets:'3',reps:'20-30 sec each',rest:45,tempo:'Hold',notes:'Anti-rotation core endurance. SUB: Band Pallof Hold',equipment:'Cable'},
+{phase:'Main Workout',exercise:'Bird Dog',sets:'3',reps:'10 each side',rest:45,tempo:'3111',notes:'Core stability and spinal control',equipment:'Mat'},
+{phase:'Main Workout',exercise:'Russian Twist (Weighted)',sets:'4',reps:'20 total reps',rest:45,tempo:'Controlled',notes:'Rotational ab work. SUB: Standing Cable Twist',equipment:'Medicine Ball/DB'},
+{phase:'Bonus (Optional)',exercise:'Straight-Arm Lat Pulldown',sets:'3',reps:'15',rest:60,tempo:'2021',notes:'Lat isolation and shoulder stability',equipment:'Cable'},
+{phase:'Bonus (Optional)',exercise:'Farmer\'s Carry',sets:'3',reps:'40-60 sec',rest:90,tempo:'Walk',notes:'Grip strength and core stability. SUB: Static Hold with heavy DBs',equipment:'Dumbbells'},
+{phase:'Bonus (Optional)',exercise:'Cable Woodchop Low-to-High',sets:'3',reps:'12 each side',rest:45,tempo:'2010',notes:'Golf-specific rotation. SUB: Medicine Ball Rotational Throw',equipment:'Cable'},
+{phase:'Bonus (Optional)',exercise:'Hanging L-Sit Hold',sets:'3',reps:'15-30 sec',rest:60,tempo:'Hold',notes:'Advanced core and hip flexor strength. SUB: Hanging Knee Hold',equipment:'Pull-up Bar'},
+{phase:'Bonus (Optional)',exercise:'Upper Back and Lat Stretch',sets:'1',reps:'60 sec each',rest:0,tempo:'Hold',notes:'Child\'s pose, lat stretch on post, doorway stretch',equipment:'Mat/Doorway'}
+],
+Thursday: [
+{phase:'Pre-Workout Stretch',exercise:'Inchworm to Push-Up',sets:'2',reps:'6 reps',rest:0,tempo:'Controlled',notes:'Full body dynamic warmup',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Spiderman Lunge with Rotation',sets:'2',reps:'6 each side',rest:0,tempo:'Smooth',notes:'Hip flexor, thoracic spine, and hamstring opener',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Hip Hinge Practice (Unweighted)',sets:'2',reps:'10 reps',rest:0,tempo:'Controlled',notes:'Reinforce proper hinge pattern before loading',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Arm Swings (Across Body)',sets:'2',reps:'10 each',rest:0,tempo:'Dynamic',notes:'Shoulder mobility and blood flow',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Leg Swings (Forward/Lateral)',sets:'2',reps:'10 each leg',rest:0,tempo:'Dynamic',notes:'Hip mobility prep for full body work',equipment:'Bodyweight'},
+{phase:'Main Workout',exercise:'Trap Bar Deadlift or Smith Machine Deadlift',sets:'4',reps:'6-8',rest:120,tempo:'3110',notes:'Primary power movement - knee-safe hinge. SUB: Sumo Deadlift on Smith',equipment:'Smith/Trap Bar'},
+{phase:'Main Workout',exercise:'Goblet Squat (Slow Eccentric)',sets:'3',reps:'10-12',rest:90,tempo:'5010',notes:'Mobility-focused squat with load. SUB: Front Squat on Smith Machine',equipment:'Dumbbell'},
+{phase:'Main Workout',exercise:'Single-Leg Romanian Deadlift (DB)',sets:'3',reps:'8 each leg',rest:60,tempo:'3110',notes:'Balance and posterior chain. SUB: Single-Leg Leg Press',equipment:'Dumbbells'},
+{phase:'Main Workout',exercise:'Landmine Press (or DB Arnold Press)',sets:'3',reps:'10 each arm',rest:60,tempo:'3010',notes:'Rotational shoulder strength. SUB: Single-Arm DB Overhead Press',equipment:'Landmine/DB'},
+{phase:'Main Workout',exercise:'Cable Row to Rotation',sets:'3',reps:'10 each side',rest:60,tempo:'2011',notes:'Pull + rotate for golf-specific power. SUB: DB Row with Rotation',equipment:'Cable'},
+{phase:'Main Workout',exercise:'Medicine Ball Rotational Slam',sets:'3',reps:'8 each side',rest:60,tempo:'Explosive',notes:'Power development - slam from golf backswing position',equipment:'Medicine Ball'},
+{phase:'Main Workout',exercise:'TRX or Suspension Row',sets:'3',reps:'12-15',rest:60,tempo:'2011',notes:'Bodyweight pull with core engagement. SUB: Inverted Row on Smith Machine',equipment:'TRX/Smith'},
+{phase:'Main Workout',exercise:'Ab Wheel Rollout (or Stability Ball)',sets:'3',reps:'10-12',rest:60,tempo:'3010',notes:'Anti-extension core strength. SUB: Plank Walk-Outs',equipment:'Ab Wheel/Ball'},
+{phase:'Main Workout',exercise:'Side Plank with Rotation',sets:'3',reps:'8 each side',rest:45,tempo:'Controlled',notes:'Rotational core control and oblique strength',equipment:'Mat'},
+{phase:'Bonus (Optional)',exercise:'Yoga Flow Sequence',sets:'2',reps:'5 min',rest:0,tempo:'Flowing',notes:'Down dog > Low lunge > Warrior 2 > Triangle > Repeat other side',equipment:'Mat'},
+{phase:'Bonus (Optional)',exercise:'Deep Squat Hold (Goblet)',sets:'2',reps:'60-90 sec',rest:60,tempo:'Hold',notes:'Hip and ankle mobility under light load',equipment:'Dumbbell'},
+{phase:'Bonus (Optional)',exercise:'Thoracic Extension (Foam Roller)',sets:'1',reps:'10 reps',rest:0,tempo:'Controlled',notes:'Upper back mobility for golf posture',equipment:'Foam Roller'},
+{phase:'Bonus (Optional)',exercise:'Hip 90/90 Stretch (Loaded)',sets:'1',reps:'60 sec each',rest:0,tempo:'Hold',notes:'Deep hip mobility with light DB for pressure',equipment:'Dumbbell/Mat'},
+{phase:'Bonus (Optional)',exercise:'Standing Figure-4 Stretch',sets:'1',reps:'45 sec each',rest:0,tempo:'Hold',notes:'Glute and hip external rotator stretch',equipment:'Bodyweight'}
+],
+Friday: [
+{phase:'Pre-Workout Stretch',exercise:'Cat-Cow to Child\'s Pose Flow',sets:'2',reps:'8 reps',rest:0,tempo:'Flowing',notes:'Spinal mobility and breathing preparation',equipment:'Mat'},
+{phase:'Pre-Workout Stretch',exercise:'Thoracic Rotation (Quadruped)',sets:'2',reps:'10 each side',rest:0,tempo:'Smooth',notes:'Rotational mobility for golf swing',equipment:'Mat'},
+{phase:'Pre-Workout Stretch',exercise:'Hip Circles (Standing)',sets:'2',reps:'10 each direction per leg',rest:0,tempo:'Controlled',notes:'Hip joint mobility and balance',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Arm Circles with Torso Lean',sets:'2',reps:'8 each direction',rest:0,tempo:'Dynamic',notes:'Shoulder and oblique warmup',equipment:'Bodyweight'},
+{phase:'Pre-Workout Stretch',exercise:'Marching High Knees',sets:'2',reps:'20 total',rest:0,tempo:'Controlled',notes:'Core activation and hip flexor warmup',equipment:'Bodyweight'},
+{phase:'Main Workout',exercise:'Cable Pallof Press (Anti-Rotation)',sets:'4',reps:'12 each side',rest:60,tempo:'2120',notes:'Core stability - resist rotation. SUB: Band Pallof Press',equipment:'Cable'},
+{phase:'Main Workout',exercise:'Cable Woodchop High-to-Low',sets:'4',reps:'10 each side',rest:60,tempo:'2010',notes:'Golf downswing pattern. SUB: Medicine Ball Slam diagonal',equipment:'Cable'},
+{phase:'Main Workout',exercise:'Cable Woodchop Low-to-High',sets:'4',reps:'10 each side',rest:60,tempo:'2010',notes:'Golf backswing pattern. SUB: Medicine Ball Overhead Throw',equipment:'Cable'},
+{phase:'Main Workout',exercise:'Bicycle Crunches',sets:'4',reps:'20 total',rest:45,tempo:'Controlled',notes:'Rotational ab definition. SUB: Standing Cable Oblique Crunch',equipment:'Bodyweight'},
+{phase:'Main Workout',exercise:'Plank to Down Dog (Pike)',sets:'3',reps:'12 reps',rest:45,tempo:'Controlled',notes:'Dynamic core and shoulder stability',equipment:'Mat'},
+{phase:'Main Workout',exercise:'Hanging Leg Raises',sets:'3',reps:'10-15',rest:60,tempo:'2011',notes:'Lower ab focus. SUB: Lying Leg Raises',equipment:'Pull-up Bar'},
+{phase:'Main Workout',exercise:'Landmine Rotation (Single-Arm)',sets:'3',reps:'12 each side',rest:45,tempo:'2010',notes:'Rotational power with load. SUB: Cable Rotation standing',equipment:'Landmine/Barbell'},
+{phase:'Main Workout',exercise:'Copenhagen Plank',sets:'3',reps:'20-30 sec each',rest:45,tempo:'Hold',notes:'Adductor strength and lateral stability. SUB: Side Plank with Leg Lift',equipment:'Bench'},
+{phase:'Main Workout',exercise:'Turkish Get-Up (Light Weight)',sets:'3',reps:'3 each side',rest:90,tempo:'Slow',notes:'Full-body coordination and core control. SUB: Windmill Stretch with KB',equipment:'Kettlebell/DB'},
+{phase:'Bonus (Optional)',exercise:'Elliptical or Incline Walk',sets:'1',reps:'15 min',rest:0,tempo:'Steady',notes:'Low-impact cardio for recovery',equipment:'Elliptical/Treadmill'},
+{phase:'Bonus (Optional)',exercise:'Foam Roll Full Body',sets:'1',reps:'10 min',rest:0,tempo:'Slow',notes:'Hit quads, hamstrings, glutes, back, lats, calves',equipment:'Foam Roller'},
+{phase:'Bonus (Optional)',exercise:'Downward Dog to Cobra Flow',sets:'2',reps:'8 reps',rest:0,tempo:'Flowing',notes:'Full spinal mobility and shoulder stretch',equipment:'Mat'},
+{phase:'Bonus (Optional)',exercise:'Pigeon Pose + Supine Figure-4',sets:'1',reps:'90 sec each side',rest:0,tempo:'Hold',notes:'Deep hip opening',equipment:'Mat'},
+{phase:'Bonus (Optional)',exercise:'Prone Scorpion Stretch',sets:'1',reps:'10 each side',rest:0,tempo:'Controlled',notes:'Thoracic rotation and hip mobility combination',equipment:'Mat'}
+],
+Saturday: [
+{phase:'Pre-Workout Stretch',exercise:'Sun Salutation Flow (Yoga)',sets:'2',reps:'5 min',rest:0,tempo:'Flowing',notes:'Full body dynamic stretch sequence',equipment:'Mat'},
+{phase:'Pre-Workout Stretch',exercise:'Hip 90/90 Transition',sets:'2',reps:'10 transitions',rest:0,tempo:'Controlled',notes:'Hip mobility in multiple planes',equipment:'Mat'},
+{phase:'Pre-Workout Stretch',exercise:'Thoracic Bridge',sets:'2',reps:'8 reps',rest:0,tempo:'Controlled',notes:'Upper back extension and hip mobility',equipment:'Mat'},
+{phase:'Pre-Workout Stretch',exercise:'Bretzel Stretch',sets:'2',reps:'30 sec each side',rest:0,tempo:'Hold',notes:'Full-body rotational mobility',equipment:'Mat'},
+{phase:'Pre-Workout Stretch',exercise:'Wrist and Ankle Mobility',sets:'2',reps:'20 circles each',rest:0,tempo:'Smooth',notes:'Joint prep for lighter accessory work',equipment:'Bodyweight'},
+{phase:'Main Workout',exercise:'Incline Walk or Bike',sets:'1',reps:'20-30 min',rest:0,tempo:'Conversational pace',notes:'Light cardio for blood flow and recovery',equipment:'Treadmill/Bike'},
+{phase:'Main Workout',exercise:'TRX Face Pulls',sets:'3',reps:'15',rest:45,tempo:'Controlled',notes:'Upper back health. SUB: Light Cable Face Pulls',equipment:'TRX/Cable'},
+{phase:'Main Workout',exercise:'Banded Lateral Walks',sets:'3',reps:'20 steps each direction',rest:30,tempo:'Controlled',notes:'Glute medius activation',equipment:'Resistance Band'},
+{phase:'Main Workout',exercise:'Glute Bridge (Bodyweight or Banded)',sets:'3',reps:'20',rest:45,tempo:'2021',notes:'Glute activation and hip extension',equipment:'Band/Bodyweight'},
+{phase:'Main Workout',exercise:'Dead Bug',sets:'3',reps:'12 each side',rest:30,tempo:'Slow',notes:'Core stability and coordination',equipment:'Mat'},
+{phase:'Main Workout',exercise:'Banded Pull-Aparts',sets:'3',reps:'20',rest:30,tempo:'Controlled',notes:'Shoulder health and posture',equipment:'Resistance Band'},
+{phase:'Main Workout',exercise:'Calf Raises (Bodyweight)',sets:'3',reps:'25',rest:30,tempo:'2012',notes:'Light calf work for recovery',equipment:'Bodyweight/Step'},
+{phase:'Main Workout',exercise:'Wall Slides',sets:'3',reps:'12',rest:30,tempo:'Slow',notes:'Scapular control and shoulder mobility',equipment:'Wall'},
+{phase:'Bonus (Optional)',exercise:'Yoga Flexibility Sequence',sets:'1',reps:'15-20 min',rest:0,tempo:'Hold and flow',notes:'Pigeon, Lizard, Half Split, Seated Forward Fold, Supine Twist',equipment:'Mat'},
+{phase:'Bonus (Optional)',exercise:'Foam Roll Targeted Areas',sets:'1',reps:'10-15 min',rest:0,tempo:'Slow',notes:'Focus on sore areas from week',equipment:'Foam Roller'},
+{phase:'Bonus (Optional)',exercise:'Lacrosse Ball Foot Release',sets:'1',reps:'3 min each foot',rest:0,tempo:'Pressure',notes:'Plantar fascia mobility for golf stance',equipment:'Lacrosse Ball'},
+{phase:'Bonus (Optional)',exercise:'Couch Stretch',sets:'1',reps:'90 sec each side',rest:0,tempo:'Hold',notes:'Deep hip flexor stretch',equipment:'Couch/Bench'},
+{phase:'Bonus (Optional)',exercise:'Weighted Hang (Decompression)',sets:'1',reps:'60-90 sec',rest:0,tempo:'Passive',notes:'Spinal decompression and grip. SUB: Active Hang',equipment:'Pull-up Bar'}
+],
+Sunday: [
+{phase:'Rest Day',activity:'Complete Rest or Very Light Activity',duration:'N/A',notes:'Primary recovery day - no structured workout'},
+{phase:'Optional Activity',activity:'Light Walk (Outdoor if possible)',duration:'20-30 min',notes:'Fresh air and movement without stress'},
+{phase:'Optional Activity',activity:'Gentle Yoga or Stretching',duration:'15-20 min',notes:'Focus on breath and relaxation - yin yoga style'},
+{phase:'Optional Activity',activity:'Meditation or Breathing Practice',duration:'5-10 min',notes:'Mental recovery and stress management'},
+{phase:'Recovery Protocol',activity:'Hydration Focus',duration:'All day',notes:'Drink 100+ oz water, consider electrolytes'},
+{phase:'Recovery Protocol',activity:'Nutrition Priority',duration:'All day',notes:'High protein (180-200g), adequate carbs, healthy fats'},
+{phase:'Recovery Protocol',activity:'Sleep Goal',duration:'8-9 hours',notes:'Prioritize sleep quality for Monday energy'},
+{phase:'Optional',activity:'Golf Practice (Non-Physical)',duration:'30-60 min',notes:'Putting practice, visualization, course management study'},
+{phase:'Optional',activity:'Foam Rolling',duration:'10 min',notes:'Full body maintenance rolling - gentle'},
+{phase:'Optional',activity:'Contrast Shower',duration:'5 min',notes:'Alternate hot (2 min) and cold (1 min) - end on cold'}
+]
+};
+
+// ============ STATE ============
+let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
+if (!state.week) state.week = 1;
+if (!state.dark) state.dark = false;
+if (!state.day) state.day = 'Monday';
+if (!state.data) state.data = {};
+function save() { localStorage.setItem('wt_state', JSON.stringify(state)); }
+function getKey(day, idx) { return `w${state.week}_${day}_${idx}`; }
+function getExState(day, idx) { return state.data[getKey(day, idx)] || { done: false, weight: '' }; }
+function setExState(day, idx, val) { state.data[getKey(day, idx)] = val; save(); }
+
+// ============ INIT ============
+function init() {
+  document.getElementById('weekSelect').value = state.week;
+  if (state.dark) document.body.classList.add('dark');
+  renderTabs();
+  renderDay(state.day);
+}
+
+function renderTabs() {
+  const t = document.getElementById('tabs');
+  t.innerHTML = DAYS.map(d => {
+    const label = d === 'Guide' ? 'Program Guide' : d.slice(0, 3);
+    const isActive = state.day === d ? ' active' : '';
+    let check = '';
+    if (d !== 'Sunday' && d !== 'Guide' && WORKOUTS[d]) {
+      const total = WORKOUTS[d].filter(e => e.phase === 'Main Workout').length;
+      const done = WORKOUTS[d].filter((e, i) => e.phase === 'Main Workout' && getExState(d, i).done).length;
+      if (total > 0 && done === total) check = '<span class="tab-check">&#10003;</span>';
+    }
+    return `<button class="tab${isActive}" onclick="switchDay('${d}')">${label}${check}</button>`;
+  }).join('');
+}
+
+function switchDay(d) { state.day = d; save(); renderTabs(); renderDay(d); }
+
+function renderDay(day) {
+  const c = document.getElementById('content');
+  if (day === 'Guide') { renderGuide(c); updateProgress(day); return; }
+  if (day === 'Sunday') { renderSunday(c); updateProgress(day); return; }
+  const exercises = WORKOUTS[day] || [];
+  let phases = {};
+  exercises.forEach((ex, i) => { if (!phases[ex.phase]) phases[ex.phase] = []; phases[ex.phase].push({ ...ex, _idx: i }); });
+  let html = '';
+  for (const [phase, exs] of Object.entries(phases)) {
+    const cls = phase.includes('Stretch') ? 'stretch' : phase.includes('Bonus') ? 'bonus' : 'main';
+    const icon = cls === 'stretch' ? '&#127939;' : cls === 'main' ? '&#128170;' : '&#11088;';
+    html += `<div class="phase"><div class="phase-header ${cls}">${icon} ${phase}</div>`;
+    exs.forEach(ex => {
+      const s = getExState(day, ex._idx);
+      const doneClass = s.done ? ' done' : '';
+      const checkedClass = s.done ? ' checked' : '';
+      html += `<div class="ex-card${doneClass}" id="card-${ex._idx}">
+        <div class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx})" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</div>
+        <div class="ex-body">
+          <div class="ex-name">${ex.exercise}</div>
+          <div class="ex-meta">
+            <span class="ex-tag sets">${ex.sets} &times; ${ex.reps}</span>
+            ${ex.rest > 0 ? `<span class="ex-tag rest" onclick="timerSet(${ex.rest})" style="cursor:pointer">${ex.rest}s rest</span>` : ''}
+            <span class="ex-tag tempo">${ex.tempo}</span>
+          </div>
+          <div class="ex-notes">${ex.notes}</div>
+          <div class="ex-equip">${ex.equipment}</div>
+          ${ex.phase === 'Main Workout' || ex.phase.includes('Bonus') ? `<div class="weight-row"><span class="weight-label">Weight:</span><input class="weight-input" type="text" placeholder="lbs" value="${s.weight || ''}" onchange="setWeight('${day}',${ex._idx},this.value)"></div>` : ''}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+  c.innerHTML = html;
+  updateProgress(day);
+}
+
+function renderSunday(c) {
+  const items = WORKOUTS.Sunday;
+  let html = '';
+  let lastPhase = '';
+  items.forEach(item => {
+    if (item.phase !== lastPhase) {
+      const color = item.phase === 'Rest Day' ? 'var(--accent)' : item.phase === 'Recovery Protocol' ? 'var(--blue)' : 'var(--text3)';
+      html += `<div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${color};margin:0.75rem 0 0.35rem">${item.phase}</div>`;
+      lastPhase = item.phase;
+    }
+    html += `<div class="sunday-card"><h3>${item.activity}</h3><p>${item.notes}</p><div class="dur">${item.duration}</div></div>`;
+  });
+  c.innerHTML = html;
+}
+
+function renderGuide(c) {
+  c.innerHTML = `<div class="guide-content">${GUIDE_HTML}</div>`;
+}
+
+function toggleEx(day, idx) {
+  const s = getExState(day, idx);
+  s.done = !s.done;
+  setExState(day, idx, s);
+  const card = document.getElementById('card-' + idx);
+  const check = document.getElementById('check-' + idx);
+  if (s.done) { card.classList.add('done'); check.classList.add('checked'); check.innerHTML = '&#10003;'; }
+  else { card.classList.remove('done'); check.classList.remove('checked'); check.innerHTML = ''; }
+  updateProgress(day);
+  renderTabs();
+}
+
+function setWeight(day, idx, val) {
+  const s = getExState(day, idx);
+  s.weight = val;
+  setExState(day, idx, s);
+}
+
+function updateProgress(day) {
+  if (day === 'Guide' || day === 'Sunday') {
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressText').innerText = day === 'Sunday' ? 'Rest Day' : 'Program Guide';
+    return;
+  }
+  const exercises = WORKOUTS[day] || [];
+  const mainExs = exercises.filter(e => e.phase === 'Main Workout');
+  const total = mainExs.length;
+  const done = exercises.filter((e, i) => e.phase === 'Main Workout' && getExState(day, i).done).length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').innerText = `${done}/${total} exercises`;
+}
+
+function setWeek(w) { state.week = parseInt(w); save(); renderTabs(); renderDay(state.day); }
+function toggleDark() { state.dark = !state.dark; document.body.classList.toggle('dark'); save(); document.getElementById('darkToggle').innerHTML = state.dark ? '&#9728;' : '&#9790;'; }
+function resetWeek() { const prefix = `w${state.week}_`; Object.keys(state.data).forEach(k => { if (k.startsWith(prefix)) delete state.data[k]; }); save(); renderTabs(); renderDay(state.day); }
+
+// ============ TIMER ============
+let timerSec = 0, timerRunning = false, timerInterval = null;
+function timerSet(s) { timerSec = s; timerRunning = false; clearInterval(timerInterval); updateTimerDisplay(); showTimer(); }
+function timerStart() {
+  if (timerRunning) { timerRunning = false; clearInterval(timerInterval); document.getElementById('timerStartBtn').innerText = 'Start'; return; }
+  if (timerSec <= 0) timerSec = 60;
+  timerRunning = true;
+  document.getElementById('timerStartBtn').innerText = 'Pause';
+  timerInterval = setInterval(() => {
+    timerSec--;
+    updateTimerDisplay();
+    if (timerSec <= 0) { clearInterval(timerInterval); timerRunning = false; document.getElementById('timerStartBtn').innerText = 'Start'; try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch(e){} }
+  }, 1000);
+}
+function timerReset() { clearInterval(timerInterval); timerSec = 0; timerRunning = false; updateTimerDisplay(); document.getElementById('timerStartBtn').innerText = 'Start'; }
+function updateTimerDisplay() { const m = Math.floor(timerSec / 60); const s = timerSec % 60; document.getElementById('timerDisplay').innerText = m + ':' + (s < 10 ? '0' : '') + s; }
+function showTimer() { document.getElementById('timerBar').classList.toggle('visible'); }
+
+// ============ PROGRAM GUIDE HTML ============
+const GUIDE_HTML = `
+<h2>Program Overview</h2>
+<p><strong>Duration:</strong> 6-week rotating blocks | <strong>Target:</strong> 35-year-old male golfer, 195 lbs</p>
+<p><strong>Goals:</strong> Maintain weight, build lean muscle, rotational power, core strength, flexibility, visible abs</p>
+<p><strong>Location:</strong> Planet Fitness | <strong>Training Days:</strong> Mon-Fri (main), Sat (optional), Sun (rest)</p>
+
+<h2>Weekly Schedule</h2>
+<ul>
+<li><strong>Monday:</strong> Upper Body Push + Rotational Core (60 min + 15-30 min bonus)</li>
+<li><strong>Tuesday:</strong> Lower Body + Hip Mobility (60 min + 15-30 min bonus)</li>
+<li><strong>Wednesday:</strong> Upper Body Pull + Anti-Rotation Core (60 min + 15-30 min bonus)</li>
+<li><strong>Thursday:</strong> Full Body Power + Flexibility Focus (60 min + 15-30 min bonus)</li>
+<li><strong>Friday:</strong> Core/Rotational Power + Active Recovery (60 min + 15-30 min bonus)</li>
+<li><strong>Saturday:</strong> Optional Mobility &amp; Light Accessory (30-60 min)</li>
+<li><strong>Sunday:</strong> Complete Rest + Recovery Protocol</li>
+</ul>
+
+<h2>Pre-Workout Routine (Every Day)</h2>
+<p>15 min Incline Walk (3.0-3.5 mph, 5-8% incline) + general stretching, then complete day-specific 5-10 min stretch routine. Total warm-up: ~20-25 minutes.</p>
+
+<h2>Tempo Notation</h2>
+<p>Format: <strong>[Eccentric]-[Bottom Pause]-[Concentric]-[Top Pause]</strong></p>
+<p>Example: <strong>3010</strong> = 3 sec lowering, 0 sec pause, 1 sec lifting, 0 sec pause at top. "Explosive" = move fast with control.</p>
+
+<h2>6-Week Progression Protocol</h2>
+<h3>Weeks 1-2: Foundation</h3>
+<p>Moderate weight (2-3 more reps possible per set). Focus on form and tempo. Establish baseline.</p>
+<h3>Weeks 3-4: Build</h3>
+<p>Increase weight 5-10% OR add 1-2 reps. Push closer to failure (1-2 reps in reserve). Maintain strict form.</p>
+<h3>Week 5: Peak</h3>
+<p>Maximum weight maintaining form. Push to technical failure. May reduce reps to 6-8 on main lifts.</p>
+<h3>Week 6: Deload</h3>
+<p>Reduce weight 20-30%. Same reps/sets but lighter and faster. Focus on movement quality and mobility.</p>
+
+<h2>Exercise Rotation (After 6 Weeks)</h2>
+<ul>
+<li>Incline Press &rarr; Flat Press &rarr; Decline Press</li>
+<li>Lat Pulldown Wide &rarr; Neutral Grip &rarr; Underhand</li>
+<li>Leg Press &rarr; Smith Squat &rarr; Bulgarian Split Squat emphasis</li>
+<li>Keep core rotation exercises consistent (golf-specific)</li>
+</ul>
+
+<h2>Nutrition Guidelines</h2>
+<p><strong>Maintain 195 lbs + Build Muscle</strong></p>
+<ul>
+<li><strong>Calories:</strong> 2,800-3,000/day</li>
+<li><strong>Protein:</strong> 180-200g (0.9-1.0g/lb)</li>
+<li><strong>Carbs:</strong> 300-350g</li>
+<li><strong>Fats:</strong> 80-90g</li>
+<li><strong>Pre-workout:</strong> Carbs + protein 60-90 min before</li>
+<li><strong>Post-workout:</strong> 40g protein + 60g carbs within 60 min</li>
+<li><strong>Hydration:</strong> 100+ oz water daily, +16-20 oz per hour training</li>
+</ul>
+
+<h2>Knee Safety Modifications</h2>
+<p>ACL/meniscus history requires these protocols:</p>
+<ul>
+<li>Always warm up hips, ankles, and knees thoroughly</li>
+<li>Keep knees tracking over toes (avoid valgus collapse)</li>
+<li>Avoid deep knee flexion under heavy load (stay above 90&deg;)</li>
+<li>No jumping, box jumps, or high-impact plyometrics</li>
+<li>Stop immediately if knee pain occurs</li>
+<li>Prioritize single-leg work for stability</li>
+</ul>
+
+<h2>Visible Abs Strategy</h2>
+<ol>
+<li><strong>Direct Ab Work:</strong> Decline sit-ups, weighted crunches, hanging leg raises (4x/week)</li>
+<li><strong>Anti-Rotation Core:</strong> Pallof presses, bird dogs, plank variations</li>
+<li><strong>Rotational Power:</strong> Cable woodchops, medicine ball slams, Russian twists</li>
+<li><strong>Total Core Integration:</strong> Compound lifts, carries, loaded movements</li>
+</ol>
+<p><strong>Timeline:</strong> Weeks 1-2 strength gains &rarr; Weeks 3-4 upper ab definition &rarr; Weeks 5-8 visible upper abs &rarr; Weeks 9-12 full six-pack (with diet)</p>
+
+<h2>Flexibility Maintenance</h2>
+<p><strong>Daily Priority Stretches:</strong></p>
+<ol>
+<li>Hip Flexor Stretch (daily) - counteracts sitting, improves swing</li>
+<li>Thoracic Rotation (4x/week) - essential for golf rotation</li>
+<li>Hamstring Stretch (3x/week) - protects lower back</li>
+<li>Lat and Shoulder Stretch (3x/week) - maintains ROM</li>
+<li>Pigeon Pose (2x/week) - deep hip opener</li>
+</ol>
+
+<h2>Rotational Power Development</h2>
+<ul>
+<li>Cable Woodchop High-to-Low (downswing pattern)</li>
+<li>Cable Woodchop Low-to-High (backswing pattern)</li>
+<li>Pallof Press (resist rotation = stability)</li>
+<li>Medicine Ball Rotational Slams (explosive power)</li>
+<li>Landmine Rotations (loaded rotation)</li>
+</ul>
+<p><strong>Golf Transfer:</strong> +3-8 mph clubhead speed over 12 weeks, better weight transfer, reduced injury risk.</p>
+
+<h2>Recovery Protocols</h2>
+<ul>
+<li><strong>Daily:</strong> 8+ hours sleep, 100+ oz water, post-workout nutrition, evening stretching</li>
+<li><strong>Weekly:</strong> Sunday rest, Saturday optional, foam rolling 2-3x/week</li>
+<li><strong>Warning Signs:</strong> Sharp joint pain, decreased ROM, persistent soreness (>3 days), fatigue, strength regression</li>
+</ul>
+
+<h2>FAQ</h2>
+<ul>
+<li><strong>Cardio?</strong> Low-impact only: incline walking, elliptical, bike, swimming. No running/HIIT.</li>
+<li><strong>Missed workout?</strong> Continue next scheduled day. Don't "make up" workouts. After 2+ days off, reduce weight 10%.</li>
+<li><strong>Exercise hurts?</strong> Stop immediately. Use listed substitute. If that hurts too, skip and consult a professional.</li>
+<li><strong>Bonus work?</strong> Optional. Prioritize the main 60 min workout.</li>
+<li><strong>Results timeline?</strong> Strength: 2-3 weeks. Ab definition: 4-6 weeks. Golf performance: 3-4 weeks. Body composition: 6-8 weeks.</li>
+</ul>
+`;
+
+// ============ START ============
+init();
+if (state.dark) document.getElementById('darkToggle').innerHTML = '&#9728;';
+</script>
+</body>
+</html>
