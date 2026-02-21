@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>Workout Tracker</title>
+
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     * { -webkit-font-smoothing: antialiased; }
@@ -66,97 +68,41 @@
     /* SVG icon color helper */
     .text-gray-400 { color: #8e8e93; }
 
-    /* ── Collapsible exercise card ── */
-    .exercise-card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
-      overflow: hidden;
-      transition: box-shadow 0.2s;
-    }
-    .exercise-card.collapsed { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .exercise-card.done { opacity: 0.55; }
-
-    .exercise-header {
-      display: flex;
+    /* Collapsibles */
+    .collapse-btn {
+      background: #f2f2f7;
+      border: none;
+      border-radius: 10px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #1c1c1e;
+      display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 13px 14px;
+      gap: 6px;
       cursor: pointer;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
+    }
+    .collapse-btn:active { transform: translateY(0.5px); }
+    .exercise-header-btn {
+      width: 100%;
       background: none;
       border: none;
-      width: 100%;
-      text-align: left;
-    }
-    .exercise-header:active { background: #f5f5f5; }
-
-    .exercise-body {
-      padding: 0 14px 14px;
-      border-top: 1px solid #f2f2f7;
-    }
-
-    /* Done checkmark button */
-    .done-btn {
-      width: 28px; height: 28px;
-      border-radius: 50%;
-      border: 2px solid #d1d1d6;
-      background: none;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
+      padding: 0;
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
-      -webkit-tap-highlight-color: transparent;
     }
-    .done-btn.checked { background: #34c759; border-color: #34c759; }
-    .done-btn svg { display: none; }
-    .done-btn.checked svg { display: block; }
-
-    /* Phase section */
-    .phase-section { margin-bottom: 4px; }
-    .phase-section-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 4px 6px;
-      cursor: pointer;
-      user-select: none;
-      -webkit-tap-highlight-color: transparent;
-      border: none; background: none; width: 100%; text-align: left;
-    }
-    .phase-section-header:active { opacity: 0.7; }
-
-    .phase-section-exercises {
-      display: flex; flex-direction: column; gap: 8px;
-    }
-    .phase-section-exercises.hidden-section { display: none; }
-
-    /* Collapse chevron animation */
-    .chevron-icon {
-      transition: transform 0.2s ease;
-      flex-shrink: 0;
-    }
-    .chevron-icon.open { transform: rotate(0deg); }
-    .chevron-icon.closed { transform: rotate(-90deg); }
-
-    /* Progress bar inside phase header */
-    .phase-progress-pill {
-      font-size: 11px; font-weight: 600;
-      padding: 2px 8px; border-radius: 20px;
-      background: #e5e5ea; color: #636366;
-    }
-    .phase-progress-pill.all-done { background: #d4f5dc; color: #1a7a32; }
   </style>
 </head>
+
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+    const { useState, useEffect, useRef, useMemo } = React;
 
     const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
     const STORAGE_KEY = 'workoutAppState';
-    const APP_VERSION = 1;
+    const APP_VERSION = 2;
 
     const DAILY_STRETCHES = [
       '90/90 Hip Switch',
@@ -165,6 +111,7 @@
       'Terminal Knee Extensions (TKEs) - Standing'
     ];
 
+    // Phase color mapping
     const getPhaseStyle = (phase) => {
       if (!phase) return { bg: '#e5e5ea', text: '#636366' };
       const lower = phase.toLowerCase();
@@ -174,39 +121,78 @@
       return { bg: '#e5e5ea', text: '#636366' };
     };
 
-    // ── Icons ──────────────────────────────────────────────────────────
-    const Calendar = ({ size=24, className="" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-    );
-    const TrendingUp = ({ size=24, className="" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-    );
-    const Dumbbell = ({ size=24, className="" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m6.5 6.5 11 11"></path><path d="m21 21-1-1"></path><path d="m3 3 1 1"></path><path d="m18 22 4-4"></path><path d="m2 6 4-4"></path><path d="m3 10 7-7"></path><path d="m14 21 7-7"></path></svg>
-    );
-    const Menu = ({ size=24, className="" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-    );
-    const Download = ({ size=24, className="" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-    );
-    const Upload = ({ size=24, className="" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-    );
-    const ChevronDown = ({ size=24, className="" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="6 9 12 15 18 9"></polyline></svg>
-    );
-    const ChevronUp = ({ size=24, className="" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="18 15 12 9 6 15"></polyline></svg>
-    );
-    const ArrowUp = ({ size=24, className="" }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-    );
-    const CheckIcon = ({ size=14 }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    // Icons
+    const Calendar = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </svg>
     );
 
-    // ── CSV helpers ────────────────────────────────────────────────────
+    const TrendingUp = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+        <polyline points="17 6 23 6 23 12"></polyline>
+      </svg>
+    );
+
+    const Dumbbell = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="m6.5 6.5 11 11"></path>
+        <path d="m21 21-1-1"></path>
+        <path d="m3 3 1 1"></path>
+        <path d="m18 22 4-4"></path>
+        <path d="m2 6 4-4"></path>
+        <path d="m3 10 7-7"></path>
+        <path d="m14 21 7-7"></path>
+      </svg>
+    );
+
+    const Menu = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    );
+
+    const Download = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+    );
+
+    const Upload = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="17 8 12 3 7 8"></polyline>
+        <line x1="12" y1="3" x2="12" y2="15"></line>
+      </svg>
+    );
+
+    const ChevronDown = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    );
+
+    const ChevronUp = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <polyline points="18 15 12 9 6 15"></polyline>
+      </svg>
+    );
+
+    const ArrowUp = ({ size = 24, className = "" }) => (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <line x1="12" y1="19" x2="12" y2="5"></line>
+        <polyline points="5 12 12 5 19 12"></polyline>
+      </svg>
+    );
+
     const parseCsv = (text) => {
       const lines = text.split(/\r?\n/).filter(Boolean);
       if (lines.length === 0) return [];
@@ -214,57 +200,64 @@
       return lines.slice(1).map(line => {
         const values = parseCsvLine(line);
         const row = {};
-        headers.forEach((h, i) => { row[h] = values[i] ?? ''; });
+        headers.forEach((header, idx) => {
+          row[header] = values[idx] ?? '';
+        });
         return row;
       });
     };
+
     const parseCsvLine = (line) => {
-      const result = []; let current = ''; let inQuotes = false;
-      for (let i = 0; i < line.length; i++) {
-        const ch = line[i];
-        if (ch === '"' && line[i+1] === '"') { current += '"'; i++; continue; }
-        if (ch === '"') { inQuotes = !inQuotes; continue; }
-        if (ch === ',' && !inQuotes) { result.push(current); current = ''; continue; }
-        current += ch;
+      const result = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i += 1) {
+        const char = line[i];
+        if (char === '"' && line[i + 1] === '"') { current += '"'; i += 1; continue; }
+        if (char === '"') { inQuotes = !inQuotes; continue; }
+        if (char === ',' && !inQuotes) { result.push(current); current = ''; continue; }
+        current += char;
       }
       result.push(current);
-      return result.map(v => v.trim());
+      return result.map(value => value.trim());
     };
 
     const toLocalDateString = (date) => {
-      const y = date.getFullYear();
-      const m = String(date.getMonth()+1).padStart(2,'0');
-      const d = String(date.getDate()).padStart(2,'0');
-      return `${y}-${m}-${d}`;
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
     };
-    const parseLocalDate = (val) => {
-      const [y,m,d] = val.split('-').map(Number);
-      return new Date(y, m-1, d);
+
+    const parseLocalDate = (value) => {
+      const [year, month, day] = value.split('-').map(Number);
+      return new Date(year, month - 1, day);
     };
+
     const diffInDays = (start, end) => {
       const s = new Date(start.getFullYear(), start.getMonth(), start.getDate(), 12);
       const e = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 12);
-      return Math.floor((e - s) / (24*60*60*1000));
+      return Math.floor((e - s) / (24 * 60 * 60 * 1000));
     };
-    const slugify = (v) => v.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+
+    const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
     const getExerciseEmoji = (name) => {
-      const l = name.toLowerCase();
-      if (l.includes('walk')||l.includes('bike')||l.includes('run')) return '🏃';
-      if (l.includes('yoga')||l.includes('stretch')||l.includes('mobility')||l.includes('foam')||l.includes('roll')||l.includes('bretzel')||l.includes('pigeon')||l.includes('lizard')||l.includes('twist')) return '🧘';
-      if (l.includes('bench')||l.includes('press')) return '🏋️';
-      if (l.includes('deadlift')||l.includes('squat')) return '💪';
-      if (l.includes('curl')) return '💪';
-      if (l.includes('row')||l.includes('pull')) return '🚣';
-      if (l.includes('leg')||l.includes('calf')) return '🦵';
-      if (l.includes('shoulder')||l.includes('delt')) return '💪';
-      if (l.includes('tricep')) return '💪';
-      if (l.includes('glute')||l.includes('bridge')||l.includes('lateral')) return '🍑';
-      if (l.includes('core')||l.includes('bug')||l.includes('plank')) return '🔥';
+      const lower = name.toLowerCase();
+      if (lower.includes('walk') || lower.includes('bike') || lower.includes('run')) return '🏃';
+      if (lower.includes('yoga') || lower.includes('stretch') || lower.includes('mobility') || lower.includes('foam') || lower.includes('roll') || lower.includes('bretzel') || lower.includes('pigeon') || lower.includes('lizard') || lower.includes('twist')) return '🧘';
+      if (lower.includes('bench') || lower.includes('press')) return '🏋️';
+      if (lower.includes('deadlift') || lower.includes('squat')) return '💪';
+      if (lower.includes('curl')) return '💪';
+      if (lower.includes('row') || lower.includes('pull')) return '🚣';
+      if (lower.includes('leg') || lower.includes('calf')) return '🦵';
+      if (lower.includes('shoulder') || lower.includes('delt')) return '💪';
+      if (lower.includes('tricep')) return '💪';
+      if (lower.includes('glute') || lower.includes('bridge') || lower.includes('lateral')) return '🍑';
+      if (lower.includes('core') || lower.includes('bug') || lower.includes('plank')) return '🔥';
       return '💪';
     };
 
-    // ── Main Component ─────────────────────────────────────────────────
     function WorkoutTracker() {
       const [tab, setTab] = useState('today');
       const [programs, setPrograms] = useState([]);
@@ -284,16 +277,6 @@
       const [history, setHistory] = useState([]);
       const [todayWeight, setTodayWeight] = useState('');
       const [todayInputs, setTodayInputs] = useState({});
-
-      // ── NEW: collapse state ──────────────────────────────────────────
-      // collapsedExercises: { [exName]: bool }  — true = collapsed
-      const [collapsedExercises, setCollapsedExercises] = useState({});
-      // doneExercises: { [exName]: bool }  — true = marked done (also collapses)
-      const [doneExercises, setDoneExercises] = useState({});
-      // collapsedPhases: { [phaseName]: bool }  — true = collapsed
-      const [collapsedPhases, setCollapsedPhases] = useState({});
-      // ────────────────────────────────────────────────────────────────
-
       const [expandedExercises, setExpandedExercises] = useState({});
       const [expandedHistory, setExpandedHistory] = useState({});
       const [showMenu, setShowMenu] = useState(false);
@@ -301,27 +284,36 @@
       const [viewWeek, setViewWeek] = useState(1);
       const fileInputRef = useRef(null);
 
+      // NEW: collapse state for Today tab:
+      // - exerciseCollapsed: per-exercise open/closed (default open)
+      // - phaseCollapsed: per-phase open/closed (default open)
+      // - hideCompletedExercises: whether to auto-hide exercises once they are logged today
+      const [exerciseCollapsed, setExerciseCollapsed] = useState({});
+      const [phaseCollapsed, setPhaseCollapsed] = useState({});
+      const [hideCompletedExercises, setHideCompletedExercises] = useState(true);
+
       const today = new Date();
       const todayStr = toLocalDateString(today);
       const todayDayKey = DAY_KEYS[today.getDay()];
       const todayDayName = DAYS[today.getDay()];
 
-      // Load program index
+      // Load program index and auto-select first program
       useEffect(() => {
-        const load = async () => {
+        const loadPrograms = async () => {
           try {
-            const res = await fetch('data/programs/index.json');
-            if (!res.ok) throw new Error();
-            const data = await res.json();
+            const response = await fetch('data/programs/index.json');
+            if (!response.ok) throw new Error('Program index not found');
+            const data = await response.json();
             const list = data.programs || [];
             setPrograms(list);
             if (list.length > 0) setActiveProgramId(list[0].id);
-          } catch {
-            setPrograms([{ id:'program-1', name:'Program 1', path:'data/programs/program-1/program.json' }]);
+          } catch (error) {
+            console.error(error);
+            setPrograms([{ id: 'program-1', name: 'Program 1', path: 'data/programs/program-1/program.json' }]);
             setProgramLoadError('Unable to load program library.');
           }
         };
-        load();
+        loadPrograms();
       }, []);
 
       // Load saved state
@@ -339,6 +331,11 @@
             setBodyweightLogs(data.bodyweightLogs || []);
             setHistory(data.history || []);
             setViewWeek(data.currentWeek || 1);
+
+            // NEW persisted UI prefs (safe defaults)
+            setExerciseCollapsed(data.exerciseCollapsed || {});
+            setPhaseCollapsed(data.phaseCollapsed || {});
+            setHideCompletedExercises(typeof data.hideCompletedExercises === 'boolean' ? data.hideCompletedExercises : true);
             return;
           }
         }
@@ -349,12 +346,24 @@
       // Save state
       useEffect(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          version:APP_VERSION, activeProgramId, programStartDate, currentWeek,
-          completedDays, lastOpenedDate, workoutLogs, bodyweightLogs, history
-        }));
-      }, [activeProgramId, programStartDate, currentWeek, completedDays, lastOpenedDate, workoutLogs, bodyweightLogs, history]);
+          version: APP_VERSION,
+          activeProgramId,
+          programStartDate,
+          currentWeek,
+          completedDays,
+          lastOpenedDate,
+          workoutLogs,
+          bodyweightLogs,
+          history,
 
-      // Update week from start date
+          // NEW persisted UI state
+          exerciseCollapsed,
+          phaseCollapsed,
+          hideCompletedExercises
+        }));
+      }, [activeProgramId, programStartDate, currentWeek, completedDays, lastOpenedDate, workoutLogs, bodyweightLogs, history, exerciseCollapsed, phaseCollapsed, hideCompletedExercises]);
+
+      // Update week based on start date
       useEffect(() => {
         if (!programStartDate) return;
         setLastOpenedDate(todayStr);
@@ -362,31 +371,35 @@
         const daysSinceStart = diffInDays(startDate, today);
         if (daysSinceStart < 0) { setCurrentWeek(1); setViewWeek(1); return; }
         const durationWeeks = programManifest?.durationWeeks || 6;
-        const calc = Math.min(durationWeeks, Math.floor(daysSinceStart/7)+1);
-        setCurrentWeek(calc); setViewWeek(calc);
+        const calculatedWeek = Math.min(durationWeeks, Math.floor(daysSinceStart / 7) + 1);
+        setCurrentWeek(calculatedWeek);
+        setViewWeek(calculatedWeek);
       }, [programStartDate, todayStr, programManifest]);
 
-      // Load program manifest + all days
+      // Load program manifest and then ALL days automatically
       useEffect(() => {
         if (!activeProgramId || programs.length === 0) return;
         const selected = programs.find(p => p.id === activeProgramId) || programs[0];
         if (!selected) return;
-        const load = async () => {
+
+        const loadProgram = async () => {
           try {
-            const res = await fetch(selected.path);
-            if (!res.ok) throw new Error();
-            const manifest = await res.json();
+            const response = await fetch(selected.path);
+            if (!response.ok) throw new Error('Program manifest not found');
+            const manifest = await response.json();
             setProgramManifest(manifest);
-            const base = selected.path.split('/').slice(0,-1).join('/');
-            setProgramBasePath(base);
+            const basePath = selected.path.split('/').slice(0, -1).join('/');
+            setProgramBasePath(basePath);
             setProgramDayCache({});
-            await loadAllDays(manifest, base);
-          } catch {
+            await loadAllDays(manifest, basePath);
+          } catch (error) {
+            console.error(error);
             setProgramManifest(null);
-            setProgramLoadError(`Unable to load: ${selected.name}`);
+            setProgramLoadError(`Unable to load program: ${selected.name}`);
           }
         };
-        load();
+
+        loadProgram();
       }, [activeProgramId, programs]);
 
       const loadAllDays = async (manifest, basePath) => {
@@ -394,35 +407,132 @@
         await Promise.all(DAY_KEYS.map(async (dayKey) => {
           const fileName = manifest.fileMap?.[dayKey];
           if (!fileName) { cache[dayKey] = []; return; }
+          const filePath = `${basePath}/${fileName}`;
           try {
-            const res = await fetch(`${basePath}/${fileName}`);
-            if (!res.ok) throw new Error();
-            const rows = parseCsv(await res.text());
-            cache[dayKey] = rows.filter(r => r.Exercise);
-          } catch { cache[dayKey] = []; }
+            const response = await fetch(filePath);
+            if (!response.ok) throw new Error('Missing file');
+            const text = await response.text();
+            const rows = parseCsv(text);
+            cache[dayKey] = rows.filter(row => row.Exercise);
+          } catch (error) {
+            cache[dayKey] = [];
+          }
         }));
         setProgramDayCache(cache);
       };
 
-      // Default inputs
+      // Set default inputs for today's exercises (avoid wiping existing entries)
       useEffect(() => {
         const exercises = (programDayCache[todayDayKey] || []).map(r => r.Exercise);
         const defaults = {};
-        exercises.forEach(ex => { if (!todayInputs[ex]) defaults[ex] = { weight:'', reps:'10' }; });
-        if (Object.keys(defaults).length > 0) setTodayInputs(prev => ({ ...prev, ...defaults }));
+        exercises.forEach(ex => {
+          if (!todayInputs[ex]) defaults[ex] = { weight: '', reps: '10' };
+        });
+        if (Object.keys(defaults).length > 0) {
+          setTodayInputs(prev => ({ ...prev, ...defaults }));
+        }
       }, [programDayCache, todayDayKey]);
 
       const getCompletedForProgram = () => completedDays?.[activeProgramId] || {};
-      const isCardioExercise = (name) => { const l=name.toLowerCase(); return l.includes('walk')||l.includes('bike')||l.includes('run'); };
-      const getLastWorkout = (id) => { const logs=workoutLogs.filter(l=>l.programId===activeProgramId&&l.exerciseId===id); return logs.length>0?logs[logs.length-1]:null; };
-      const getAllWorkouts = (id) => workoutLogs.filter(l=>l.programId===activeProgramId&&l.exerciseId===id).sort((a,b)=>new Date(b.date)-new Date(a.date));
 
-      const calculateGain = (id) => {
-        const logs = getAllWorkouts(id).slice().reverse();
+      const isCardioExercise = (name) => {
+        const lower = name.toLowerCase();
+        return lower.includes('walk') || lower.includes('bike') || lower.includes('run');
+      };
+
+      const getLastWorkout = (exerciseId) => {
+        const logs = workoutLogs.filter(log => log.programId === activeProgramId && log.exerciseId === exerciseId);
+        return logs.length > 0 ? logs[logs.length - 1] : null;
+      };
+
+      const getAllWorkouts = (exerciseId) => {
+        return workoutLogs
+          .filter(log => log.programId === activeProgramId && log.exerciseId === exerciseId)
+          .sort((a, b) => new Date(b.date) - new Date(a.date));
+      };
+
+      const calculateGain = (exerciseId) => {
+        const logs = getAllWorkouts(exerciseId).slice().reverse();
         if (logs.length < 2) return null;
-        const first = logs[0]; const last = logs[logs.length-1];
-        const gain = ((last.weight*last.reps - first.weight*first.reps)/(first.weight*first.reps)*100).toFixed(1);
+        const first = logs[0];
+        const last = logs[logs.length - 1];
+        const firstVol = first.weight * first.reps;
+        const lastVol = last.weight * last.reps;
+        const gain = ((lastVol - firstVol) / firstVol * 100).toFixed(1);
         return { first, last, gain: parseFloat(gain) };
+      };
+
+      // NEW: determine if an exercise is already logged today (to optionally auto-hide it)
+      const isExerciseLoggedToday = (exerciseId) => {
+        return workoutLogs.some(l => l.programId === activeProgramId && l.date === todayStr && l.exerciseId === exerciseId);
+      };
+
+      const toggleExerciseCollapsed = (exerciseId) => {
+        setExerciseCollapsed(prev => ({ ...prev, [exerciseId]: !prev[exerciseId] }));
+      };
+
+      const togglePhaseCollapsed = (phaseKey) => {
+        setPhaseCollapsed(prev => ({ ...prev, [phaseKey]: !prev[phaseKey] }));
+      };
+
+      const collapseAllPhases = (byPhase) => {
+        const next = {};
+        Object.keys(byPhase).forEach(k => next[k] = true);
+        setPhaseCollapsed(prev => ({ ...prev, ...next }));
+      };
+
+      const expandAllPhases = (byPhase) => {
+        const next = {};
+        Object.keys(byPhase).forEach(k => next[k] = false);
+        setPhaseCollapsed(prev => ({ ...prev, ...next }));
+      };
+
+      const logWorkout = () => {
+        const exercises = (programDayCache[todayDayKey] || []).map(r => r.Exercise);
+
+        const logs = exercises.map(exName => {
+          const isCardio = isCardioExercise(exName);
+          return {
+            exerciseId: slugify(exName),
+            exerciseName: exName,
+            weight: parseFloat(todayInputs[exName]?.weight || 0),
+            reps: isCardio ? parseFloat(todayInputs[exName]?.reps || 0) : parseInt(todayInputs[exName]?.reps || 0),
+            date: todayStr,
+            week: currentWeek,
+            dayOfWeek: todayDayKey,
+            isCardio,
+            programId: activeProgramId
+          };
+        }).filter(log => log.weight > 0 && log.reps > 0);
+
+        const currentCompleted = getCompletedForProgram();
+        const updatedCompleted = { ...currentCompleted, [todayStr]: true };
+        setCompletedDays(prev => ({ ...prev, [activeProgramId]: updatedCompleted }));
+
+        if (logs.length > 0) {
+          setWorkoutLogs(prev => [...prev, ...logs]);
+
+          // NEW: auto-collapse exercises that were logged (and optionally phases handled by auto-hide)
+          const newlyLoggedIds = logs.map(l => l.exerciseId);
+          setExerciseCollapsed(prev => {
+            const next = { ...prev };
+            newlyLoggedIds.forEach(id => { next[id] = true; });
+            return next;
+          });
+
+          setTodayInputs({});
+          alert('Workout logged!');
+        } else {
+          alert('Day marked complete.');
+        }
+      };
+
+      const logBodyweight = () => {
+        if (todayWeight && parseFloat(todayWeight) > 0) {
+          setBodyweightLogs(prev => [...prev, { weight: parseFloat(todayWeight), date: todayStr }]);
+          setTodayWeight('');
+          alert('Bodyweight logged.');
+        }
       };
 
       const getMissedDays = () => {
@@ -432,286 +542,351 @@
         if (daysSinceStart <= 0) return [];
         const completed = getCompletedForProgram();
         const missed = [];
-        for (let i=0; i<daysSinceStart; i++) {
-          const date = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate()+i);
-          const ds = toLocalDateString(date);
-          if (!completed[ds]) missed.push(ds);
+        for (let i = 0; i < daysSinceStart; i++) {
+          const date = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + i);
+          const dateStr = toLocalDateString(date);
+          if (!completed[dateStr]) missed.push(dateStr);
         }
         return missed;
       };
 
-      const logWorkout = () => {
-        const exercises = (programDayCache[todayDayKey] || []).map(r => r.Exercise);
-        const logs = exercises.map(exName => {
-          const isCardio = isCardioExercise(exName);
-          return { exerciseId:slugify(exName), exerciseName:exName, weight:parseFloat(todayInputs[exName]?.weight||0), reps:isCardio?parseFloat(todayInputs[exName]?.reps||0):parseInt(todayInputs[exName]?.reps||0), date:todayStr, week:currentWeek, dayOfWeek:todayDayKey, isCardio, programId:activeProgramId };
-        }).filter(l=>l.weight>0&&l.reps>0);
-
-        const updated = { ...(getCompletedForProgram()), [todayStr]:true };
-        setCompletedDays(prev => ({ ...prev, [activeProgramId]:updated }));
-
-        if (logs.length > 0) {
-          setWorkoutLogs(prev => [...prev,...logs]);
-          setTodayInputs({});
-          alert('Workout logged!');
-        } else {
-          alert('Day marked complete.');
-        }
-      };
-
       const exportData = () => {
-        const data = { version:APP_VERSION, activeProgramId, programStartDate, currentWeek, completedDays, lastOpenedDate, workoutLogs, bodyweightLogs, history, exportDate:new Date().toISOString() };
-        const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+        const data = {
+          version: APP_VERSION,
+          activeProgramId,
+          programStartDate,
+          currentWeek,
+          completedDays,
+          lastOpenedDate,
+          workoutLogs,
+          bodyweightLogs,
+          history,
+
+          // NEW
+          exerciseCollapsed,
+          phaseCollapsed,
+          hideCompletedExercises,
+
+          exportDate: new Date().toISOString()
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href=url; a.download=`workout-backup-${todayStr}.json`;
+        const a = document.createElement('a');
+        a.href = url; a.download = `workout-tracker-backup-${todayStr}.json`;
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        URL.revokeObjectURL(url); setShowMenu(false); alert('Exported.');
+        URL.revokeObjectURL(url);
+        setShowMenu(false);
+        alert('Data exported.');
       };
 
       const importData = (event) => {
-        const file = event.target.files[0]; if (!file) return;
+        const file = event.target.files[0];
+        if (!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
           try {
             const data = JSON.parse(e.target.result);
-            if (confirm('Replace all current data?')) {
-              setActiveProgramId(data.activeProgramId||'program-1');
-              setProgramStartDate(data.programStartDate||todayStr);
-              setCurrentWeek(data.currentWeek||1);
-              setCompletedDays(data.completedDays||{});
-              setLastOpenedDate(data.lastOpenedDate||todayStr);
-              setWorkoutLogs(data.workoutLogs||[]);
-              setBodyweightLogs(data.bodyweightLogs||[]);
-              setHistory(data.history||[]);
-              setViewWeek(data.currentWeek||1);
-              setShowMenu(false); alert('Imported.');
+            if (confirm('This will replace all current data. Continue?')) {
+              setActiveProgramId(data.activeProgramId || 'program-1');
+              setProgramStartDate(data.programStartDate || todayStr);
+              setCurrentWeek(data.currentWeek || 1);
+              setCompletedDays(data.completedDays || {});
+              setLastOpenedDate(data.lastOpenedDate || todayStr);
+              setWorkoutLogs(data.workoutLogs || []);
+              setBodyweightLogs(data.bodyweightLogs || []);
+              setHistory(data.history || []);
+              setViewWeek(data.currentWeek || 1);
+
+              // NEW
+              setExerciseCollapsed(data.exerciseCollapsed || {});
+              setPhaseCollapsed(data.phaseCollapsed || {});
+              setHideCompletedExercises(typeof data.hideCompletedExercises === 'boolean' ? data.hideCompletedExercises : true);
+
+              setShowMenu(false);
+              alert('Data imported.');
             }
-          } catch { alert('Error importing data.'); }
+          } catch {
+            alert('Error importing data.');
+          }
         };
-        reader.readAsText(file); event.target.value='';
+        reader.readAsText(file);
+        event.target.value = '';
       };
 
-      // ── Toggle helpers ─────────────────────────────────────────────
-      const toggleExercise = (exName) => {
-        setCollapsedExercises(prev => ({ ...prev, [exName]: !prev[exName] }));
-      };
-
-      const markExerciseDone = (exName, e) => {
-        e.stopPropagation();
-        const nowDone = !doneExercises[exName];
-        setDoneExercises(prev => ({ ...prev, [exName]: nowDone }));
-        // Auto-collapse when marked done
-        if (nowDone) setCollapsedExercises(prev => ({ ...prev, [exName]: true }));
-        else setCollapsedExercises(prev => ({ ...prev, [exName]: false }));
-      };
-
-      const togglePhase = (phaseName) => {
-        setCollapsedPhases(prev => ({ ...prev, [phaseName]: !prev[phaseName] }));
-      };
-
-      // ── RENDER TODAY ───────────────────────────────────────────────
+      // ─── TODAY: group exercises by phase, collapsible phases + exercises ───────────
       const renderToday = () => {
-        const exercises = programDayCache[todayDayKey] || [];
+        const rows = programDayCache[todayDayKey] || [];
         const completed = getCompletedForProgram()[todayStr];
         const missedDays = getMissedDays();
 
-        // Group by phase
+        // group by phase for Today
         const byPhase = {};
-        exercises.forEach(row => {
-          const phase = row.Phase || 'Exercises';
+        rows.forEach(row => {
+          const phase = (row.Phase || 'Exercises').trim() || 'Exercises';
           if (!byPhase[phase]) byPhase[phase] = [];
           byPhase[phase].push(row);
         });
 
+        const phaseKeys = Object.keys(byPhase);
+
         return (
           <div className="space-y-3">
-            {/* Program status */}
+            {/* Program status card */}
             <div className="card p-4">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <p style={{color:'#8e8e93',fontSize:11,fontWeight:600,letterSpacing:'0.05em',textTransform:'uppercase'}}>Active Program</p>
-                  <p style={{color:'#1c1c1e',fontSize:16,fontWeight:600,marginTop:2}}>{programManifest?.name||'Loading...'}</p>
+                  <p style={{color:'#8e8e93', fontSize:11, fontWeight:600, letterSpacing:'0.05em', textTransform:'uppercase'}}>Active Program</p>
+                  <p style={{color:'#1c1c1e', fontSize:16, fontWeight:600, marginTop:2}}>{programManifest?.name || 'Loading...'}</p>
                 </div>
                 <div className="text-right">
-                  <p style={{color:'#8e8e93',fontSize:11,fontWeight:600,letterSpacing:'0.05em',textTransform:'uppercase'}}>Progress</p>
-                  <p style={{color:'#1c1c1e',fontSize:14,fontWeight:500,marginTop:2}}>Week {currentWeek} · {todayDayName}</p>
+                  <p style={{color:'#8e8e93', fontSize:11, fontWeight:600, letterSpacing:'0.05em', textTransform:'uppercase'}}>Progress</p>
+                  <p style={{color:'#1c1c1e', fontSize:14, fontWeight:500, marginTop:2}}>Week {currentWeek} · {todayDayName}</p>
                 </div>
               </div>
               <div className="flex gap-2 mb-3">
-                <button onClick={() => setTab('today')} style={{flex:1,padding:'8px 0',background:'#007AFF',borderRadius:10,color:'white',fontSize:13,fontWeight:600,border:'none'}}>Resume</button>
-                <button onClick={() => { setProgramStartDate(todayStr); setCurrentWeek(1); setViewWeek(1); setCompletedDays(prev=>({...prev,[activeProgramId]:{}})); }} style={{flex:1,padding:'8px 0',background:'#f2f2f7',borderRadius:10,color:'#1c1c1e',fontSize:13,fontWeight:600,border:'none'}}>Restart</button>
+                <button
+                  onClick={() => setTab('today')}
+                  style={{flex:1, padding:'8px 0', background:'#007AFF', borderRadius:10, color:'white', fontSize:13, fontWeight:600, border:'none'}}
+                >
+                  Resume
+                </button>
+                <button
+                  onClick={() => { setProgramStartDate(todayStr); setCurrentWeek(1); setViewWeek(1); setCompletedDays(prev => ({ ...prev, [activeProgramId]: {} })); }}
+                  style={{flex:1, padding:'8px 0', background:'#f2f2f7', borderRadius:10, color:'#1c1c1e', fontSize:13, fontWeight:600, border:'none'}}
+                >
+                  Restart
+                </button>
               </div>
-              <div className="flex justify-between" style={{fontSize:12,color:'#8e8e93'}}>
-                <span>Started {programStartDate||'Not set'}</span>
-                {missedDays.length>0 && <span style={{color:'#ff9500'}}>⚠ {missedDays.length} missed</span>}
+
+              <div className="flex justify-between" style={{fontSize:12, color:'#8e8e93'}}>
+                <span>Started {programStartDate || 'Not set'}</span>
+                {missedDays.length > 0 && <span style={{color:'#ff9500'}}>⚠ {missedDays.length} missed</span>}
               </div>
+
+              {/* NEW: Quick controls */}
+              {rows.length > 0 && (
+                <div className="flex items-center justify-between mt-3" style={{gap: 10}}>
+                  <div className="flex items-center gap-2">
+                    <button className="collapse-btn" onClick={() => expandAllPhases(byPhase)}>
+                      <ChevronDown size={14} className="text-gray-400" /> Expand all
+                    </button>
+                    <button className="collapse-btn" onClick={() => collapseAllPhases(byPhase)}>
+                      <ChevronUp size={14} className="text-gray-400" /> Collapse all
+                    </button>
+                  </div>
+
+                  <button
+                    className="collapse-btn"
+                    onClick={() => setHideCompletedExercises(v => !v)}
+                    title="Auto-hide exercises you already logged today"
+                    style={{background: hideCompletedExercises ? '#e8f5e9' : '#f2f2f7', color: hideCompletedExercises ? '#2e7d32' : '#1c1c1e'}}
+                  >
+                    {hideCompletedExercises ? '✓ Auto-hide logged' : 'Auto-hide logged'}
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Bodyweight */}
             <div className="card p-4">
-              <p style={{color:'#8e8e93',fontSize:11,fontWeight:600,letterSpacing:'0.05em',textTransform:'uppercase',marginBottom:8}}>Bodyweight Today</p>
+              <p style={{color:'#8e8e93', fontSize:11, fontWeight:600, letterSpacing:'0.05em', textTransform:'uppercase', marginBottom:8}}>Bodyweight Today</p>
               <div className="flex gap-2">
-                <input type="number" step="0.1" value={todayWeight} onChange={e=>setTodayWeight(e.target.value)} placeholder="Weight (lbs)" style={{flex:1,background:'#f2f2f7',border:'none',borderRadius:10,padding:'10px 12px',fontSize:15,color:'#1c1c1e'}} />
-                <button onClick={() => { if(todayWeight&&parseFloat(todayWeight)>0){setBodyweightLogs(prev=>[...prev,{weight:parseFloat(todayWeight),date:todayStr}]);setTodayWeight('');alert('Bodyweight logged.');} }} style={{padding:'10px 18px',background:'#34c759',borderRadius:10,color:'white',fontSize:14,fontWeight:600,border:'none'}}>Log</button>
+                <input
+                  type="number" step="0.1" value={todayWeight}
+                  onChange={(e) => setTodayWeight(e.target.value)}
+                  placeholder="Weight (lbs)"
+                  style={{flex:1, background:'#f2f2f7', border:'none', borderRadius:10, padding:'10px 12px', fontSize:15, color:'#1c1c1e'}}
+                />
+                <button
+                  onClick={logBodyweight}
+                  style={{padding:'10px 18px', background:'#34c759', borderRadius:10, color:'white', fontSize:14, fontWeight:600, border:'none'}}
+                >
+                  Log
+                </button>
               </div>
             </div>
 
             {/* Day header */}
             <div className="flex items-center justify-between" style={{paddingTop:4}}>
-              <h2 style={{color:'#1c1c1e',fontSize:20,fontWeight:700}}>{todayDayName} — Week {currentWeek}</h2>
-              {completed && <span style={{color:'#34c759',fontSize:13,fontWeight:600}}>✓ Completed</span>}
+              <h2 style={{color:'#1c1c1e', fontSize:20, fontWeight:700}}>{todayDayName} — Week {currentWeek}</h2>
+              {completed && <span style={{color:'#34c759', fontSize:13, fontWeight:600}}>✓ Completed</span>}
             </div>
 
-            {exercises.length === 0 ? (
+            {rows.length === 0 ? (
               <div className="card p-8 text-center">
-                <p style={{color:'#8e8e93',marginBottom:16}}>No workout scheduled for {todayDayName}</p>
-                <button onClick={logWorkout} style={{padding:'10px 24px',background:'#34c759',borderRadius:10,color:'white',fontSize:14,fontWeight:600,border:'none'}}>Mark Day Complete</button>
+                <p style={{color:'#8e8e93', marginBottom:16}}>No workout scheduled for {todayDayName}</p>
+                <button
+                  onClick={logWorkout}
+                  style={{padding:'10px 24px', background:'#34c759', borderRadius:10, color:'white', fontSize:14, fontWeight:600, border:'none'}}
+                >
+                  Mark Day Complete
+                </button>
               </div>
             ) : (
               <>
-                {/* ── Phase sections ── */}
-                {Object.entries(byPhase).map(([phaseName, phaseRows]) => {
-                  const phaseStyle = getPhaseStyle(phaseName);
-                  const isPhaseCollapsed = !!collapsedPhases[phaseName];
-                  const doneCount = phaseRows.filter(r => doneExercises[r.Exercise]).length;
-                  const allDone = doneCount === phaseRows.length;
+                {/* Phase Sections */}
+                {phaseKeys.map((phase) => {
+                  const phaseStyle = getPhaseStyle(phase);
+                  const phaseIsCollapsed = !!phaseCollapsed[phase];
+
+                  const phaseRows = byPhase[phase] || [];
+                  const visibleRows = phaseRows.filter(row => {
+                    const exId = slugify(row.Exercise);
+                    if (!hideCompletedExercises) return true;
+                    return !isExerciseLoggedToday(exId);
+                  });
 
                   return (
-                    <div key={phaseName} className="phase-section">
-                      {/* Phase header — clickable to collapse whole section */}
-                      <button className="phase-section-header" onClick={() => togglePhase(phaseName)}>
-                        <div style={{display:'flex',alignItems:'center',gap:8}}>
-                          <span className="phase-badge" style={{background:phaseStyle.bg,color:phaseStyle.text,fontSize:11}}>
-                            {phaseName.replace(' (Optional)','').replace('Pre-Workout ','')}
+                    <div key={phase} className="card overflow-hidden">
+                      {/* Phase header */}
+                      <div style={{padding:'14px 16px', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+                        <div style={{display:'flex', alignItems:'center', gap:10}}>
+                          <span className="phase-badge" style={{background:phaseStyle.bg, color:phaseStyle.text}}>
+                            {phase.replace(' (Optional)', '').replace('Pre-Workout ', '')}
                           </span>
-                          <span style={{fontSize:12,color:'#8e8e93'}}>{phaseRows.length} exercise{phaseRows.length!==1?'s':''}</span>
-                          {doneCount > 0 && (
-                            <span className={`phase-progress-pill ${allDone?'all-done':''}`}>
-                              {allDone ? '✓ All done' : `${doneCount}/${phaseRows.length}`}
-                            </span>
-                          )}
+                          <span style={{color:'#8e8e93', fontSize:12}}>
+                            {visibleRows.length}/{phaseRows.length} shown
+                          </span>
                         </div>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                          className={`chevron-icon ${isPhaseCollapsed?'closed':'open'}`}>
-                          <polyline points="6 9 12 15 18 9"></polyline>
-                        </svg>
-                      </button>
+                        <button
+                          className="collapse-btn"
+                          onClick={() => togglePhaseCollapsed(phase)}
+                          title={phaseIsCollapsed ? 'Expand section' : 'Collapse section'}
+                        >
+                          {phaseIsCollapsed ? <ChevronDown size={14} className="text-gray-400" /> : <ChevronUp size={14} className="text-gray-400" />}
+                          {phaseIsCollapsed ? 'Expand' : 'Collapse'}
+                        </button>
+                      </div>
 
-                      {/* Phase exercises */}
-                      {!isPhaseCollapsed && (
-                        <div className="phase-section-exercises">
-                          {phaseRows.map((row, idx) => {
-                            const exName = row.Exercise;
-                            const exerciseId = slugify(exName);
-                            const last = getLastWorkout(exerciseId);
-                            const isCardio = isCardioExercise(exName);
-                            const isCollapsed = !!collapsedExercises[exName];
-                            const isDone = !!doneExercises[exName];
+                      {!phaseIsCollapsed && (
+                        <div style={{padding:'0 16px 16px', borderTop:'1px solid #f2f2f7'}}>
+                          {visibleRows.length === 0 ? (
+                            <div style={{paddingTop:12}}>
+                              <p style={{color:'#8e8e93', fontSize:13}}>All exercises in this section are logged today.</p>
+                            </div>
+                          ) : (
+                            <div style={{display:'flex', flexDirection:'column', gap:10, paddingTop:12}}>
+                              {visibleRows.map((row, idx) => {
+                                const exName = row.Exercise;
+                                const exerciseId = slugify(exName);
+                                const last = getLastWorkout(exerciseId);
+                                const isCardio = isCardioExercise(exName);
+                                const exIsCollapsed = !!exerciseCollapsed[exerciseId];
 
-                            return (
-                              <div key={idx} className={`exercise-card ${isCollapsed?'collapsed':''} ${isDone?'done':''}`}>
-                                {/* Exercise header row */}
-                                <button className="exercise-header" onClick={() => toggleExercise(exName)}>
-                                  {/* Done checkmark */}
-                                  <div
-                                    className={`done-btn ${isDone?'checked':''}`}
-                                    onClick={(e) => markExerciseDone(exName, e)}
-                                    title={isDone?'Mark undone':'Mark done'}
-                                  >
-                                    <CheckIcon size={12} />
-                                  </div>
-
-                                  <span style={{fontSize:20,flexShrink:0}}>{getExerciseEmoji(exName)}</span>
-
-                                  <div style={{flex:1,minWidth:0}}>
-                                    <p style={{color: isDone?'#8e8e93':'#1c1c1e', fontWeight:600, fontSize:14, textDecoration: isDone?'line-through':'none', margin:0}}>{exName}</p>
-                                    {(row.Sets||row.Reps) && (
-                                      <p style={{color:'#8e8e93',fontSize:11,margin:'2px 0 0'}}>{row.Sets&&`${row.Sets} sets`}{row.Sets&&row.Reps&&' × '}{row.Reps&&row.Reps}</p>
-                                    )}
-                                    {!isCollapsed && last && (
-                                      <p style={{color:'#007AFF',fontSize:11,margin:'2px 0 0'}}>
-                                        Last: {last.weight}{isCardio?'°':' lbs'} × {last.reps} {isCardio?'mi':'reps'}
-                                      </p>
-                                    )}
-                                  </div>
-
-                                  {/* Collapse chevron */}
-                                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c7c7cc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                                    className={`chevron-icon ${isCollapsed?'closed':'open'}`}>
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                  </svg>
-                                </button>
-
-                                {/* Exercise body — hidden when collapsed */}
-                                {!isCollapsed && (
-                                  <div className="exercise-body">
-                                    {last && (
-                                      <p style={{color:'#007AFF',fontSize:12,marginBottom:10}}>
-                                        Last: {last.weight}{isCardio?'°':' lbs'} × {last.reps} {isCardio?'mi':'reps'}
-                                      </p>
-                                    )}
-                                    <div className="flex gap-2">
-                                      <input
-                                        type="number"
-                                        placeholder={isCardio?"Incline":"Weight (lbs)"}
-                                        value={todayInputs[exName]?.weight||''}
-                                        onChange={e => setTodayInputs(prev=>({...prev,[exName]:{...prev[exName],weight:e.target.value}}))}
-                                        style={{flex:1,background:'#f2f2f7',border:'none',borderRadius:10,padding:'10px 12px',fontSize:15,color:'#1c1c1e'}}
-                                      />
-                                      {isCardio ? (
-                                        <input
-                                          type="number" step="0.1" placeholder="Distance"
-                                          value={todayInputs[exName]?.reps||''}
-                                          onChange={e => setTodayInputs(prev=>({...prev,[exName]:{...prev[exName],reps:e.target.value}}))}
-                                          style={{flex:1,background:'#f2f2f7',border:'none',borderRadius:10,padding:'10px 12px',fontSize:15,color:'#1c1c1e'}}
-                                        />
-                                      ) : (
-                                        <select
-                                          value={todayInputs[exName]?.reps||'10'}
-                                          onChange={e => setTodayInputs(prev=>({...prev,[exName]:{...prev[exName],reps:e.target.value}}))}
-                                          style={{flex:1,background:'#f2f2f7',border:'none',borderRadius:10,padding:'10px 12px',fontSize:15,color:'#1c1c1e'}}
-                                        >
-                                          {[...Array(40)].map((_,i)=><option key={i+1} value={i+1}>{i+1} reps</option>)}
-                                        </select>
-                                      )}
-                                    </div>
-                                    {row.Notes_Substitutes && (
-                                      <p style={{color:'#8e8e93',fontSize:12,marginTop:8,fontStyle:'italic'}}>{row.Notes_Substitutes}</p>
-                                    )}
-                                    {/* Quick-done button inside body */}
+                                return (
+                                  <div key={exerciseId + '-' + idx} className="card" style={{padding:12, boxShadow:'none', border:'1px solid #f2f2f7'}}>
+                                    {/* Exercise header (click to collapse) */}
                                     <button
-                                      onClick={(e) => markExerciseDone(exName, e)}
-                                      style={{marginTop:10,width:'100%',padding:'8px 0',background: isDone?'#f2f2f7':'#34c759',borderRadius:8,color: isDone?'#8e8e93':'white',fontSize:13,fontWeight:600,border:'none'}}
+                                      className="exercise-header-btn"
+                                      onClick={() => toggleExerciseCollapsed(exerciseId)}
+                                      title={exIsCollapsed ? 'Expand exercise' : 'Collapse exercise'}
                                     >
-                                      {isDone ? '↩ Undo' : '✓ Mark Done & Collapse'}
+                                      <div className="flex items-start gap-3" style={{textAlign:'left'}}>
+                                        <span style={{fontSize:22, lineHeight:'22px'}}>{getExerciseEmoji(exName)}</span>
+                                        <div className="flex-1" style={{minWidth:0}}>
+                                          <div className="flex items-center justify-between" style={{gap: 10}}>
+                                            <h3 style={{color:'#1c1c1e', fontWeight:700, fontSize:15, margin:0, lineHeight:'18px'}}>
+                                              {exName}
+                                            </h3>
+                                            <span style={{color:'#8e8e93', display:'inline-flex', alignItems:'center', gap:6, fontSize:12, fontWeight:700}}>
+                                              {exIsCollapsed ? 'Show' : 'Hide'}
+                                              {exIsCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
+                                            </span>
+                                          </div>
+
+                                          {(row.Sets && row.Reps) && (
+                                            <p style={{color:'#8e8e93', fontSize:12, margin:'6px 0 0'}}>
+                                              {row.Sets} sets × {row.Reps}
+                                              {row.Rest_Seconds && row.Rest_Seconds !== '0' ? ` · ${row.Rest_Seconds}s rest` : ''}
+                                            </p>
+                                          )}
+
+                                          {last && (
+                                            <p style={{color:'#007AFF', fontSize:12, margin:'6px 0 0'}}>
+                                              Last: {last.weight}{isCardio ? '°' : ' lbs'} × {last.reps} {isCardio ? 'mi' : 'reps'}
+                                            </p>
+                                          )}
+
+                                          {row.Notes_Substitutes && !exIsCollapsed && (
+                                            <p style={{color:'#8e8e93', fontSize:11, margin:'6px 0 0', fontStyle:'italic'}}>
+                                              {row.Notes_Substitutes}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
                                     </button>
+
+                                    {/* Exercise body */}
+                                    {!exIsCollapsed && (
+                                      <div style={{marginTop:10}}>
+                                        <div className="flex gap-2">
+                                          <input
+                                            type="number"
+                                            placeholder={isCardio ? "Incline" : "Weight (lbs)"}
+                                            value={todayInputs[exName]?.weight || ''}
+                                            onChange={(e) => setTodayInputs(prev => ({ ...prev, [exName]: { ...prev[exName], weight: e.target.value } }))}
+                                            style={{flex:1, background:'#f2f2f7', border:'none', borderRadius:10, padding:'10px 12px', fontSize:15, color:'#1c1c1e'}}
+                                          />
+
+                                          {isCardio ? (
+                                            <input
+                                              type="number" step="0.1" placeholder="Distance"
+                                              value={todayInputs[exName]?.reps || ''}
+                                              onChange={(e) => setTodayInputs(prev => ({ ...prev, [exName]: { ...prev[exName], reps: e.target.value } }))}
+                                              style={{flex:1, background:'#f2f2f7', border:'none', borderRadius:10, padding:'10px 12px', fontSize:15, color:'#1c1c1e'}}
+                                            />
+                                          ) : (
+                                            <select
+                                              value={todayInputs[exName]?.reps || '10'}
+                                              onChange={(e) => setTodayInputs(prev => ({ ...prev, [exName]: { ...prev[exName], reps: e.target.value } }))}
+                                              style={{flex:1, background:'#f2f2f7', border:'none', borderRadius:10, padding:'10px 12px', fontSize:15, color:'#1c1c1e'}}
+                                            >
+                                              {[...Array(40)].map((_, i) => <option key={i+1} value={i+1}>{i+1} reps</option>)}
+                                            </select>
+                                          )}
+                                        </div>
+
+                                        {/* Per-exercise quick hide */}
+                                        <div style={{display:'flex', justifyContent:'flex-end', marginTop:10}}>
+                                          <button className="collapse-btn" onClick={() => toggleExerciseCollapsed(exerciseId)}>
+                                            <ChevronUp size={14} className="text-gray-400" /> Minimize
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                              </div>
-                            );
-                          })}
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
                   );
                 })}
 
-                <button onClick={logWorkout} style={{width:'100%',padding:'14px 0',background:'#007AFF',borderRadius:12,color:'white',fontSize:16,fontWeight:700,border:'none',marginTop:4}}>
+                <button
+                  onClick={logWorkout}
+                  style={{width:'100%', padding:'14px 0', background:'#007AFF', borderRadius:12, color:'white', fontSize:16, fontWeight:700, border:'none', marginTop:4}}
+                >
                   Complete Workout
                 </button>
 
                 {/* Daily Stretches */}
                 <div className="card overflow-hidden">
-                  <button onClick={() => setShowStretches(!showStretches)} style={{width:'100%',padding:'14px 16px',display:'flex',justifyContent:'space-between',alignItems:'center',background:'none',border:'none'}}>
-                    <span style={{color:'#1c1c1e',fontWeight:600,fontSize:15}}>🧘 Daily Stretches</span>
+                  <button
+                    onClick={() => setShowStretches(!showStretches)}
+                    style={{width:'100%', padding:'14px 16px', display:'flex', justifyContent:'space-between', alignItems:'center', background:'none', border:'none'}}
+                  >
+                    <span style={{color:'#1c1c1e', fontWeight:600, fontSize:15}}>🧘 Daily Stretches</span>
                     {showStretches ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
                   </button>
                   {showStretches && (
-                    <div style={{padding:'0 16px 16px',borderTop:'1px solid #f2f2f7'}}>
-                      {DAILY_STRETCHES.map((stretch,idx) => (
-                        <div key={idx} style={{display:'flex',gap:10,marginTop:10}}>
-                          <span style={{color:'#8e8e93',fontSize:13,minWidth:16}}>{idx+1}.</span>
-                          <span style={{color:'#3c3c43',fontSize:13}}>{stretch}</span>
+                    <div style={{padding:'0 16px 16px', borderTop:'1px solid #f2f2f7'}}>
+                      {DAILY_STRETCHES.map((stretch, idx) => (
+                        <div key={idx} style={{display:'flex', gap:10, marginTop:10}}>
+                          <span style={{color:'#8e8e93', fontSize:13, minWidth:16}}>{idx+1}.</span>
+                          <span style={{color:'#3c3c43', fontSize:13}}>{stretch}</span>
                         </div>
                       ))}
                     </div>
@@ -723,54 +898,72 @@
         );
       };
 
-      // ── RENDER SCHEDULE ────────────────────────────────────────────
+      // ─── SCHEDULE (unchanged behavior, already phase-grouped + collapsible day list style) ───────────
       const renderSchedule = () => {
-        const duration = programManifest?.durationWeeks||6;
+        const duration = programManifest?.durationWeeks || 6;
+
         return (
           <div className="space-y-4">
             <div className="card p-4">
-              <p style={{color:'#8e8e93',fontSize:11,fontWeight:600,letterSpacing:'0.05em',textTransform:'uppercase',marginBottom:4}}>Current Program</p>
-              <p style={{color:'#1c1c1e',fontSize:20,fontWeight:700}}>{programManifest?.name||'Loading...'}</p>
-              <p style={{color:'#8e8e93',fontSize:13,marginTop:2}}>{duration}-week program</p>
+              <p style={{color:'#8e8e93', fontSize:11, fontWeight:600, letterSpacing:'0.05em', textTransform:'uppercase', marginBottom:4}}>Current Program</p>
+              <p style={{color:'#1c1c1e', fontSize:20, fontWeight:700}}>{programManifest?.name || 'Loading...'}</p>
+              <p style={{color:'#8e8e93', fontSize:13, marginTop:2}}>{duration}-week program · {programManifest?.scheduleType === 'dayOfWeek' ? 'Day-based schedule' : ''}</p>
               <div className="flex items-center gap-2 mt-3" style={{flexWrap:'wrap'}}>
-                <span style={{fontSize:12,color:'#8e8e93'}}>You are on:</span>
-                <span style={{background:'#007AFF',color:'white',borderRadius:20,padding:'2px 10px',fontSize:12,fontWeight:600}}>Week {currentWeek}</span>
+                <span style={{fontSize:12, color:'#8e8e93'}}>You are on:</span>
+                <span style={{background:'#007AFF', color:'white', borderRadius:20, padding:'2px 10px', fontSize:12, fontWeight:600}}>Week {currentWeek}</span>
               </div>
             </div>
+
             {DAY_KEYS.map((dayKey, idx) => {
-              const rows = programDayCache[dayKey]||[];
-              const isToday = dayKey===todayDayKey;
+              const rows = programDayCache[dayKey] || [];
+              const isToday = dayKey === todayDayKey;
               const dayName = DAYS[idx];
+
               const byPhase = {};
-              rows.forEach(row => { const p=row.Phase||'Exercises'; if(!byPhase[p])byPhase[p]=[]; byPhase[p].push(row); });
+              rows.forEach(row => {
+                const phase = row.Phase || 'Exercises';
+                if (!byPhase[phase]) byPhase[phase] = [];
+                byPhase[phase].push(row);
+              });
+
               return (
-                <div key={dayKey} className="card overflow-hidden" style={{border:isToday?'2px solid #007AFF':'none'}}>
-                  <div style={{padding:'12px 16px',borderBottom:rows.length>0?'1px solid #f2f2f7':'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                    <div style={{display:'flex',alignItems:'center',gap:8}}>
-                      <h3 style={{color:'#1c1c1e',fontWeight:700,fontSize:16}}>{dayName}</h3>
-                      {isToday&&<span style={{background:'#007AFF',color:'white',borderRadius:20,padding:'1px 8px',fontSize:11,fontWeight:700}}>TODAY</span>}
+                <div key={dayKey} className="card overflow-hidden" style={{border: isToday ? '2px solid #007AFF' : 'none'}}>
+                  <div style={{padding:'12px 16px', borderBottom: rows.length > 0 ? '1px solid #f2f2f7' : 'none', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
+                    <div style={{display:'flex', alignItems:'center', gap:8}}>
+                      <h3 style={{color:'#1c1c1e', fontWeight:700, fontSize:16}}>{dayName}</h3>
+                      {isToday && <span style={{background:'#007AFF', color:'white', borderRadius:20, padding:'1px 8px', fontSize:11, fontWeight:700}}>TODAY</span>}
                     </div>
-                    <span style={{color:'#8e8e93',fontSize:12}}>{rows.length>0?`${rows.length} exercises`:'Rest day'}</span>
+                    <span style={{color:'#8e8e93', fontSize:12}}>{rows.length > 0 ? `${rows.length} exercises` : 'Rest day'}</span>
                   </div>
-                  {rows.length===0 ? (
-                    <div style={{padding:'12px 16px'}}><p style={{color:'#8e8e93',fontSize:14}}>😴 Rest & Recovery</p></div>
+
+                  {rows.length === 0 ? (
+                    <div style={{padding:'12px 16px'}}>
+                      <p style={{color:'#8e8e93', fontSize:14}}>😴 Rest & Recovery</p>
+                    </div>
                   ) : (
                     <div style={{padding:'8px 16px 16px'}}>
-                      {Object.entries(byPhase).map(([phase,phaseRows]) => {
-                        const ps = getPhaseStyle(phase);
+                      {Object.entries(byPhase).map(([phase, phaseRows]) => {
+                        const phaseStyle = getPhaseStyle(phase);
                         return (
                           <div key={phase} style={{marginTop:12}}>
-                            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                              <span className="phase-badge" style={{background:ps.bg,color:ps.text}}>{phase}</span>
+                            <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:8}}>
+                              <span className="phase-badge" style={{background:phaseStyle.bg, color:phaseStyle.text}}>{phase}</span>
                             </div>
-                            <div style={{display:'flex',flexDirection:'column',gap:6}}>
-                              {phaseRows.map((row,i) => (
-                                <div key={i} style={{display:'flex',alignItems:'flex-start',gap:10,padding:'8px 10px',background:'#f9f9f9',borderRadius:8}}>
-                                  <span style={{fontSize:16,flexShrink:0}}>{getExerciseEmoji(row.Exercise)}</span>
-                                  <div style={{flex:1,minWidth:0}}>
-                                    <p style={{color:'#1c1c1e',fontSize:13,fontWeight:500,marginBottom:2}}>{row.Exercise}</p>
-                                    {(row.Sets||row.Reps)&&<p style={{color:'#8e8e93',fontSize:12}}>{row.Sets&&`${row.Sets} sets`}{row.Sets&&row.Reps&&' × '}{row.Reps&&row.Reps}{row.Rest_Seconds&&row.Rest_Seconds!=='0'&&` · ${row.Rest_Seconds}s rest`}</p>}
-                                    {row.Notes_Substitutes&&<p style={{color:'#8e8e93',fontSize:11,marginTop:2,fontStyle:'italic'}}>{row.Notes_Substitutes}</p>}
+                            <div style={{display:'flex', flexDirection:'column', gap:6}}>
+                              {phaseRows.map((row, i) => (
+                                <div key={i} style={{display:'flex', alignItems:'flex-start', gap:10, padding:'8px 10px', background:'#f9f9f9', borderRadius:8}}>
+                                  <span style={{fontSize:16, flexShrink:0}}>{getExerciseEmoji(row.Exercise)}</span>
+                                  <div style={{flex:1, minWidth:0}}>
+                                    <p style={{color:'#1c1c1e', fontSize:13, fontWeight:500, marginBottom:2}}>{row.Exercise}</p>
+                                    {(row.Sets || row.Reps) && (
+                                      <p style={{color:'#8e8e93', fontSize:12}}>
+                                        {row.Sets && `${row.Sets} sets`}{row.Sets && row.Reps && ' × '}{row.Reps && row.Reps}
+                                        {row.Rest_Seconds && row.Rest_Seconds !== '0' && ` · ${row.Rest_Seconds}s rest`}
+                                      </p>
+                                    )}
+                                    {row.Notes_Substitutes && (
+                                      <p style={{color:'#8e8e93', fontSize:11, marginTop:2, fontStyle:'italic'}}>{row.Notes_Substitutes}</p>
+                                    )}
                                   </div>
                                 </div>
                               ))}
@@ -787,99 +980,116 @@
         );
       };
 
-      // ── RENDER STRENGTH ────────────────────────────────────────────
+      // ─── STRENGTH ───────────────────────────────────────────
       const renderStrength = () => {
-        const exercisesWithData = [...new Set(workoutLogs.filter(l=>l.programId===activeProgramId).map(l=>l.exerciseId))];
+        const exercisesWithData = [...new Set(workoutLogs.filter(log => log.programId === activeProgramId).map(log => log.exerciseId))];
+
         return (
           <div className="space-y-3">
-            <h2 style={{color:'#1c1c1e',fontSize:22,fontWeight:700}}>Strength Progress</h2>
-            {exercisesWithData.length===0 ? (
-              <div className="card p-8 text-center"><p style={{color:'#8e8e93'}}>No workout data yet. Start logging!</p></div>
-            ) : exercisesWithData.map((exerciseId,idx) => {
-              const allLogs = getAllWorkouts(exerciseId);
-              const last = allLogs[0]; const progress = calculateGain(exerciseId);
-              const isExpanded = expandedExercises[exerciseId];
-              if (!last||!progress) return null;
-              const { first, gain } = progress; const isCardio = last.isCardio;
-              return (
-                <div key={idx} className="card overflow-hidden">
-                  <div style={{padding:16}}>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span style={{fontSize:22}}>{getExerciseEmoji(last.exerciseName)}</span>
-                      <h3 style={{color:'#1c1c1e',fontWeight:600,fontSize:15,flex:1}}>{last.exerciseName}</h3>
-                      <button onClick={() => setExpandedExercises(prev=>({...prev,[exerciseId]:!prev[exerciseId]}))} style={{background:'none',border:'none',padding:4}}>
-                        {isExpanded?<ChevronUp size={16} color="#8e8e93"/>:<ChevronDown size={16} color="#8e8e93"/>}
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3" style={{marginBottom:12}}>
-                      <div style={{background:'#f2f2f7',borderRadius:10,padding:'10px 12px'}}>
-                        <p style={{color:'#8e8e93',fontSize:11,fontWeight:600,marginBottom:4}}>BASELINE</p>
-                        <p style={{color:'#1c1c1e',fontSize:14,fontWeight:500}}>{first.weight}{isCardio?'°':'lbs'} × {first.reps}</p>
+            <h2 style={{color:'#1c1c1e', fontSize:22, fontWeight:700}}>Strength Progress</h2>
+            {exercisesWithData.length === 0 ? (
+              <div className="card p-8 text-center">
+                <p style={{color:'#8e8e93'}}>No workout data yet. Start logging!</p>
+              </div>
+            ) : (
+              exercisesWithData.map((exerciseId, idx) => {
+                const allLogs = getAllWorkouts(exerciseId);
+                const last = allLogs[0];
+                const progress = calculateGain(exerciseId);
+                const isExpanded = expandedExercises[exerciseId];
+                if (!last || !progress) return null;
+                const { first, gain } = progress;
+                const isCardio = last.isCardio;
+
+                return (
+                  <div key={idx} className="card overflow-hidden">
+                    <div style={{padding:16}}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span style={{fontSize:22}}>{getExerciseEmoji(last.exerciseName)}</span>
+                        <h3 style={{color:'#1c1c1e', fontWeight:600, fontSize:15, flex:1}}>{last.exerciseName}</h3>
+                        <button onClick={() => setExpandedExercises(prev => ({ ...prev, [exerciseId]: !prev[exerciseId] }))} style={{background:'none',border:'none',padding:4}}>
+                          {isExpanded ? <ChevronUp size={16} color="#8e8e93" /> : <ChevronDown size={16} color="#8e8e93" />}
+                        </button>
                       </div>
-                      <div style={{background:'#f2f2f7',borderRadius:10,padding:'10px 12px'}}>
-                        <p style={{color:'#8e8e93',fontSize:11,fontWeight:600,marginBottom:4}}>CURRENT</p>
-                        <p style={{color:'#1c1c1e',fontSize:14,fontWeight:500}}>{last.weight}{isCardio?'°':'lbs'} × {last.reps}</p>
-                      </div>
-                    </div>
-                    <div style={{display:'flex',alignItems:'center',gap:6,color:gain>0?'#34c759':gain<0?'#ff3b30':'#8e8e93'}}>
-                      {gain>0&&<ArrowUp size={14}/>}
-                      <span style={{fontWeight:700,fontSize:16}}>{gain>0?'+':''}{gain}%</span>
-                      <span style={{fontSize:13,color:'#8e8e93'}}>volume change</span>
-                    </div>
-                  </div>
-                  {isExpanded&&(
-                    <div style={{borderTop:'1px solid #f2f2f7',padding:16,background:'#fafafa'}}>
-                      <p style={{color:'#8e8e93',fontSize:11,fontWeight:700,letterSpacing:'0.05em',textTransform:'uppercase',marginBottom:10}}>History</p>
-                      {allLogs.map((log,i)=>(
-                        <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:i<allLogs.length-1?'1px solid #f2f2f7':'none'}}>
-                          <span style={{color:'#8e8e93',fontSize:13}}>{log.date} · W{log.week}</span>
-                          <span style={{color:'#1c1c1e',fontSize:13,fontWeight:500}}>{log.weight}{log.isCardio?'°':'lbs'} × {log.reps}</span>
+                      <div className="grid grid-cols-2 gap-3" style={{marginBottom:12}}>
+                        <div style={{background:'#f2f2f7', borderRadius:10, padding:'10px 12px'}}>
+                          <p style={{color:'#8e8e93', fontSize:11, fontWeight:600, marginBottom:4}}>BASELINE</p>
+                          <p style={{color:'#1c1c1e', fontSize:14, fontWeight:500}}>{first.weight}{isCardio ? '°' : 'lbs'} × {first.reps}</p>
                         </div>
-                      ))}
+                        <div style={{background:'#f2f2f7', borderRadius:10, padding:'10px 12px'}}>
+                          <p style={{color:'#8e8e93', fontSize:11, fontWeight:600, marginBottom:4}}>CURRENT</p>
+                          <p style={{color:'#1c1c1e', fontSize:14, fontWeight:500}}>{last.weight}{isCardio ? '°' : 'lbs'} × {last.reps}</p>
+                        </div>
+                      </div>
+                      <div style={{display:'flex', alignItems:'center', gap:6, color: gain > 0 ? '#34c759' : gain < 0 ? '#ff3b30' : '#8e8e93'}}>
+                        {gain > 0 && <ArrowUp size={14} />}
+                        <span style={{fontWeight:700, fontSize:16}}>{gain > 0 ? '+' : ''}{gain}%</span>
+                        <span style={{fontSize:13, color:'#8e8e93'}}>volume change</span>
+                      </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                    {isExpanded && (
+                      <div style={{borderTop:'1px solid #f2f2f7', padding:16, background:'#fafafa'}}>
+                        <p style={{color:'#8e8e93', fontSize:11, fontWeight:700, letterSpacing:'0.05em', textTransform:'uppercase', marginBottom:10}}>History</p>
+                        {allLogs.map((log, i) => (
+                          <div key={i} style={{display:'flex', justifyContent:'space-between', padding:'6px 0', borderBottom: i < allLogs.length-1 ? '1px solid #f2f2f7' : 'none'}}>
+                            <span style={{color:'#8e8e93', fontSize:13}}>{log.date} · W{log.week}</span>
+                            <span style={{color:'#1c1c1e', fontSize:13, fontWeight:500}}>{log.weight}{log.isCardio ? '°' : 'lbs'} × {log.reps}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
         );
       };
 
-      // ── RENDER TRENDS ──────────────────────────────────────────────
+      // ─── TRENDS ─────────────────────────────────────────────
       const renderTrends = () => {
-        const sortedLogs = [...bodyweightLogs].sort((a,b)=>new Date(a.date)-new Date(b.date));
+        const sortedLogs = [...bodyweightLogs].sort((a, b) => new Date(a.date) - new Date(b.date));
+
         return (
           <div className="space-y-3">
-            <h2 style={{color:'#1c1c1e',fontSize:22,fontWeight:700}}>Bodyweight Trends</h2>
-            {sortedLogs.length===0 ? (
-              <div className="card p-8 text-center"><p style={{color:'#8e8e93'}}>No bodyweight data yet</p></div>
+            <h2 style={{color:'#1c1c1e', fontSize:22, fontWeight:700}}>Bodyweight Trends</h2>
+            {sortedLogs.length === 0 ? (
+              <div className="card p-8 text-center">
+                <p style={{color:'#8e8e93'}}>No bodyweight data yet</p>
+              </div>
             ) : (
               <>
                 <div className="card p-4">
-                  <div style={{height:160,position:'relative'}}>
-                    <svg viewBox="0 0 300 150" style={{width:'100%',height:'100%'}}>
-                      {sortedLogs.map((log,i)=>{
-                        if(i===0)return null;
-                        const prev=sortedLogs[i-1];
-                        const x1=(i-1)*(300/(sortedLogs.length-1)), x2=i*(300/(sortedLogs.length-1));
-                        const minW=Math.min(...sortedLogs.map(l=>l.weight)), maxW=Math.max(...sortedLogs.map(l=>l.weight)), range=maxW-minW||1;
-                        const y1=150-((prev.weight-minW)/range*130+10), y2=150-((log.weight-minW)/range*130+10);
-                        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#007AFF" strokeWidth="2.5" strokeLinecap="round"/>;
+                  <div style={{height:160, position:'relative'}}>
+                    <svg viewBox="0 0 300 150" style={{width:'100%', height:'100%'}}>
+                      {sortedLogs.map((log, i) => {
+                        if (i === 0) return null;
+                        const prevLog = sortedLogs[i - 1];
+                        const x1 = (i - 1) * (300 / (sortedLogs.length - 1));
+                        const x2 = i * (300 / (sortedLogs.length - 1));
+                        const minW = Math.min(...sortedLogs.map(l => l.weight));
+                        const maxW = Math.max(...sortedLogs.map(l => l.weight));
+                        const range = maxW - minW || 1;
+                        const y1 = 150 - ((prevLog.weight - minW) / range * 130 + 10);
+                        const y2 = 150 - ((log.weight - minW) / range * 130 + 10);
+                        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#007AFF" strokeWidth="2.5" strokeLinecap="round" />;
                       })}
-                      {sortedLogs.map((log,i)=>{
-                        const x=sortedLogs.length>1?i*(300/(sortedLogs.length-1)):150;
-                        const minW=Math.min(...sortedLogs.map(l=>l.weight)), maxW=Math.max(...sortedLogs.map(l=>l.weight)), range=maxW-minW||1;
-                        const y=150-((log.weight-minW)/range*130+10);
-                        return <circle key={i} cx={x} cy={y} r="4" fill="#007AFF"/>;
+                      {sortedLogs.map((log, i) => {
+                        const x = sortedLogs.length > 1 ? i * (300 / (sortedLogs.length - 1)) : 150;
+                        const minW = Math.min(...sortedLogs.map(l => l.weight));
+                        const maxW = Math.max(...sortedLogs.map(l => l.weight));
+                        const range = maxW - minW || 1;
+                        const y = 150 - ((log.weight - minW) / range * 130 + 10);
+                        return <circle key={i} cx={x} cy={y} r="4" fill="#007AFF" />;
                       })}
                     </svg>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  {[...sortedLogs].reverse().map((log,i)=>(
-                    <div key={i} className="card" style={{padding:'12px 16px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                      <span style={{color:'#8e8e93',fontSize:14}}>{log.date}</span>
-                      <span style={{color:'#1c1c1e',fontSize:16,fontWeight:600}}>{log.weight} lbs</span>
+                  {[...sortedLogs].reverse().map((log, i) => (
+                    <div key={i} className="card" style={{padding:'12px 16px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                      <span style={{color:'#8e8e93', fontSize:14}}>{log.date}</span>
+                      <span style={{color:'#1c1c1e', fontSize:16, fontWeight:600}}>{log.weight} lbs</span>
                     </div>
                   ))}
                 </div>
@@ -889,86 +1099,109 @@
         );
       };
 
-      // ── RENDER HISTORY ─────────────────────────────────────────────
+      // ─── HISTORY ────────────────────────────────────────────
       const renderHistory = () => (
         <div className="space-y-3">
-          <h2 style={{color:'#1c1c1e',fontSize:22,fontWeight:700}}>Program History</h2>
-          {history.length===0 ? (
-            <div className="card p-8 text-center"><p style={{color:'#8e8e93'}}>No completed programs yet.</p></div>
-          ) : history.map(item=>{
-            const isExpanded=expandedHistory[item.id];
-            return (
-              <div key={item.id} className="card overflow-hidden">
-                <button onClick={()=>setExpandedHistory(prev=>({...prev,[item.id]:!prev[item.id]}))} style={{width:'100%',padding:'14px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',background:'none',border:'none'}}>
-                  <div className="text-left">
-                    <p style={{color:'#1c1c1e',fontWeight:600,fontSize:15}}>{item.programName}</p>
-                    <p style={{color:'#8e8e93',fontSize:12,marginTop:2}}>{item.startDate} → {item.endDate}</p>
-                  </div>
-                  {isExpanded?<ChevronUp size={16} color="#8e8e93"/>:<ChevronDown size={16} color="#8e8e93"/>}
-                </button>
-                {isExpanded&&<div style={{borderTop:'1px solid #f2f2f7',padding:'12px 16px',background:'#fafafa'}}><p style={{color:'#3c3c43',fontSize:13}}>Completed: {item.completedDays}/{item.totalDays} days ({item.completionRate}%)</p></div>}
-              </div>
-            );
-          })}
+          <h2 style={{color:'#1c1c1e', fontSize:22, fontWeight:700}}>Program History</h2>
+          {history.length === 0 ? (
+            <div className="card p-8 text-center">
+              <p style={{color:'#8e8e93'}}>No completed programs yet.</p>
+            </div>
+          ) : (
+            history.map(item => {
+              const isExpanded = expandedHistory[item.id];
+              return (
+                <div key={item.id} className="card overflow-hidden">
+                  <button
+                    onClick={() => setExpandedHistory(prev => ({ ...prev, [item.id]: !prev[item.id] }))}
+                    style={{width:'100%', padding:'14px 16px', display:'flex', alignItems:'center', justifyContent:'space-between', background:'none', border:'none'}}
+                  >
+                    <div className="text-left">
+                      <p style={{color:'#1c1c1e', fontWeight:600, fontSize:15}}>{item.programName}</p>
+                      <p style={{color:'#8e8e93', fontSize:12, marginTop:2}}>{item.startDate} → {item.endDate}</p>
+                    </div>
+                    {isExpanded ? <ChevronUp size={16} color="#8e8e93" /> : <ChevronDown size={16} color="#8e8e93" />}
+                  </button>
+                  {isExpanded && (
+                    <div style={{borderTop:'1px solid #f2f2f7', padding:'12px 16px', background:'#fafafa'}}>
+                      <p style={{color:'#3c3c43', fontSize:13}}>Completed: {item.completedDays}/{item.totalDays} days ({item.completionRate}%)</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       );
 
       return (
-        <div style={{minHeight:'100vh',background:'#f2f2f7',paddingBottom:80}}>
+        <div style={{minHeight:'100vh', background:'#f2f2f7', paddingBottom:80}}>
           {/* Top bar */}
-          <div className="top-bar" style={{position:'sticky',top:0,zIndex:50}}>
-            <div style={{maxWidth:480,margin:'0 auto',padding:'12px 16px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <h1 style={{fontSize:20,fontWeight:700,color:'#1c1c1e'}}>Workout Tracker</h1>
-              <button onClick={()=>setShowMenu(!showMenu)} style={{padding:8,borderRadius:8,background:showMenu?'#e5e5ea':'none',border:'none'}}>
-                <Menu size={22} color="#1c1c1e"/>
+          <div className="top-bar" style={{position:'sticky', top:0, zIndex:50}}>
+            <div style={{maxWidth:480, margin:'0 auto', padding:'12px 16px', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+              <h1 style={{fontSize:20, fontWeight:700, color:'#1c1c1e'}}>Workout Tracker</h1>
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                style={{padding:8, borderRadius:8, background: showMenu ? '#e5e5ea' : 'none', border:'none'}}
+              >
+                <Menu size={22} color="#1c1c1e" />
               </button>
             </div>
           </div>
 
           {/* Menu */}
-          {showMenu&&(
-            <div style={{background:'white',borderBottom:'1px solid #e5e5ea'}}>
-              <div style={{maxWidth:480,margin:'0 auto',padding:16,display:'flex',flexDirection:'column',gap:8}}>
-                <div style={{background:'#f2f2f7',borderRadius:12,padding:12}}>
-                  <p style={{color:'#8e8e93',fontSize:11,fontWeight:600,letterSpacing:'0.05em',textTransform:'uppercase',marginBottom:8}}>Program</p>
-                  <select value={activeProgramId} onChange={e=>setActiveProgramId(e.target.value)} style={{width:'100%',background:'white',border:'none',borderRadius:8,padding:'10px 12px',fontSize:14,color:'#1c1c1e'}}>
-                    {programs.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}
+          {showMenu && (
+            <div style={{background:'white', borderBottom:'1px solid #e5e5ea'}}>
+              <div style={{maxWidth:480, margin:'0 auto', padding:16, display:'flex', flexDirection:'column', gap:8}}>
+                <div style={{background:'#f2f2f7', borderRadius:12, padding:12}}>
+                  <p style={{color:'#8e8e93', fontSize:11, fontWeight:600, letterSpacing:'0.05em', textTransform:'uppercase', marginBottom:8}}>Program</p>
+                  <select
+                    value={activeProgramId}
+                    onChange={(e) => setActiveProgramId(e.target.value)}
+                    style={{width:'100%', background:'white', border:'none', borderRadius:8, padding:'10px 12px', fontSize:14, color:'#1c1c1e'}}
+                  >
+                    {programs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                   </select>
-                  {programLoadError&&<p style={{color:'#ff3b30',fontSize:12,marginTop:6}}>{programLoadError}</p>}
+                  {programLoadError && <p style={{color:'#ff3b30', fontSize:12, marginTop:6}}>{programLoadError}</p>}
                 </div>
-                <button onClick={exportData} style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px',background:'#f2f2f7',borderRadius:12,border:'none',width:'100%',color:'#1c1c1e',fontSize:14,fontWeight:500}}>
-                  <Download size={18} color="#007AFF"/> Export Data
+
+                <button onClick={exportData} style={{display:'flex', alignItems:'center', gap:12, padding:'12px 16px', background:'#f2f2f7', borderRadius:12, border:'none', width:'100%', color:'#1c1c1e', fontSize:14, fontWeight:500}}>
+                  <Download size={18} color="#007AFF" /> Export Data
                 </button>
-                <button onClick={()=>fileInputRef.current?.click()} style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px',background:'#f2f2f7',borderRadius:12,border:'none',width:'100%',color:'#1c1c1e',fontSize:14,fontWeight:500}}>
-                  <Upload size={18} color="#007AFF"/> Import Data
+                <button onClick={() => fileInputRef.current?.click()} style={{display:'flex', alignItems:'center', gap:12, padding:'12px 16px', background:'#f2f2f7', borderRadius:12, border:'none', width:'100%', color:'#1c1c1e', fontSize:14, fontWeight:500}}>
+                  <Upload size={18} color="#007AFF" /> Import Data
                 </button>
-                <input ref={fileInputRef} type="file" accept=".json" onChange={importData} className="hidden"/>
+                <input ref={fileInputRef} type="file" accept=".json" onChange={importData} className="hidden" />
               </div>
             </div>
           )}
 
           {/* Content */}
-          <div style={{maxWidth:480,margin:'0 auto',padding:16}}>
-            {tab==='today'&&renderToday()}
-            {tab==='schedule'&&renderSchedule()}
-            {tab==='strength'&&renderStrength()}
-            {tab==='trends'&&renderTrends()}
-            {tab==='history'&&renderHistory()}
+          <div style={{maxWidth:480, margin:'0 auto', padding:16}}>
+            {tab === 'today' && renderToday()}
+            {tab === 'schedule' && renderSchedule()}
+            {tab === 'strength' && renderStrength()}
+            {tab === 'trends' && renderTrends()}
+            {tab === 'history' && renderHistory()}
           </div>
 
           {/* Bottom nav */}
-          <nav className="nav-bar" style={{position:'fixed',bottom:0,left:0,right:0,zIndex:50}}>
-            <div style={{maxWidth:480,margin:'0 auto',display:'flex',justifyContent:'space-around',padding:'8px 0 12px'}}>
+          <nav className="nav-bar" style={{position:'fixed', bottom:0, left:0, right:0, zIndex:50}}>
+            <div style={{maxWidth:480, margin:'0 auto', display:'flex', justifyContent:'space-around', padding:'8px 0 12px'}}>
               {[
-                {key:'today',label:'Today',icon:<Dumbbell size={22}/>},
-                {key:'schedule',label:'Schedule',icon:<Calendar size={22}/>},
-                {key:'strength',label:'Strength',icon:<TrendingUp size={22}/>},
-                {key:'trends',label:'Trends',icon:<TrendingUp size={22}/>},
-                {key:'history',label:'History',icon:<Calendar size={22}/>},
-              ].map(({key,label,icon})=>(
-                <button key={key} onClick={()=>setTab(key)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,background:'none',border:'none',color:tab===key?'#007AFF':'#8e8e93',minWidth:56}}>
+                { key:'today', label:'Today', icon:<Dumbbell size={22} /> },
+                { key:'schedule', label:'Schedule', icon:<Calendar size={22} /> },
+                { key:'strength', label:'Strength', icon:<TrendingUp size={22} /> },
+                { key:'trends', label:'Trends', icon:<TrendingUp size={22} /> },
+                { key:'history', label:'History', icon:<Calendar size={22} /> },
+              ].map(({ key, label, icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setTab(key)}
+                  style={{display:'flex', flexDirection:'column', alignItems:'center', gap:3, background:'none', border:'none', color: tab === key ? '#007AFF' : '#8e8e93', minWidth:56}}
+                >
                   {icon}
-                  <span style={{fontSize:10,fontWeight:tab===key?600:400}}>{label}</span>
+                  <span style={{fontSize:10, fontWeight: tab === key ? 600 : 400}}>{label}</span>
                 </button>
               ))}
             </div>
@@ -977,7 +1210,9 @@
       );
     }
 
-    ReactDOM.render(<WorkoutTracker/>, document.getElementById('root'));
+    // React 18 UMD: createRoot is available
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<WorkoutTracker />);
   </script>
 </body>
 </html>
