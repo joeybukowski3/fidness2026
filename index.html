@@ -1,16 +1,16 @@
+
+You said:
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Workout Tracker</title>
-
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     * { -webkit-font-smoothing: antialiased; }
@@ -67,42 +67,18 @@
 
     /* SVG icon color helper */
     .text-gray-400 { color: #8e8e93; }
-
-    /* Collapsibles */
-    .collapse-btn {
-      background: #f2f2f7;
-      border: none;
-      border-radius: 10px;
-      padding: 6px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #1c1c1e;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-    .collapse-btn:active { transform: translateY(0.5px); }
-    .exercise-header-btn {
-      width: 100%;
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-    }
   </style>
 </head>
-
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef, useMemo } = React;
+    const { useState, useEffect, useRef } = React;
 
     const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const DAY_KEYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
     const STORAGE_KEY = 'workoutAppState';
-    const APP_VERSION = 2;
+    const APP_VERSION = 1;
 
     const DAILY_STRETCHES = [
       '90/90 Hip Switch',
@@ -226,7 +202,7 @@
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
       const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      return ${year}-${month}-${day};
     };
 
     const parseLocalDate = (value) => {
@@ -263,6 +239,7 @@
       const [programs, setPrograms] = useState([]);
       const [programManifest, setProgramManifest] = useState(null);
       const [programBasePath, setProgramBasePath] = useState('');
+      // Full row data cache (includes Phase, Sets, Reps, Notes)
       const [programDayCache, setProgramDayCache] = useState({});
       const [programLoadError, setProgramLoadError] = useState('');
 
@@ -284,14 +261,6 @@
       const [viewWeek, setViewWeek] = useState(1);
       const fileInputRef = useRef(null);
 
-      // NEW: collapse state for Today tab:
-      // - exerciseCollapsed: per-exercise open/closed (default open)
-      // - phaseCollapsed: per-phase open/closed (default open)
-      // - hideCompletedExercises: whether to auto-hide exercises once they are logged today
-      const [exerciseCollapsed, setExerciseCollapsed] = useState({});
-      const [phaseCollapsed, setPhaseCollapsed] = useState({});
-      const [hideCompletedExercises, setHideCompletedExercises] = useState(true);
-
       const today = new Date();
       const todayStr = toLocalDateString(today);
       const todayDayKey = DAY_KEYS[today.getDay()];
@@ -306,6 +275,7 @@
             const data = await response.json();
             const list = data.programs || [];
             setPrograms(list);
+            // Auto-select first program
             if (list.length > 0) setActiveProgramId(list[0].id);
           } catch (error) {
             console.error(error);
@@ -331,11 +301,6 @@
             setBodyweightLogs(data.bodyweightLogs || []);
             setHistory(data.history || []);
             setViewWeek(data.currentWeek || 1);
-
-            // NEW persisted UI prefs (safe defaults)
-            setExerciseCollapsed(data.exerciseCollapsed || {});
-            setPhaseCollapsed(data.phaseCollapsed || {});
-            setHideCompletedExercises(typeof data.hideCompletedExercises === 'boolean' ? data.hideCompletedExercises : true);
             return;
           }
         }
@@ -346,22 +311,10 @@
       // Save state
       useEffect(() => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
-          version: APP_VERSION,
-          activeProgramId,
-          programStartDate,
-          currentWeek,
-          completedDays,
-          lastOpenedDate,
-          workoutLogs,
-          bodyweightLogs,
-          history,
-
-          // NEW persisted UI state
-          exerciseCollapsed,
-          phaseCollapsed,
-          hideCompletedExercises
+          version: APP_VERSION, activeProgramId, programStartDate, currentWeek,
+          completedDays, lastOpenedDate, workoutLogs, bodyweightLogs, history
         }));
-      }, [activeProgramId, programStartDate, currentWeek, completedDays, lastOpenedDate, workoutLogs, bodyweightLogs, history, exerciseCollapsed, phaseCollapsed, hideCompletedExercises]);
+      }, [activeProgramId, programStartDate, currentWeek, completedDays, lastOpenedDate, workoutLogs, bodyweightLogs, history]);
 
       // Update week based on start date
       useEffect(() => {
@@ -391,11 +344,12 @@
             const basePath = selected.path.split('/').slice(0, -1).join('/');
             setProgramBasePath(basePath);
             setProgramDayCache({});
+            // Auto-load all days
             await loadAllDays(manifest, basePath);
           } catch (error) {
             console.error(error);
             setProgramManifest(null);
-            setProgramLoadError(`Unable to load program: ${selected.name}`);
+            setProgramLoadError(Unable to load program: ${selected.name});
           }
         };
 
@@ -407,12 +361,13 @@
         await Promise.all(DAY_KEYS.map(async (dayKey) => {
           const fileName = manifest.fileMap?.[dayKey];
           if (!fileName) { cache[dayKey] = []; return; }
-          const filePath = `${basePath}/${fileName}`;
+          const filePath = ${basePath}/${fileName};
           try {
             const response = await fetch(filePath);
             if (!response.ok) throw new Error('Missing file');
             const text = await response.text();
             const rows = parseCsv(text);
+            // Store full row data
             cache[dayKey] = rows.filter(row => row.Exercise);
           } catch (error) {
             cache[dayKey] = [];
@@ -421,7 +376,7 @@
         setProgramDayCache(cache);
       };
 
-      // Set default inputs for today's exercises (avoid wiping existing entries)
+      // Set default inputs for today's exercises
       useEffect(() => {
         const exercises = (programDayCache[todayDayKey] || []).map(r => r.Exercise);
         const defaults = {};
@@ -462,34 +417,8 @@
         return { first, last, gain: parseFloat(gain) };
       };
 
-      // NEW: determine if an exercise is already logged today (to optionally auto-hide it)
-      const isExerciseLoggedToday = (exerciseId) => {
-        return workoutLogs.some(l => l.programId === activeProgramId && l.date === todayStr && l.exerciseId === exerciseId);
-      };
-
-      const toggleExerciseCollapsed = (exerciseId) => {
-        setExerciseCollapsed(prev => ({ ...prev, [exerciseId]: !prev[exerciseId] }));
-      };
-
-      const togglePhaseCollapsed = (phaseKey) => {
-        setPhaseCollapsed(prev => ({ ...prev, [phaseKey]: !prev[phaseKey] }));
-      };
-
-      const collapseAllPhases = (byPhase) => {
-        const next = {};
-        Object.keys(byPhase).forEach(k => next[k] = true);
-        setPhaseCollapsed(prev => ({ ...prev, ...next }));
-      };
-
-      const expandAllPhases = (byPhase) => {
-        const next = {};
-        Object.keys(byPhase).forEach(k => next[k] = false);
-        setPhaseCollapsed(prev => ({ ...prev, ...next }));
-      };
-
       const logWorkout = () => {
         const exercises = (programDayCache[todayDayKey] || []).map(r => r.Exercise);
-
         const logs = exercises.map(exName => {
           const isCardio = isCardioExercise(exName);
           return {
@@ -511,15 +440,6 @@
 
         if (logs.length > 0) {
           setWorkoutLogs(prev => [...prev, ...logs]);
-
-          // NEW: auto-collapse exercises that were logged (and optionally phases handled by auto-hide)
-          const newlyLoggedIds = logs.map(l => l.exerciseId);
-          setExerciseCollapsed(prev => {
-            const next = { ...prev };
-            newlyLoggedIds.forEach(id => { next[id] = true; });
-            return next;
-          });
-
           setTodayInputs({});
           alert('Workout logged!');
         } else {
@@ -551,28 +471,11 @@
       };
 
       const exportData = () => {
-        const data = {
-          version: APP_VERSION,
-          activeProgramId,
-          programStartDate,
-          currentWeek,
-          completedDays,
-          lastOpenedDate,
-          workoutLogs,
-          bodyweightLogs,
-          history,
-
-          // NEW
-          exerciseCollapsed,
-          phaseCollapsed,
-          hideCompletedExercises,
-
-          exportDate: new Date().toISOString()
-        };
+        const data = { version: APP_VERSION, activeProgramId, programStartDate, currentWeek, completedDays, lastOpenedDate, workoutLogs, bodyweightLogs, history, exportDate: new Date().toISOString() };
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
-        a.href = url; a.download = `workout-tracker-backup-${todayStr}.json`;
+        a.href = url; a.download = workout-tracker-backup-${todayStr}.json;
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         URL.revokeObjectURL(url);
         setShowMenu(false);
@@ -596,38 +499,20 @@
               setBodyweightLogs(data.bodyweightLogs || []);
               setHistory(data.history || []);
               setViewWeek(data.currentWeek || 1);
-
-              // NEW
-              setExerciseCollapsed(data.exerciseCollapsed || {});
-              setPhaseCollapsed(data.phaseCollapsed || {});
-              setHideCompletedExercises(typeof data.hideCompletedExercises === 'boolean' ? data.hideCompletedExercises : true);
-
               setShowMenu(false);
               alert('Data imported.');
             }
-          } catch {
-            alert('Error importing data.');
-          }
+          } catch { alert('Error importing data.'); }
         };
         reader.readAsText(file);
         event.target.value = '';
       };
 
-      // ─── TODAY: group exercises by phase, collapsible phases + exercises ───────────
+      // ─── RENDER TODAY ──────────────────────────────────────────────
       const renderToday = () => {
-        const rows = programDayCache[todayDayKey] || [];
+        const exercises = programDayCache[todayDayKey] || [];
         const completed = getCompletedForProgram()[todayStr];
         const missedDays = getMissedDays();
-
-        // group by phase for Today
-        const byPhase = {};
-        rows.forEach(row => {
-          const phase = (row.Phase || 'Exercises').trim() || 'Exercises';
-          if (!byPhase[phase]) byPhase[phase] = [];
-          byPhase[phase].push(row);
-        });
-
-        const phaseKeys = Object.keys(byPhase);
 
         return (
           <div className="space-y-3">
@@ -657,34 +542,10 @@
                   Restart
                 </button>
               </div>
-
               <div className="flex justify-between" style={{fontSize:12, color:'#8e8e93'}}>
                 <span>Started {programStartDate || 'Not set'}</span>
                 {missedDays.length > 0 && <span style={{color:'#ff9500'}}>⚠ {missedDays.length} missed</span>}
               </div>
-
-              {/* NEW: Quick controls */}
-              {rows.length > 0 && (
-                <div className="flex items-center justify-between mt-3" style={{gap: 10}}>
-                  <div className="flex items-center gap-2">
-                    <button className="collapse-btn" onClick={() => expandAllPhases(byPhase)}>
-                      <ChevronDown size={14} className="text-gray-400" /> Expand all
-                    </button>
-                    <button className="collapse-btn" onClick={() => collapseAllPhases(byPhase)}>
-                      <ChevronUp size={14} className="text-gray-400" /> Collapse all
-                    </button>
-                  </div>
-
-                  <button
-                    className="collapse-btn"
-                    onClick={() => setHideCompletedExercises(v => !v)}
-                    title="Auto-hide exercises you already logged today"
-                    style={{background: hideCompletedExercises ? '#e8f5e9' : '#f2f2f7', color: hideCompletedExercises ? '#2e7d32' : '#1c1c1e'}}
-                  >
-                    {hideCompletedExercises ? '✓ Auto-hide logged' : 'Auto-hide logged'}
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* Bodyweight */}
@@ -712,7 +573,7 @@
               {completed && <span style={{color:'#34c759', fontSize:13, fontWeight:600}}>✓ Completed</span>}
             </div>
 
-            {rows.length === 0 ? (
+            {exercises.length === 0 ? (
               <div className="card p-8 text-center">
                 <p style={{color:'#8e8e93', marginBottom:16}}>No workout scheduled for {todayDayName}</p>
                 <button
@@ -724,143 +585,62 @@
               </div>
             ) : (
               <>
-                {/* Phase Sections */}
-                {phaseKeys.map((phase) => {
+                {exercises.map((row, idx) => {
+                  const exName = row.Exercise;
+                  const exerciseId = slugify(exName);
+                  const last = getLastWorkout(exerciseId);
+                  const isCardio = isCardioExercise(exName);
+                  const phase = row.Phase || '';
                   const phaseStyle = getPhaseStyle(phase);
-                  const phaseIsCollapsed = !!phaseCollapsed[phase];
-
-                  const phaseRows = byPhase[phase] || [];
-                  const visibleRows = phaseRows.filter(row => {
-                    const exId = slugify(row.Exercise);
-                    if (!hideCompletedExercises) return true;
-                    return !isExerciseLoggedToday(exId);
-                  });
 
                   return (
-                    <div key={phase} className="card overflow-hidden">
-                      {/* Phase header */}
-                      <div style={{padding:'14px 16px', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
-                        <div style={{display:'flex', alignItems:'center', gap:10}}>
-                          <span className="phase-badge" style={{background:phaseStyle.bg, color:phaseStyle.text}}>
-                            {phase.replace(' (Optional)', '').replace('Pre-Workout ', '')}
-                          </span>
-                          <span style={{color:'#8e8e93', fontSize:12}}>
-                            {visibleRows.length}/{phaseRows.length} shown
-                          </span>
-                        </div>
-                        <button
-                          className="collapse-btn"
-                          onClick={() => togglePhaseCollapsed(phase)}
-                          title={phaseIsCollapsed ? 'Expand section' : 'Collapse section'}
-                        >
-                          {phaseIsCollapsed ? <ChevronDown size={14} className="text-gray-400" /> : <ChevronUp size={14} className="text-gray-400" />}
-                          {phaseIsCollapsed ? 'Expand' : 'Collapse'}
-                        </button>
-                      </div>
-
-                      {!phaseIsCollapsed && (
-                        <div style={{padding:'0 16px 16px', borderTop:'1px solid #f2f2f7'}}>
-                          {visibleRows.length === 0 ? (
-                            <div style={{paddingTop:12}}>
-                              <p style={{color:'#8e8e93', fontSize:13}}>All exercises in this section are logged today.</p>
-                            </div>
-                          ) : (
-                            <div style={{display:'flex', flexDirection:'column', gap:10, paddingTop:12}}>
-                              {visibleRows.map((row, idx) => {
-                                const exName = row.Exercise;
-                                const exerciseId = slugify(exName);
-                                const last = getLastWorkout(exerciseId);
-                                const isCardio = isCardioExercise(exName);
-                                const exIsCollapsed = !!exerciseCollapsed[exerciseId];
-
-                                return (
-                                  <div key={exerciseId + '-' + idx} className="card" style={{padding:12, boxShadow:'none', border:'1px solid #f2f2f7'}}>
-                                    {/* Exercise header (click to collapse) */}
-                                    <button
-                                      className="exercise-header-btn"
-                                      onClick={() => toggleExerciseCollapsed(exerciseId)}
-                                      title={exIsCollapsed ? 'Expand exercise' : 'Collapse exercise'}
-                                    >
-                                      <div className="flex items-start gap-3" style={{textAlign:'left'}}>
-                                        <span style={{fontSize:22, lineHeight:'22px'}}>{getExerciseEmoji(exName)}</span>
-                                        <div className="flex-1" style={{minWidth:0}}>
-                                          <div className="flex items-center justify-between" style={{gap: 10}}>
-                                            <h3 style={{color:'#1c1c1e', fontWeight:700, fontSize:15, margin:0, lineHeight:'18px'}}>
-                                              {exName}
-                                            </h3>
-                                            <span style={{color:'#8e8e93', display:'inline-flex', alignItems:'center', gap:6, fontSize:12, fontWeight:700}}>
-                                              {exIsCollapsed ? 'Show' : 'Hide'}
-                                              {exIsCollapsed ? <ChevronDown size={16} /> : <ChevronUp size={16} />}
-                                            </span>
-                                          </div>
-
-                                          {(row.Sets && row.Reps) && (
-                                            <p style={{color:'#8e8e93', fontSize:12, margin:'6px 0 0'}}>
-                                              {row.Sets} sets × {row.Reps}
-                                              {row.Rest_Seconds && row.Rest_Seconds !== '0' ? ` · ${row.Rest_Seconds}s rest` : ''}
-                                            </p>
-                                          )}
-
-                                          {last && (
-                                            <p style={{color:'#007AFF', fontSize:12, margin:'6px 0 0'}}>
-                                              Last: {last.weight}{isCardio ? '°' : ' lbs'} × {last.reps} {isCardio ? 'mi' : 'reps'}
-                                            </p>
-                                          )}
-
-                                          {row.Notes_Substitutes && !exIsCollapsed && (
-                                            <p style={{color:'#8e8e93', fontSize:11, margin:'6px 0 0', fontStyle:'italic'}}>
-                                              {row.Notes_Substitutes}
-                                            </p>
-                                          )}
-                                        </div>
-                                      </div>
-                                    </button>
-
-                                    {/* Exercise body */}
-                                    {!exIsCollapsed && (
-                                      <div style={{marginTop:10}}>
-                                        <div className="flex gap-2">
-                                          <input
-                                            type="number"
-                                            placeholder={isCardio ? "Incline" : "Weight (lbs)"}
-                                            value={todayInputs[exName]?.weight || ''}
-                                            onChange={(e) => setTodayInputs(prev => ({ ...prev, [exName]: { ...prev[exName], weight: e.target.value } }))}
-                                            style={{flex:1, background:'#f2f2f7', border:'none', borderRadius:10, padding:'10px 12px', fontSize:15, color:'#1c1c1e'}}
-                                          />
-
-                                          {isCardio ? (
-                                            <input
-                                              type="number" step="0.1" placeholder="Distance"
-                                              value={todayInputs[exName]?.reps || ''}
-                                              onChange={(e) => setTodayInputs(prev => ({ ...prev, [exName]: { ...prev[exName], reps: e.target.value } }))}
-                                              style={{flex:1, background:'#f2f2f7', border:'none', borderRadius:10, padding:'10px 12px', fontSize:15, color:'#1c1c1e'}}
-                                            />
-                                          ) : (
-                                            <select
-                                              value={todayInputs[exName]?.reps || '10'}
-                                              onChange={(e) => setTodayInputs(prev => ({ ...prev, [exName]: { ...prev[exName], reps: e.target.value } }))}
-                                              style={{flex:1, background:'#f2f2f7', border:'none', borderRadius:10, padding:'10px 12px', fontSize:15, color:'#1c1c1e'}}
-                                            >
-                                              {[...Array(40)].map((_, i) => <option key={i+1} value={i+1}>{i+1} reps</option>)}
-                                            </select>
-                                          )}
-                                        </div>
-
-                                        {/* Per-exercise quick hide */}
-                                        <div style={{display:'flex', justifyContent:'flex-end', marginTop:10}}>
-                                          <button className="collapse-btn" onClick={() => toggleExerciseCollapsed(exerciseId)}>
-                                            <ChevronUp size={14} className="text-gray-400" /> Minimize
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
+                    <div key={idx} className="card p-4">
+                      <div className="flex items-start gap-3 mb-3">
+                        <span style={{fontSize:22}}>{getExerciseEmoji(exName)}</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 style={{color:'#1c1c1e', fontWeight:600, fontSize:15}}>{exName}</h3>
+                          </div>
+                          {row.Sets && row.Reps && (
+                            <p style={{color:'#8e8e93', fontSize:12, marginTop:2}}>{row.Sets} sets × {row.Reps}</p>
+                          )}
+                          {last && (
+                            <p style={{color:'#007AFF', fontSize:12, marginTop:2}}>
+                              Last: {last.weight}{isCardio ? '°' : ' lbs'} × {last.reps} {isCardio ? 'mi' : 'reps'}
+                            </p>
                           )}
                         </div>
-                      )}
+                        {phase && (
+                          <span className="phase-badge" style={{background:phaseStyle.bg, color:phaseStyle.text, whiteSpace:'nowrap'}}>
+                            {phase.replace(' (Optional)', '').replace('Pre-Workout ', '')}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          placeholder={isCardio ? "Incline" : "Weight (lbs)"}
+                          value={todayInputs[exName]?.weight || ''}
+                          onChange={(e) => setTodayInputs(prev => ({ ...prev, [exName]: { ...prev[exName], weight: e.target.value } }))}
+                          style={{flex:1, background:'#f2f2f7', border:'none', borderRadius:10, padding:'10px 12px', fontSize:15, color:'#1c1c1e'}}
+                        />
+                        {isCardio ? (
+                          <input
+                            type="number" step="0.1" placeholder="Distance"
+                            value={todayInputs[exName]?.reps || ''}
+                            onChange={(e) => setTodayInputs(prev => ({ ...prev, [exName]: { ...prev[exName], reps: e.target.value } }))}
+                            style={{flex:1, background:'#f2f2f7', border:'none', borderRadius:10, padding:'10px 12px', fontSize:15, color:'#1c1c1e'}}
+                          />
+                        ) : (
+                          <select
+                            value={todayInputs[exName]?.reps || '10'}
+                            onChange={(e) => setTodayInputs(prev => ({ ...prev, [exName]: { ...prev[exName], reps: e.target.value } }))}
+                            style={{flex:1, background:'#f2f2f7', border:'none', borderRadius:10, padding:'10px 12px', fontSize:15, color:'#1c1c1e'}}
+                          >
+                            {[...Array(40)].map((_, i) => <option key={i+1} value={i+1}>{i+1} reps</option>)}
+                          </select>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -898,12 +678,13 @@
         );
       };
 
-      // ─── SCHEDULE (unchanged behavior, already phase-grouped + collapsible day list style) ───────────
+      // ─── RENDER SCHEDULE ───────────────────────────────────────────
       const renderSchedule = () => {
         const duration = programManifest?.durationWeeks || 6;
 
         return (
           <div className="space-y-4">
+            {/* Program header */}
             <div className="card p-4">
               <p style={{color:'#8e8e93', fontSize:11, fontWeight:600, letterSpacing:'0.05em', textTransform:'uppercase', marginBottom:4}}>Current Program</p>
               <p style={{color:'#1c1c1e', fontSize:20, fontWeight:700}}>{programManifest?.name || 'Loading...'}</p>
@@ -914,11 +695,13 @@
               </div>
             </div>
 
+            {/* Day listings */}
             {DAY_KEYS.map((dayKey, idx) => {
               const rows = programDayCache[dayKey] || [];
               const isToday = dayKey === todayDayKey;
               const dayName = DAYS[idx];
 
+              // Group by phase
               const byPhase = {};
               rows.forEach(row => {
                 const phase = row.Phase || 'Exercises';
@@ -928,12 +711,13 @@
 
               return (
                 <div key={dayKey} className="card overflow-hidden" style={{border: isToday ? '2px solid #007AFF' : 'none'}}>
+                  {/* Day header */}
                   <div style={{padding:'12px 16px', borderBottom: rows.length > 0 ? '1px solid #f2f2f7' : 'none', display:'flex', alignItems:'center', justifyContent:'space-between'}}>
                     <div style={{display:'flex', alignItems:'center', gap:8}}>
                       <h3 style={{color:'#1c1c1e', fontWeight:700, fontSize:16}}>{dayName}</h3>
                       {isToday && <span style={{background:'#007AFF', color:'white', borderRadius:20, padding:'1px 8px', fontSize:11, fontWeight:700}}>TODAY</span>}
                     </div>
-                    <span style={{color:'#8e8e93', fontSize:12}}>{rows.length > 0 ? `${rows.length} exercises` : 'Rest day'}</span>
+                    <span style={{color:'#8e8e93', fontSize:12}}>{rows.length > 0 ? ${rows.length} exercises : 'Rest day'}</span>
                   </div>
 
                   {rows.length === 0 ? (
@@ -957,8 +741,8 @@
                                     <p style={{color:'#1c1c1e', fontSize:13, fontWeight:500, marginBottom:2}}>{row.Exercise}</p>
                                     {(row.Sets || row.Reps) && (
                                       <p style={{color:'#8e8e93', fontSize:12}}>
-                                        {row.Sets && `${row.Sets} sets`}{row.Sets && row.Reps && ' × '}{row.Reps && row.Reps}
-                                        {row.Rest_Seconds && row.Rest_Seconds !== '0' && ` · ${row.Rest_Seconds}s rest`}
+                                        {row.Sets && ${row.Sets} sets}{row.Sets && row.Reps && ' × '}{row.Reps && row.Reps}
+                                        {row.Rest_Seconds && row.Rest_Seconds !== '0' &&  · ${row.Rest_Seconds}s rest}
                                       </p>
                                     )}
                                     {row.Notes_Substitutes && (
@@ -980,7 +764,7 @@
         );
       };
 
-      // ─── STRENGTH ───────────────────────────────────────────
+      // ─── RENDER STRENGTH ───────────────────────────────────────────
       const renderStrength = () => {
         const exercisesWithData = [...new Set(workoutLogs.filter(log => log.programId === activeProgramId).map(log => log.exerciseId))];
 
@@ -1046,7 +830,7 @@
         );
       };
 
-      // ─── TRENDS ─────────────────────────────────────────────
+      // ─── RENDER TRENDS ─────────────────────────────────────────────
       const renderTrends = () => {
         const sortedLogs = [...bodyweightLogs].sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -1099,7 +883,7 @@
         );
       };
 
-      // ─── HISTORY ────────────────────────────────────────────
+      // ─── RENDER HISTORY ────────────────────────────────────────────
       const renderHistory = () => (
         <div className="space-y-3">
           <h2 style={{color:'#1c1c1e', fontSize:22, fontWeight:700}}>Program History</h2>
@@ -1164,7 +948,6 @@
                   </select>
                   {programLoadError && <p style={{color:'#ff3b30', fontSize:12, marginTop:6}}>{programLoadError}</p>}
                 </div>
-
                 <button onClick={exportData} style={{display:'flex', alignItems:'center', gap:12, padding:'12px 16px', background:'#f2f2f7', borderRadius:12, border:'none', width:'100%', color:'#1c1c1e', fontSize:14, fontWeight:500}}>
                   <Download size={18} color="#007AFF" /> Export Data
                 </button>
@@ -1210,9 +993,7 @@
       );
     }
 
-    // React 18 UMD: createRoot is available
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<WorkoutTracker />);
+    ReactDOM.render(<WorkoutTracker />, document.getElementById('root'));
   </script>
 </body>
 </html>
