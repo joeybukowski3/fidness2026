@@ -53,28 +53,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 /* Phase Section */
 .phase{margin-bottom:1rem}
-.phase-header{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.5rem 0.75rem;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;gap:0.4rem;cursor:pointer;user-select:none}
+.phase-header{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.5rem 0.75rem;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;gap:0.4rem}
 .phase-header.stretch{background:#eff6ff;color:#1d4ed8}.dark .phase-header.stretch{background:#1e3a5f;color:#93c5fd}
 .phase-header.main{background:var(--accent-bg);color:#166534}.dark .phase-header.main{background:#064e3b;color:#86efac}
 .phase-header.bonus{background:#fef3c7;color:#92400e}.dark .phase-header.bonus{background:#451a03;color:#fcd34d}
-.phase-header .phase-arrow{margin-left:auto;transition:transform 0.2s}
-.phase.collapsed .phase-header .phase-arrow{transform:rotate(-90deg)}
-.phase-body{border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius) var(--radius);overflow:hidden}
-.phase.collapsed .phase-body{display:none}
 
 /* Exercise Cards */
-.ex-card{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.75rem;display:flex;gap:0.6rem;align-items:flex-start;transition:background 0.2s}
-.ex-card:last-child{border-bottom:none}
-.ex-card.done{background:var(--accent-bg);opacity:0.85}
-.ex-card.collapsed .ex-details{display:none}
+.ex-card{background:var(--bg2);border:1px solid var(--border);border-top:none;padding:0.75rem;display:flex;gap:0.6rem;align-items:flex-start;transition:background 0.2s}
+.ex-card:last-child{border-radius:0 0 var(--radius) var(--radius)}
+.ex-card.done{background:var(--accent-bg);opacity:0.75}
 .ex-check{width:24px;height:24px;border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;margin-top:2px;font-size:0.8rem;color:transparent}
 .ex-check.checked{background:var(--accent);border-color:var(--accent);color:#fff}
 .ex-body{flex:1;min-width:0}
-.ex-header{display:flex;align-items:center;gap:0.5rem}
-.ex-name{font-size:0.85rem;font-weight:700;color:var(--text)}
-.ex-collapse-btn{margin-left:auto;font-size:0.65rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);cursor:pointer;font-family:inherit}
-.ex-collapse-btn:hover{border-color:var(--accent)}
-.ex-meta{display:flex;flex-wrap:wrap;gap:0.35rem;margin:0.35rem 0}
+.ex-name{font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:0.3rem}
+.ex-meta{display:flex;flex-wrap:wrap;gap:0.35rem;margin-bottom:0.35rem}
 .ex-tag{font-size:0.65rem;font-weight:600;padding:0.15rem 0.45rem;border-radius:4px;background:var(--bg3);color:var(--text2)}
 .ex-tag.sets{background:#dbeafe;color:#1e40af}.dark .ex-tag.sets{background:#1e3a5f;color:#93c5fd}
 .ex-tag.rest{background:#fce7f3;color:#9d174d}.dark .ex-tag.rest{background:#4a0e2e;color:#f9a8d4}
@@ -533,38 +525,28 @@ function renderDay(day) {
   for (const [phase, exs] of Object.entries(phases)) {
     const cls = phase.includes('Stretch') ? 'stretch' : phase.includes('Bonus') ? 'bonus' : 'main';
     const icon = cls === 'stretch' ? '&#127939;' : cls === 'main' ? '&#128170;' : '&#11088;';
-    html += `<div class="phase">
-      <div class="phase-header ${cls}" onclick="togglePhase(this)">
-        <span>${icon} ${phase}</span>
-        <span class="phase-arrow">&#9662;</span>
-      </div>
-      <div class="phase-body">`;
+    html += `<div class="phase"><div class="phase-header ${cls}">${icon} ${phase}</div>`;
     exs.forEach(ex => {
       const s = getExState(day, ex._idx);
-      const doneClass = s.done ? ' done collapsed' : '';
+      const doneClass = s.done ? ' done' : '';
       const checkedClass = s.done ? ' checked' : '';
       html += `<div class="ex-card${doneClass}" id="card-${ex._idx}">
         <div class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx})" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</div>
         <div class="ex-body">
-          <div class="ex-header">
-            <div class="ex-name">${ex.exercise}</div>
-            <button class="ex-collapse-btn" onclick="toggleExDetails(event, ${ex._idx})">Details</button>
-          </div>
+          <div class="ex-name">${ex.exercise}</div>
           <div class="ex-meta">
             <span class="ex-tag sets">${ex.sets} &times; ${ex.reps}</span>
             ${ex.rest > 0 ? `<span class="ex-tag rest" onclick="timerSet(${ex.rest})" style="cursor:pointer">${ex.rest}s rest</span>` : ''}
             <span class="ex-tag tempo">${ex.tempo}</span>
           </div>
-          <div class="ex-details">
-            <div class="ex-notes">${ex.notes}</div>
-            <div class="ex-equip">${ex.equipment}</div>
-            ${ex.phase === 'Main Workout' || ex.phase.includes('Bonus') ? `<div class="weight-row"><span class="weight-label">Weight:</span><input class="weight-input" type="text" placeholder="lbs" value="${s.weight || ''}" onchange="setWeight('${day}',${ex._idx},this.value)"></div>` : ''}
-            ${EX_DESC[ex.exercise] ? `<span class="ex-info-toggle" onclick="toggleInfo(this)"><span class="arrow">&#9654;</span> How to do this</span><div class="ex-info-box"><div class="ex-info-content"><strong>${ex.exercise}:</strong> ${EX_DESC[ex.exercise]}</div></div>` : ''}
-          </div>
+          <div class="ex-notes">${ex.notes}</div>
+          <div class="ex-equip">${ex.equipment}</div>
+          ${ex.phase === 'Main Workout' || ex.phase.includes('Bonus') ? `<div class="weight-row"><span class="weight-label">Weight:</span><input class="weight-input" type="text" placeholder="lbs" value="${s.weight || ''}" onchange="setWeight('${day}',${ex._idx},this.value)"></div>` : ''}
+          ${EX_DESC[ex.exercise] ? `<span class="ex-info-toggle" onclick="toggleInfo(this)"><span class="arrow">&#9654;</span> How to do this</span><div class="ex-info-box"><div class="ex-info-content"><strong>${ex.exercise}:</strong> ${EX_DESC[ex.exercise]}</div></div>` : ''}
         </div>
       </div>`;
     });
-    html += '</div></div>';
+    html += '</div>';
   }
   c.innerHTML = html;
   updateProgress(day);
@@ -589,36 +571,16 @@ function renderGuide(c) {
   c.innerHTML = `<div class="guide-content">${GUIDE_HTML}</div>`;
 }
 
-function togglePhase(el) {
-  const phase = el.closest('.phase');
-  phase.classList.toggle('collapsed');
-}
-
 function toggleEx(day, idx) {
   const s = getExState(day, idx);
   s.done = !s.done;
   setExState(day, idx, s);
   const card = document.getElementById('card-' + idx);
   const check = document.getElementById('check-' + idx);
-  if (s.done) {
-    card.classList.add('done');
-    card.classList.add('collapsed');
-    check.classList.add('checked');
-    check.innerHTML = '&#10003;';
-  } else {
-    card.classList.remove('done');
-    card.classList.remove('collapsed');
-    check.classList.remove('checked');
-    check.innerHTML = '';
-  }
+  if (s.done) { card.classList.add('done'); check.classList.add('checked'); check.innerHTML = '&#10003;'; }
+  else { card.classList.remove('done'); check.classList.remove('checked'); check.innerHTML = ''; }
   updateProgress(day);
   renderTabs();
-}
-
-function toggleExDetails(e, idx) {
-  e.stopPropagation();
-  const card = document.getElementById('card-' + idx);
-  card.classList.toggle('collapsed');
 }
 
 function setWeight(day, idx, val) {
