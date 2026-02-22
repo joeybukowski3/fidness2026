@@ -19,6 +19,7 @@
 --border:#334155;--accent-bg:#064e3b;--shadow:0 1px 3px rgba(0,0,0,0.3);
 }
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent}
+body.detail-open{overflow:hidden}
 
 /* Header */
 .header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.75rem 1rem;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
@@ -60,6 +61,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .content{max-width:900px;margin:0 auto;padding:0.75rem}
 .day-content{display:none}
 .day-content.active{display:block}
+.workout-tabs{display:flex;align-items:stretch;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--bg2);margin:0.5rem 0 0.75rem}
+.workout-tab{flex:1;padding:0.6rem 0.5rem;font-size:0.75rem;font-weight:700;color:var(--text2);background:var(--bg2);border:none;border-bottom:3px solid transparent;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.workout-tab + .workout-tab{border-left:1px solid var(--border)}
+.workout-tab:hover{color:var(--text)}
+.workout-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--accent-bg)}
+.workout-section{display:none}
+.workout-section.active{display:block}
 
 /* Home Controls */
 .home-controls{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.5rem}
@@ -95,10 +103,14 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .ex-toggle.open .arrow{transform:rotate(90deg)}
 .ex-link{color:var(--text);text-decoration:none}
 .ex-link:hover{text-decoration:underline}
+.ex-link-btn{background:none;border:none;padding:0;text-align:left;cursor:pointer;font:inherit;color:var(--text)}
+.ex-link-btn:hover{text-decoration:underline}
 .ex-check{width:24px;height:24px;border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;margin-top:2px;font-size:0.8rem;color:transparent}
 .ex-check.checked{background:var(--accent);border-color:var(--accent);color:#fff}
 .ex-body{flex:1;min-width:0}
 .ex-name{font-size:0.85rem;font-weight:700;color:var(--text);margin-bottom:0.3rem}
+.ex-name-row{display:flex;align-items:center;justify-content:space-between;gap:0.5rem}
+.ex-name-preview{font-size:0.7rem;color:var(--text3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ex-meta{display:flex;flex-wrap:wrap;gap:0.35rem;margin-bottom:0.35rem}
 .ex-tag{font-size:0.65rem;font-weight:600;padding:0.15rem 0.45rem;border-radius:4px;background:var(--bg3);color:var(--text2)}
 .ex-tag.sets{background:#dbeafe;color:#1e40af}.dark .ex-tag.sets{background:#1e3a5f;color:#93c5fd}
@@ -221,6 +233,28 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .ex-info-box.open{max-height:300px;opacity:1}
 .ex-info-content{margin-top:0.4rem;padding:0.6rem 0.75rem;background:var(--bg3);border-radius:8px;border-left:3px solid var(--blue);font-size:0.75rem;color:var(--text2);line-height:1.6}
 .ex-info-content strong{color:var(--text);font-weight:700}
+.ex-visual{margin-top:0.5rem;border:1px solid var(--accent);border-radius:8px;background:var(--accent-bg)}
+.ex-visual summary{cursor:pointer;padding:0.4rem 0.6rem;font-weight:700;color:var(--accent);list-style:none}
+.ex-visual summary::-webkit-details-marker{display:none}
+.ex-visual[open] summary{border-bottom:1px solid var(--accent)}
+.ex-visual-body{padding:0.5rem 0.6rem}
+.ex-visual-body img{max-width:100%;border:1px solid var(--border);border-radius:8px;display:block;background:var(--bg2)}
+
+/* Detail View */
+.detail-view{position:fixed;inset:0;background:var(--bg);z-index:200;display:none;overflow-y:auto}
+.detail-view.active{display:block}
+.detail-inner{max-width:900px;margin:0 auto;padding:1rem}
+.detail-header{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem}
+.detail-back{padding:0.4rem 0.75rem;border-radius:8px;border:1px solid var(--accent);background:var(--accent-bg);color:var(--accent);font-size:0.75rem;font-weight:800;cursor:pointer;font-family:inherit}
+.detail-back:hover{border-color:var(--accent2);color:var(--accent2)}
+.detail-title{font-size:1.2rem;font-weight:800;color:var(--text)}
+.detail-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem;margin-bottom:0.75rem}
+.detail-card h3{font-size:0.85rem;font-weight:800;margin-bottom:0.45rem;color:var(--accent)}
+.detail-diagram img{max-width:100%;border:1px solid var(--border);border-radius:8px;display:block;background:var(--bg2)}
+.detail-history{display:grid;gap:0.5rem}
+.detail-history-item{display:flex;justify-content:space-between;gap:0.5rem;font-size:0.78rem;color:var(--text2);padding:0.45rem 0.6rem;border:1px solid var(--border);border-radius:8px;background:var(--bg3)}
+.detail-history-item span{white-space:nowrap}
+.detail-history-empty{font-size:0.78rem;color:var(--text3)}
 
 /* Mobile */
 @media(max-width:640px){
@@ -277,6 +311,10 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 <div class="content home-only" id="content"></div>
 <div class="content program-only" id="programArea"></div>
+
+<div class="detail-view" id="detailView" aria-hidden="true">
+  <div class="detail-inner" id="detailContent"></div>
+</div>
 
 <button class="timer-toggle home-only" id="timerToggle" onclick="showTimer()">&#9201;</button>
 <div class="timer-bar home-only" id="timerBar">
@@ -569,12 +607,15 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   function setExState(day, idx, val) { state.data[getKey(day, idx)] = val; save(); }
 
 // ============ UI STATE ============
+  const HISTORY_KEY = 'wt_ex_history';
   const UI_TAB_KEY = 'uiActiveTab';
   const HIDE_COMPLETED_KEY = 'hideCompleted';
 let uiActiveTab = (localStorage.getItem(UI_TAB_KEY) || 'home').toLowerCase();
 if (uiActiveTab !== 'program') uiActiveTab = 'home';
 let hideCompleted = JSON.parse(localStorage.getItem(HIDE_COMPLETED_KEY) || 'false');
 let showCompletedOverride = false;
+let activeWorkoutTab = 'main';
+let workoutHistory = getWorkoutHistory();
 
 function setActiveTab(tab) {
   uiActiveTab = tab === 'program' ? 'program' : 'home';
@@ -636,6 +677,13 @@ function getDefaultReps(repsText) {
   const singleMatch = repsText.match(/(\d+)/);
   if (singleMatch) return parseInt(singleMatch[1], 10);
   return 10;
+}
+function getExerciseId(name) {
+  return name
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
 }
 function renderRepsOptions(selected) {
   const opts = [];
@@ -713,7 +761,103 @@ function getViewDateISO(day) {
   }).join('');
 }
 
-function switchDay(d) { state.day = d; showCompletedOverride = false; save(); renderTabs(); renderDay(d); }
+function switchDay(d) { state.day = d; showCompletedOverride = false; activeWorkoutTab = 'main'; save(); renderTabs(); renderDay(d); }
+
+function setWorkoutTab(tabKey) {
+  activeWorkoutTab = tabKey;
+  const tabs = document.querySelectorAll('.workout-tab');
+  const sections = document.querySelectorAll('.workout-section');
+  tabs.forEach(tab => {
+    const isActive = tab.dataset.tab === tabKey;
+    tab.classList.toggle('active', isActive);
+    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+  sections.forEach(section => {
+    const isActive = section.dataset.section === tabKey;
+    section.classList.toggle('active', isActive);
+  });
+}
+
+function getWorkoutHistory() {
+  const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  return Array.isArray(raw) ? raw : [];
+}
+
+function saveWorkoutHistory(list) {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+}
+
+function logWorkoutHistory(exercise, weight, reps) {
+  if (!exercise) return;
+  const w = String(weight || '').trim();
+  const r = String(reps || '').trim();
+  if (!w && !r) return;
+  const entry = { exercise, weight: w, reps: r, ts: new Date().toISOString() };
+  workoutHistory = getWorkoutHistory();
+  workoutHistory.push(entry);
+  saveWorkoutHistory(workoutHistory);
+}
+
+function formatDateOrdinal(d) {
+  const day = d.getDate();
+  const suffix = day % 10 === 1 && day !== 11 ? 'st'
+    : day % 10 === 2 && day !== 12 ? 'nd'
+    : day % 10 === 3 && day !== 13 ? 'rd'
+    : 'th';
+  const month = d.toLocaleDateString('en-US', { month: 'short' });
+  return `${month} ${day}${suffix}`;
+}
+
+function getLatestHistoryEntry(exercise) {
+  const list = getWorkoutHistory().filter(h => h.exercise === exercise);
+  if (list.length === 0) return null;
+  return list[list.length - 1];
+}
+
+function openExerciseDetail(day, idx) {
+  const ex = (WORKOUTS[day] || [])[idx];
+  if (!ex) return;
+  const detail = document.getElementById('detailView');
+  const content = document.getElementById('detailContent');
+  const exId = getExerciseId(ex.exercise);
+  const how = EX_DESC[ex.exercise] || 'No instructions yet.';
+  const history = getWorkoutHistory().filter(h => h.exercise === ex.exercise);
+  const historyHtml = history.length
+    ? `<div class="detail-history">${history.map(h => {
+        const d = new Date(h.ts);
+        const dateStr = `${formatDateOrdinal(d)}, ${d.getFullYear()}`;
+        return `<div class="detail-history-item"><span>${dateStr}</span><span>${h.weight || '-'} lbs</span><span>${h.reps || '-' } reps</span></div>`;
+      }).join('')}</div>`
+    : `<div class="detail-history-empty">No history yet.</div>`;
+
+  content.innerHTML = `
+    <div class="detail-header">
+      <button class="detail-back" onclick="closeExerciseDetail()">Back</button>
+      <div class="detail-title">${ex.exercise}</div>
+    </div>
+    <div class="detail-card detail-diagram">
+      <h3>Visual Guide</h3>
+      <img src="assets/diagrams/${exId}-1.png" alt="${ex.exercise}">
+    </div>
+    <div class="detail-card">
+      <h3>How to do this</h3>
+      <div class="ex-info-content" style="margin-top:0">${how}</div>
+    </div>
+    <div class="detail-card">
+      <h3>Personal History</h3>
+      ${historyHtml}
+    </div>`;
+  detail.classList.add('active');
+  detail.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('detail-open');
+}
+
+function closeExerciseDetail() {
+  const detail = document.getElementById('detailView');
+  detail.classList.remove('active');
+  detail.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('detail-open');
+}
 
 function renderDay(day) {
   const c = document.getElementById('content');
@@ -741,6 +885,13 @@ function renderDay(day) {
 
   let phases = {};
   visible.forEach(ex => { if (!phases[ex.phase]) phases[ex.phase] = []; phases[ex.phase].push(ex); });
+
+  html += `<div class="workout-tabs" role="tablist" aria-label="Workout sections">
+    <button class="workout-tab${activeWorkoutTab === 'pre' ? ' active' : ''}" data-tab="pre" id="tab-preworkout" onclick="setWorkoutTab('pre')" aria-selected="${activeWorkoutTab === 'pre' ? 'true' : 'false'}" aria-controls="preWorkoutSection">Pre-Workout Stretches</button>
+    <button class="workout-tab${activeWorkoutTab === 'main' ? ' active' : ''}" data-tab="main" id="tab-mainworkout" onclick="setWorkoutTab('main')" aria-selected="${activeWorkoutTab === 'main' ? 'true' : 'false'}" aria-controls="mainWorkoutSection">Main Workout</button>
+    <button class="workout-tab${activeWorkoutTab === 'bonus' ? ' active' : ''}" data-tab="bonus" id="tab-bonus" onclick="setWorkoutTab('bonus')" aria-selected="${activeWorkoutTab === 'bonus' ? 'true' : 'false'}" aria-controls="bonusWorkoutSection">Bonus</button>
+  </div>`;
+
   html += `<div class="home-controls">
     <label class="toggle-wrap"><input type="checkbox" ${hideCompleted ? 'checked' : ''} onchange="setHideCompleted(this.checked)"> Hide completed</label>
     ${hideCompleted && completedCount > 0 ? `<button class="show-completed-btn" onclick="toggleShowCompleted()">${showCompletedOverride ? 'Hide completed' : `Show completed (${completedCount})`}</button>` : ''}
@@ -750,54 +901,80 @@ function renderDay(day) {
     html += `<div class="sunday-card"><p>All exercises are completed.</p></div>`;
   }
 
-  for (const [phase, exs] of Object.entries(phases)) {
-    const cls = phase.includes('Stretch') ? 'stretch' : phase.includes('Bonus') ? 'bonus' : 'main';
-    const icon = cls === 'stretch' ? '&#127939;' : cls === 'main' ? '&#128170;' : '&#11088;';
-    const collapsed = isPhaseCollapsed(day, phase) ? ' collapsed' : '';
-    html += `<div class="phase${collapsed}">
-      <div class="phase-header ${cls}" onclick="togglePhaseCollapse('${day}','${phase.replace(/'/g, '&#39;')}')">
-        <span class="phase-title">${icon} ${phase}</span>
-        <span class="phase-toggle"><span class="arrow">&#9654;</span> ${isPhaseCollapsed(day, phase) ? 'Expand' : 'Collapse'}</span>
-      </div>
-      <div class="phase-body">`;
-    exs.forEach(ex => {
-      const s = ex._state;
-      const doneClass = s.done ? ' done' : '';
-      const checkedClass = s.done ? ' checked' : '';
-      const collapsedClass = s.collapsed ? ' collapsed' : '';
-      const toggleOpenClass = s.collapsed ? '' : ' open';
-      const exParam = encodeURIComponent(ex.exercise);
-      html += `<div class="ex-card${doneClass}${collapsedClass}" id="card-${ex._idx}">
-        <div class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx})" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</div>
-        <div class="ex-body">
-          <div class="ex-header">
-            <div class="ex-name"><a class="ex-link" href="history.html?exercise=${exParam}">${ex.exercise}</a></div>
-            <button class="ex-toggle${toggleOpenClass}" id="toggle-${ex._idx}" onclick="toggleExerciseCollapse('${day}',${ex._idx})"><span class="arrow">&#9654;</span> ${s.collapsed ? 'Expand' : 'Collapse'}</button>
-          </div>
-          <div class="ex-details">
-            <div class="ex-meta">
-              <span class="ex-tag sets">${ex.sets} &times; ${ex.reps}</span>
-              ${ex.rest > 0 ? `<span class="ex-tag rest" onclick="timerSet(${ex.rest})" style="cursor:pointer">${ex.rest}s rest</span>` : ''}
-              <span class="ex-tag tempo">${ex.tempo}</span>
-            </div>
-            <div class="ex-notes">${ex.notes}</div>
-            <div class="ex-equip">${ex.equipment}</div>
-            <div class="weight-row">
-              <span class="weight-label">Weight:</span>
-              <input class="weight-input" type="text" placeholder="lbs" value="${s.weight || ''}" onchange="setWeight('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)">
-              <span class="weight-label">Reps:</span>
-              <select class="reps-select" onchange="setReps('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)">
-                ${renderRepsOptions(ex._repsVal)}
-              </select>
-            </div>
-            ${EX_DESC[ex.exercise] ? `<span class="ex-info-toggle" onclick="toggleInfo(this)"><span class="arrow">&#9654;</span> How to do this</span><div class="ex-info-box"><div class="ex-info-content"><strong>${ex.exercise}:</strong> ${EX_DESC[ex.exercise]}</div></div>` : ''}
-          </div>
+  const renderPhaseBlocks = (phaseFilter) => {
+    let out = '';
+    for (const [phase, exs] of Object.entries(phases)) {
+      if (!phaseFilter(phase)) continue;
+      const cls = phase.includes('Stretch') ? 'stretch' : phase.includes('Bonus') ? 'bonus' : 'main';
+      const icon = cls === 'stretch' ? '&#127939;' : cls === 'main' ? '&#128170;' : '&#11088;';
+      const collapsed = isPhaseCollapsed(day, phase) ? ' collapsed' : '';
+      out += `<div class="phase${collapsed}">
+        <div class="phase-header ${cls}" onclick="togglePhaseCollapse('${day}','${phase.replace(/'/g, '&#39;')}')">
+          <span class="phase-title">${icon} ${phase}</span>
+          <span class="phase-toggle"><span class="arrow">&#9654;</span> ${isPhaseCollapsed(day, phase) ? 'Expand' : 'Collapse'}</span>
         </div>
-      </div>`;
-    });
-    html += '</div></div>';
-  }
+        <div class="phase-body">`;
+      exs.forEach(ex => {
+        const s = ex._state;
+        const doneClass = s.done ? ' done' : '';
+        const checkedClass = s.done ? ' checked' : '';
+        const collapsedClass = s.collapsed ? ' collapsed' : '';
+        const toggleOpenClass = s.collapsed ? '' : ' open';
+        out += `<div class="ex-card${doneClass}${collapsedClass}" id="card-${ex._idx}">
+          <div class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx})" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</div>
+          <div class="ex-body">
+            <div class="ex-header">
+            <div class="ex-name">
+              <div class="ex-name-row">
+                <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx})">${ex.exercise}</button>
+                ${(() => {
+                  const last = getLatestHistoryEntry(ex.exercise);
+                  if (!last) return '';
+                  const d = new Date(last.ts);
+                  const dateStr = `${formatDateOrdinal(d)}, ${d.getFullYear()}`;
+                  const w = last.weight ? `${last.weight} lbs` : '- lbs';
+                  const r = last.reps ? `${last.reps} reps` : '- reps';
+                  return `<span class="ex-name-preview">- ${dateStr}, ${w} x ${r}</span>`;
+                })()}
+              </div>
+            </div>
+              <button class="ex-toggle${toggleOpenClass}" id="toggle-${ex._idx}" onclick="toggleExerciseCollapse('${day}',${ex._idx})"><span class="arrow">&#9654;</span> ${s.collapsed ? 'Expand' : 'Collapse'}</button>
+            </div>
+            <div class="ex-details">
+              <div class="ex-meta">
+                <span class="ex-tag sets">${ex.sets} &times; ${ex.reps}</span>
+                ${ex.rest > 0 ? `<span class="ex-tag rest" onclick="timerSet(${ex.rest})" style="cursor:pointer">${ex.rest}s rest</span>` : ''}
+                <span class="ex-tag tempo">${ex.tempo}</span>
+              </div>
+              <div class="ex-notes">${ex.notes}</div>
+              <div class="ex-equip">${ex.equipment}</div>
+              <div class="weight-row">
+                <span class="weight-label">Weight:</span>
+                <input class="weight-input" type="text" placeholder="lbs" value="${s.weight || ''}" onchange="setWeight('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)">
+                <span class="weight-label">Reps:</span>
+                <select class="reps-select" onchange="setReps('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)">
+                  ${renderRepsOptions(ex._repsVal)}
+                </select>
+              </div>
+              ${EX_DESC[ex.exercise] ? `<span class="ex-info-toggle" onclick="toggleInfo(this)"><span class="arrow">&#9654;</span> How to do this</span><div class="ex-info-box"><div class="ex-info-content"><strong>${ex.exercise}:</strong> ${EX_DESC[ex.exercise]}<details class="ex-visual"><summary>Visual Guide</summary><div class="ex-visual-body"><img src="assets/diagrams/${getExerciseId(ex.exercise)}-1.png" alt="${ex.exercise}"></div></details></div></div>` : ''}
+            </div>
+          </div>
+        </div>`;
+      });
+      out += '</div></div>';
+    }
+    return out;
+  };
+
+  const preHtml = renderPhaseBlocks(phase => phase.toLowerCase().includes('stretch'));
+  const bonusHtml = renderPhaseBlocks(phase => phase.toLowerCase().includes('bonus'));
+  const mainHtml = renderPhaseBlocks(phase => phase === 'Main Workout' || (!phase.toLowerCase().includes('stretch') && !phase.toLowerCase().includes('bonus')));
+
+  html += `<div class="workout-section${activeWorkoutTab === 'pre' ? ' active' : ''}" id="preWorkoutSection" data-section="pre">${preHtml}</div>`;
+  html += `<div class="workout-section${activeWorkoutTab === 'main' ? ' active' : ''}" id="mainWorkoutSection" data-section="main">${mainHtml}</div>`;
+  html += `<div class="workout-section${activeWorkoutTab === 'bonus' ? ' active' : ''}" id="bonusWorkoutSection" data-section="bonus">${bonusHtml}</div>`;
   c.innerHTML = html;
+  setWorkoutTab(activeWorkoutTab);
   updateProgress(day);
 }
 
@@ -922,6 +1099,7 @@ function setWeight(day, idx, name, val) {
   s.exercise = name || s.exercise;
   s.lastUpdated = new Date().toISOString();
   setExState(day, idx, s);
+  logWorkoutHistory(s.exercise, s.weight, s.reps);
 }
 
 function setReps(day, idx, name, val) {
@@ -930,6 +1108,7 @@ function setReps(day, idx, name, val) {
   s.exercise = name || s.exercise;
   s.lastUpdated = new Date().toISOString();
   setExState(day, idx, s);
+  logWorkoutHistory(s.exercise, s.weight, s.reps);
 }
 
 function toggleInfo(el) {
