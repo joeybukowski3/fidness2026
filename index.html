@@ -30,6 +30,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .dark-toggle{background:var(--bg3);border:1px solid var(--border);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;transition:all 0.2s}
 .dark-toggle:hover{border-color:var(--accent)}
 
+/* Top Tabs */
+.top-tabs{background:var(--bg2);border-bottom:1px solid var(--border)}
+.top-tabs-inner{max-width:900px;margin:0 auto;padding:0 0.75rem;display:flex;gap:0.5rem}
+.top-tab{padding:0.65rem 0.9rem;font-size:0.8rem;font-weight:700;color:var(--text2);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.top-tab:hover{color:var(--text)}
+.top-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
 /* Day Tabs */
 .tabs-wrap{background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .tabs-wrap::-webkit-scrollbar{display:none}
@@ -51,6 +58,13 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .day-content{display:none}
 .day-content.active{display:block}
 
+/* Home Controls */
+.home-controls{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.5rem}
+.toggle-wrap{display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text2);font-weight:600}
+.toggle-wrap input{accent-color:var(--accent)}
+.show-completed-btn{background:none;border:none;color:var(--blue);font-size:0.7rem;font-weight:700;cursor:pointer;padding:0.2rem 0.35rem}
+.show-completed-btn:hover{text-decoration:underline}
+
 /* Phase Section */
 .phase{margin-bottom:1rem}
 .phase-header{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:0.5rem 0.75rem;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;gap:0.4rem}
@@ -62,6 +76,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .ex-card{background:var(--bg2);border:1px solid var(--border);border-top:none;padding:0.75rem;display:flex;gap:0.6rem;align-items:flex-start;transition:background 0.2s}
 .ex-card:last-child{border-radius:0 0 var(--radius) var(--radius)}
 .ex-card.done{background:var(--accent-bg);opacity:0.75}
+.ex-card.completed{opacity:0.6}
+.ex-card.completed .ex-name{text-decoration:line-through}
 .ex-check{width:24px;height:24px;border:2px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;margin-top:2px;font-size:0.8rem;color:transparent}
 .ex-check.checked{background:var(--accent);border-color:var(--accent);color:#fff}
 .ex-body{flex:1;min-width:0}
@@ -73,6 +89,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 .ex-tag.tempo{background:#f3e8ff;color:#6b21a8}.dark .ex-tag.tempo{background:#3b0764;color:#c4b5fd}
 .ex-notes{font-size:0.72rem;color:var(--text3);line-height:1.4;margin-bottom:0.3rem}
 .ex-equip{font-size:0.65rem;color:var(--text3);font-style:italic}
+.ex-complete{margin-top:0.4rem;display:flex;align-items:center;gap:0.4rem;font-size:0.7rem;color:var(--text2);font-weight:600}
+.ex-complete input{accent-color:var(--accent)}
 .weight-row{display:flex;gap:0.4rem;align-items:center;margin-top:0.35rem}
 .weight-input{width:65px;padding:0.25rem 0.4rem;border:1px solid var(--border);border-radius:6px;font-size:0.78rem;font-family:inherit;background:var(--bg3);color:var(--text);text-align:center}
 .weight-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(22,163,74,0.15)}
@@ -112,6 +130,19 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 /* Reset Dialog */
 .reset-btn{font-size:0.7rem;color:var(--red);background:none;border:none;cursor:pointer;font-weight:600;padding:0.35rem;font-family:inherit}
 .reset-btn:hover{text-decoration:underline}
+
+/* Program Panel */
+.program-only{display:none}
+.tab-program .home-only{display:none!important}
+.tab-program .program-only{display:block!important}
+.program-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.program-card h2{font-size:1rem;font-weight:800;margin-bottom:0.6rem;color:var(--text)}
+.program-row{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.6rem}
+.program-select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:0.45rem 0.6rem;font-size:0.8rem;font-weight:600;color:var(--text);font-family:inherit;cursor:pointer}
+.program-btn{padding:0.4rem 0.8rem;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.program-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.program-btn:hover{border-color:var(--accent)}
+.program-meta{font-size:0.78rem;color:var(--text2);line-height:1.5}
 
 /* Body Weight Input */
 .bw-strip{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.6rem 1rem}
@@ -177,28 +208,35 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 <div class="header-top">
 <div class="logo">Golf Training <span>6-Week Cycle</span></div>
 <div class="header-controls">
-<select class="week-select" id="weekSelect" onchange="setWeek(this.value)">
+<select class="week-select home-only" id="weekSelect" onchange="setWeek(this.value)">
 <option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option>
 <option value="4">Week 4</option><option value="5">Week 5</option><option value="6">Week 6 (Deload)</option>
 </select>
 <button class="dark-toggle" id="darkToggle" onclick="toggleDark()">&#9790;</button>
-<button class="reset-btn" onclick="if(confirm('Reset ALL progress for this week?')){resetWeek()}">Reset</button>
+<button class="reset-btn home-only" onclick="if(confirm('Reset ALL progress for this week?')){resetWeek()}">Reset</button>
 </div>
 </div>
 </div>
 
-<div class="tabs-wrap">
+<div class="top-tabs">
+<div class="top-tabs-inner">
+<button class="top-tab" id="homeTabBtn" onclick="setActiveTab('home')">Home</button>
+<button class="top-tab" id="programTabBtn" onclick="setActiveTab('program')">Program</button>
+</div>
+</div>
+
+<div class="tabs-wrap home-only" id="dayTabsWrap">
 <div class="tabs" id="tabs"></div>
 </div>
 
-<div class="progress-bar-wrap">
+<div class="progress-bar-wrap home-only" id="progressWrap">
 <div class="progress-bar-inner">
 <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
 <span class="progress-text" id="progressText">0/0</span>
 </div>
 </div>
 
-<div class="bw-strip">
+<div class="bw-strip home-only" id="bwStrip">
 <div class="bw-inner">
 <span class="bw-label">Today's Weight:</span>
 <input class="bw-input" id="bwInput" type="number" step="0.1" placeholder="lbs">
@@ -207,10 +245,11 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 </div>
 </div>
 
-<div class="content" id="content"></div>
+<div class="content home-only" id="content"></div>
+<div class="content program-only" id="programArea"></div>
 
-<button class="timer-toggle" id="timerToggle" onclick="showTimer()">&#9201;</button>
-<div class="timer-bar" id="timerBar">
+<button class="timer-toggle home-only" id="timerToggle" onclick="showTimer()">&#9201;</button>
+<div class="timer-bar home-only" id="timerBar">
 <div class="timer-inner">
 <div class="timer-display" id="timerDisplay">0:00</div>
 <div class="timer-btns">
@@ -483,10 +522,115 @@ if (!state.week) state.week = 1;
 if (!state.dark) state.dark = false;
 if (!state.day) state.day = 'Monday';
 if (!state.data) state.data = {};
+const WEEK_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+const PROGRAMS = [
+  { id: 'golf-6week', name: 'Golf Training 6-Week Cycle', weeks: 6 }
+];
+if (!state.programId) state.programId = PROGRAMS[0].id;
+if (!state.programStarts) state.programStarts = {};
 function save() { localStorage.setItem('wt_state', JSON.stringify(state)); }
 function getKey(day, idx) { return `w${state.week}_${day}_${idx}`; }
 function getExState(day, idx) { return state.data[getKey(day, idx)] || { done: false, weight: '' }; }
 function setExState(day, idx, val) { state.data[getKey(day, idx)] = val; save(); }
+
+// ============ UI STATE ============
+const UI_TAB_KEY = 'uiActiveTab';
+const HIDE_COMPLETED_KEY = 'hideCompleted';
+const COMPLETED_ITEMS_KEY = 'completedItems';
+let uiActiveTab = (localStorage.getItem(UI_TAB_KEY) || 'home').toLowerCase();
+if (uiActiveTab !== 'program') uiActiveTab = 'home';
+let hideCompleted = JSON.parse(localStorage.getItem(HIDE_COMPLETED_KEY) || 'false');
+let showCompletedOverride = false;
+
+function setActiveTab(tab) {
+  uiActiveTab = tab === 'program' ? 'program' : 'home';
+  localStorage.setItem(UI_TAB_KEY, uiActiveTab);
+  document.getElementById('homeTabBtn').classList.toggle('active', uiActiveTab === 'home');
+  document.getElementById('programTabBtn').classList.toggle('active', uiActiveTab === 'program');
+  document.body.classList.toggle('tab-program', uiActiveTab === 'program');
+  if (uiActiveTab === 'program') {
+    renderProgram();
+  } else {
+    renderTabs();
+    renderDay(state.day);
+  }
+}
+
+function setHideCompleted(val) {
+  hideCompleted = !!val;
+  localStorage.setItem(HIDE_COMPLETED_KEY, JSON.stringify(hideCompleted));
+  if (!hideCompleted) showCompletedOverride = false;
+  renderDay(state.day);
+}
+
+function toggleShowCompleted() {
+  showCompletedOverride = !showCompletedOverride;
+  renderDay(state.day);
+}
+
+function getActiveProgram() {
+  return PROGRAMS.find(p => p.id === state.programId) || PROGRAMS[0];
+}
+function getActiveProgramId() {
+  return state.programId || 'no-program';
+}
+function getProgramStartISO(id = getActiveProgramId()) {
+  return (state.programStarts && state.programStarts[id]) || '';
+}
+function setProgramStartISO(id, iso) {
+  state.programStarts[id] = iso;
+  save();
+}
+
+function formatLocalISO(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+function parseLocalISO(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+function getViewDateISO(day) {
+  const dayIndex = WEEK_DAYS.indexOf(day);
+  if (dayIndex < 0) return formatLocalISO(new Date());
+  const programId = getActiveProgramId();
+  const startISO = getProgramStartISO(programId);
+  if (startISO) {
+    const start = parseLocalISO(startISO);
+    const offset = (state.week - 1) * 7 + dayIndex;
+    const viewDate = new Date(start.getFullYear(), start.getMonth(), start.getDate() + offset);
+    return formatLocalISO(viewDate);
+  }
+  const today = new Date();
+  const mondayOffset = (today.getDay() + 6) % 7;
+  const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - mondayOffset);
+  const weekOffset = (state.week - 1) * 7;
+  const viewDate = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + weekOffset + dayIndex);
+  return formatLocalISO(viewDate);
+}
+
+function getCompletedItems() {
+  return JSON.parse(localStorage.getItem(COMPLETED_ITEMS_KEY) || '{}');
+}
+function saveCompletedItems(items) {
+  localStorage.setItem(COMPLETED_ITEMS_KEY, JSON.stringify(items));
+}
+function getCompletionKey(day) {
+  const programId = getActiveProgramId() || 'no-program';
+  return `${programId}|${getViewDateISO(day)}`;
+}
+function toggleCompleted(day, exerciseId, checked) {
+  const items = getCompletedItems();
+  const key = getCompletionKey(day);
+  if (!items[key]) items[key] = {};
+  if (checked) items[key][exerciseId] = true;
+  else delete items[key][exerciseId];
+  if (Object.keys(items[key]).length === 0) delete items[key];
+  saveCompletedItems(items);
+  renderDay(day);
+}
 
 // ============ INIT ============
 function init() {
@@ -494,6 +638,8 @@ function init() {
   if (state.dark) document.body.classList.add('dark');
   renderTabs();
   renderDay(state.day);
+  renderProgram();
+  setActiveTab(uiActiveTab);
 }
 
 function renderTabs() {
@@ -511,7 +657,7 @@ function renderTabs() {
   }).join('');
 }
 
-function switchDay(d) { state.day = d; save(); renderTabs(); renderDay(d); }
+function switchDay(d) { state.day = d; showCompletedOverride = false; save(); renderTabs(); renderDay(d); }
 
 function renderDay(day) {
   const c = document.getElementById('content');
@@ -519,9 +665,28 @@ function renderDay(day) {
   if (day === 'Weight Log') { renderWeightLog(c); updateProgress(day); return; }
   if (day === 'Sunday') { renderSunday(c); updateProgress(day); return; }
   const exercises = WORKOUTS[day] || [];
+  const completionKey = getCompletionKey(day);
+  const completedItems = getCompletedItems();
+  const dayCompleted = completedItems[completionKey] || {};
+  const enhanced = exercises.map((ex, i) => {
+    const exId = String(i);
+    return { ...ex, _idx: i, _exId: exId, _completed: !!dayCompleted[exId] };
+  });
+  const completedCount = enhanced.filter(ex => ex._completed).length;
+  const shouldHideCompleted = hideCompleted && !showCompletedOverride;
+  const visible = shouldHideCompleted ? enhanced.filter(ex => !ex._completed) : enhanced;
+
   let phases = {};
-  exercises.forEach((ex, i) => { if (!phases[ex.phase]) phases[ex.phase] = []; phases[ex.phase].push({ ...ex, _idx: i }); });
-  let html = '';
+  visible.forEach(ex => { if (!phases[ex.phase]) phases[ex.phase] = []; phases[ex.phase].push(ex); });
+  let html = `<div class="home-controls">
+    <label class="toggle-wrap"><input type="checkbox" ${hideCompleted ? 'checked' : ''} onchange="setHideCompleted(this.checked)"> Hide completed</label>
+    ${hideCompleted && completedCount > 0 ? `<button class="show-completed-btn" onclick="toggleShowCompleted()">${showCompletedOverride ? 'Hide completed' : `Show completed (${completedCount})`}</button>` : ''}
+  </div>`;
+
+  if (visible.length === 0 && exercises.length > 0) {
+    html += `<div class="sunday-card"><p>All exercises are completed.</p></div>`;
+  }
+
   for (const [phase, exs] of Object.entries(phases)) {
     const cls = phase.includes('Stretch') ? 'stretch' : phase.includes('Bonus') ? 'bonus' : 'main';
     const icon = cls === 'stretch' ? '&#127939;' : cls === 'main' ? '&#128170;' : '&#11088;';
@@ -530,7 +695,8 @@ function renderDay(day) {
       const s = getExState(day, ex._idx);
       const doneClass = s.done ? ' done' : '';
       const checkedClass = s.done ? ' checked' : '';
-      html += `<div class="ex-card${doneClass}" id="card-${ex._idx}">
+      const completedClass = ex._completed ? ' completed' : '';
+      html += `<div class="ex-card${doneClass}${completedClass}" id="card-${ex._idx}">
         <div class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx})" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</div>
         <div class="ex-body">
           <div class="ex-name">${ex.exercise}</div>
@@ -541,6 +707,7 @@ function renderDay(day) {
           </div>
           <div class="ex-notes">${ex.notes}</div>
           <div class="ex-equip">${ex.equipment}</div>
+          <label class="ex-complete"><input type="checkbox" ${ex._completed ? 'checked' : ''} onchange="toggleCompleted('${day}','${ex._exId}', this.checked)"> Mark complete</label>
           ${ex.phase === 'Main Workout' || ex.phase.includes('Bonus') ? `<div class="weight-row"><span class="weight-label">Weight:</span><input class="weight-input" type="text" placeholder="lbs" value="${s.weight || ''}" onchange="setWeight('${day}',${ex._idx},this.value)"></div>` : ''}
           ${EX_DESC[ex.exercise] ? `<span class="ex-info-toggle" onclick="toggleInfo(this)"><span class="arrow">&#9654;</span> How to do this</span><div class="ex-info-box"><div class="ex-info-content"><strong>${ex.exercise}:</strong> ${EX_DESC[ex.exercise]}</div></div>` : ''}
         </div>
@@ -569,6 +736,80 @@ function renderSunday(c) {
 
 function renderGuide(c) {
   c.innerHTML = `<div class="guide-content">${GUIDE_HTML}</div>`;
+}
+
+function getProgramProgress() {
+  const program = getActiveProgram();
+  const startISO = getProgramStartISO(program.id);
+  if (!startISO) return { started: false };
+  const start = parseLocalISO(startISO);
+  const today = new Date();
+  const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const daysSinceStart = Math.floor((todayLocal - start) / 86400000);
+  const totalDays = (program.weeks || 0) * 7;
+  if (daysSinceStart < 0) return { started: true, startsIn: Math.abs(daysSinceStart), totalDays };
+  const capped = Math.min(daysSinceStart, Math.max(totalDays - 1, 0));
+  const week = Math.floor(capped / 7) + 1;
+  const dayIndex = capped % 7;
+  const completedDays = Math.min(Math.max(daysSinceStart, 0), totalDays);
+  return { started: true, week, dayName: WEEK_DAYS[dayIndex], dayNumber: dayIndex + 1, completedDays, totalDays, finished: daysSinceStart >= totalDays };
+}
+
+function renderProgram() {
+  const c = document.getElementById('programArea');
+  const program = getActiveProgram();
+  const startISO = getProgramStartISO(program.id);
+  const startLabel = startISO ? parseLocalISO(startISO).toLocaleDateString() : 'Not started';
+  const progress = getProgramProgress();
+  let progressText = 'Not started';
+  if (progress.started && progress.startsIn) {
+    progressText = `Starts in ${progress.startsIn} day${progress.startsIn === 1 ? '' : 's'}`;
+  } else if (progress.started) {
+    const base = `Week ${progress.week} • Day ${progress.dayNumber} (${progress.dayName})`;
+    const completed = progress.totalDays ? `Completed ${progress.completedDays}/${progress.totalDays} days` : '';
+    progressText = progress.finished ? (progress.totalDays ? `Completed ${progress.totalDays}/${progress.totalDays} days` : 'Completed') : `${base}${completed ? ` • ${completed}` : ''}`;
+  }
+
+  let html = `<div class="program-card">
+    <h2>Program Management</h2>
+    <div class="program-row">
+      <select class="program-select" id="programSelect" onchange="changeProgram(this.value)">
+        ${PROGRAMS.map(p => `<option value="${p.id}" ${p.id === program.id ? 'selected' : ''}>${p.name}</option>`).join('')}
+      </select>
+      <button class="program-btn primary" onclick="startProgram()">Start/Resume</button>
+      <button class="program-btn" onclick="restartProgram()">Restart</button>
+    </div>
+    <div class="program-meta"><strong>Active:</strong> ${program.name}</div>
+    <div class="program-meta"><strong>Start date:</strong> ${startLabel}</div>
+    <div class="program-meta"><strong>Status:</strong> ${progressText}</div>
+  </div>`;
+  c.innerHTML = html;
+}
+
+function changeProgram(id) {
+  state.programId = id;
+  save();
+  renderProgram();
+}
+
+function startProgram() {
+  const programId = getActiveProgramId();
+  if (!getProgramStartISO(programId)) {
+    setProgramStartISO(programId, formatLocalISO(new Date()));
+  }
+  renderProgram();
+}
+
+function restartProgram() {
+  const programId = getActiveProgramId();
+  if (!confirm('Restart this program from today?')) return;
+  setProgramStartISO(programId, formatLocalISO(new Date()));
+  state.week = 1;
+  state.day = 'Monday';
+  save();
+  renderTabs();
+  renderDay(state.day);
+  renderProgram();
 }
 
 function toggleEx(day, idx) {
@@ -610,7 +851,7 @@ function updateProgress(day) {
   document.getElementById('progressText').innerText = `${done}/${total} exercises`;
 }
 
-function setWeek(w) { state.week = parseInt(w); save(); renderTabs(); renderDay(state.day); }
+function setWeek(w) { state.week = parseInt(w); showCompletedOverride = false; save(); renderTabs(); renderDay(state.day); }
 function toggleDark() { state.dark = !state.dark; document.body.classList.toggle('dark'); save(); document.getElementById('darkToggle').innerHTML = state.dark ? '&#9728;' : '&#9790;'; }
 function resetWeek() { const prefix = `w${state.week}_`; Object.keys(state.data).forEach(k => { if (k.startsWith(prefix)) delete state.data[k]; }); save(); renderTabs(); renderDay(state.day); }
 
