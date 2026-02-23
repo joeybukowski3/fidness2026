@@ -162,9 +162,10 @@ body.detail-open{overflow:hidden}
 .reset-btn:hover{text-decoration:underline}
 
 /* Program Panel */
-.program-only{display:none}
-.tab-program .home-only{display:none!important}
+.program-only,.history-only{display:none}
+.tab-program .home-only,.tab-history .home-only{display:none!important}
 .tab-program .program-only{display:block!important}
+.tab-history .history-only{display:block!important}
 .program-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
 .program-card h2{font-size:1rem;font-weight:800;margin-bottom:0.6rem;color:var(--text)}
 .program-row{display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;margin-bottom:0.6rem}
@@ -281,6 +282,7 @@ body.detail-open{overflow:hidden}
   </div>
 </div>
 <div class="header-controls">
+<button class="timer-btn home-only" style="padding:0.35rem 0.6rem;font-size:0.7rem;" onclick="shareWorkout()">Share</button>
 <select class="week-select home-only" id="weekSelect" onchange="setWeek(this.value)">
 <option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option>
 <option value="4">Week 4</option><option value="5">Week 5</option><option value="6">Week 6 (Deload)</option>
@@ -295,6 +297,7 @@ body.detail-open{overflow:hidden}
 <div class="top-tabs-inner">
 <button class="top-tab" id="homeTabBtn" onclick="setActiveTab('home')">Home</button>
 <button class="top-tab" id="programTabBtn" onclick="setActiveTab('program')">Program</button>
+<button class="top-tab" id="historyTabBtn" onclick="setActiveTab('history')">History</button>
 </div>
 </div>
 
@@ -311,6 +314,7 @@ body.detail-open{overflow:hidden}
 
 <div class="content home-only" id="content"></div>
 <div class="content program-only" id="programArea"></div>
+<div class="content history-only" id="historyArea"></div>
 
 <div class="detail-view" id="detailView" aria-hidden="true">
   <div class="detail-inner" id="detailContent"></div>
@@ -611,24 +615,83 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   const UI_TAB_KEY = 'uiActiveTab';
   const HIDE_COMPLETED_KEY = 'hideCompleted';
 let uiActiveTab = (localStorage.getItem(UI_TAB_KEY) || 'home').toLowerCase();
-if (uiActiveTab !== 'program') uiActiveTab = 'home';
+if (!['home', 'program', 'history'].includes(uiActiveTab)) uiActiveTab = 'home';
 let hideCompleted = JSON.parse(localStorage.getItem(HIDE_COMPLETED_KEY) || 'false');
 let showCompletedOverride = false;
 let activeWorkoutTab = 'main';
 let workoutHistory = getWorkoutHistory();
 
 function setActiveTab(tab) {
-  uiActiveTab = tab === 'program' ? 'program' : 'home';
+  uiActiveTab = ['home', 'program', 'history'].includes(tab) ? tab : 'home';
   localStorage.setItem(UI_TAB_KEY, uiActiveTab);
   document.getElementById('homeTabBtn').classList.toggle('active', uiActiveTab === 'home');
   document.getElementById('programTabBtn').classList.toggle('active', uiActiveTab === 'program');
-  document.body.classList.toggle('tab-program', uiActiveTab === 'program');
+  document.getElementById('historyTabBtn').classList.toggle('active', uiActiveTab === 'history');
+  
+  document.body.classList.remove('tab-program', 'tab-history');
+  if (uiActiveTab === 'program') document.body.classList.add('tab-program');
+  if (uiActiveTab === 'history') document.body.classList.add('tab-history');
+
   if (uiActiveTab === 'program') {
     renderProgram();
+  } else if (uiActiveTab === 'history') {
+    renderHistory();
   } else {
     renderTabs();
     renderDay(state.day);
   }
+}
+
+function renderHistory() {
+  const container = document.getElementById('historyArea');
+  const history = getWorkoutHistory();
+  if (history.length === 0) {
+    container.innerHTML = '<div class="program-card"><div class="program-meta">No workout history found. Start training to see your progress!</div></div>';
+    return;
+  }
+  const reversed = [...history].reverse();
+  let currentDay = '';
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;"><h2>Exercise History</h2><button class="reset-btn" onclick="clearFullHistory()">Clear History</button></div>';
+  reversed.forEach(item => {
+    const date = new Date(item.ts);
+    const dayLabel = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    if (dayLabel !== currentDay) {
+      if (currentDay !== '') html += '</div>';
+      html += `<div class="program-card" style="margin-bottom:1rem"><h3>${dayLabel}</h3>`;
+      currentDay = dayLabel;
+    }
+    html += `<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:0.5rem 0;">
+      <div><strong>${item.exercise}</strong><div style="font-size:0.7rem;color:var(--text3)">${date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div></div>
+      <div style="font-size:0.85rem">${item.weight || '-'} lbs x ${item.reps || '-'} reps</div>
+    </div>`;
+  });
+  html += '</div><div style="text-align:center;margin-top:2rem;"><button class="reset-btn" style="font-size:0.8rem;" onclick="fullReset()">Hard Reset (Wipe All Data)</button></div>';
+  container.innerHTML = html;
+}
+
+function clearFullHistory() {
+  if (!confirm('Are you sure you want to clear ALL exercise history?')) return;
+  localStorage.removeItem(HISTORY_KEY);
+  renderHistory();
+}
+
+function fullReset() {
+  if (!confirm('CRITICAL: This will wipe ALL progress, history, weight logs, and settings. Are you absolutely sure?')) return;
+  localStorage.clear();
+  window.location.reload();
+}
+
+function shareWorkout() {
+  const day = state.day;
+  if (day === 'Weight Log') { alert('Select a workout day to share.'); return; }
+  const exercises = WORKOUTS[day] || [];
+  let text = `My ${day} Workout (Week ${state.week}):\n\n`;
+  exercises.forEach(ex => {
+    const s = getExState(day, exercises.indexOf(ex));
+    text += `- ${ex.exercise}: ${s.done ? '[COMPLETED]' : '[ ]'} ${s.weight ? `${s.weight} lbs x ` : ''}${s.reps || ex.reps}\n`;
+  });
+  text += '\nShared from Pro Trainer Elite';
+  navigator.clipboard.writeText(text).then(() => alert('Workout summary copied to clipboard!'));
 }
 
 function setHideCompleted(val) {
