@@ -741,6 +741,34 @@ function getDefaultReps(repsText) {
   if (singleMatch) return parseInt(singleMatch[1], 10);
   return 10;
 }
+
+const HIDE_LOAD_INPUT_CATEGORIES = new Set(['stretches', 'cardio', 'yoga']);
+
+function getExerciseCategory(exercise) {
+  if (!exercise) return 'Strength';
+  if (typeof exercise.category === 'string' && exercise.category.trim()) return exercise.category.trim();
+
+  const phase = (exercise.phase || '').toLowerCase();
+  const name = (exercise.exercise || '').toLowerCase();
+  const notes = (exercise.notes || '').toLowerCase();
+
+  if (phase.includes('stretch') || name.includes('stretch')) return 'Stretches';
+  if (name.includes('yoga') || name.includes('pose') || notes.includes('yoga')) return 'Yoga';
+  if (name.includes('walk') || name.includes('bike') || name.includes('elliptical') || notes.includes('cardio')) return 'Cardio';
+  return 'Strength';
+}
+
+function shouldHideLoadInputs(category) {
+  return HIDE_LOAD_INPUT_CATEGORIES.has((category || '').toLowerCase());
+}
+
+Object.keys(WORKOUTS).forEach(day => {
+  WORKOUTS[day] = (WORKOUTS[day] || []).map(item => {
+    if (!item || !item.exercise) return item;
+    return { ...item, category: getExerciseCategory(item) };
+  });
+});
+
 function getExerciseId(name) {
   return name
     .toLowerCase()
@@ -938,9 +966,10 @@ function renderDay(day) {
   const exercises = WORKOUTS[day] || [];
   const enhanced = exercises.map((ex, i) => {
     const s = getExState(day, i);
+    const category = getExerciseCategory(ex);
     const defaultReps = getDefaultReps(ex.reps);
     const repsVal = s.reps || defaultReps;
-    return { ...ex, _idx: i, _state: s, _repsVal: repsVal, _defaultReps: defaultReps };
+    return { ...ex, category, _idx: i, _state: s, _repsVal: repsVal, _defaultReps: defaultReps };
   });
   const completedCount = enhanced.filter(ex => ex._state.done).length;
   const shouldHideCompleted = hideCompleted && !showCompletedOverride;
@@ -1011,14 +1040,14 @@ function renderDay(day) {
               </div>
               <div class="ex-notes">${ex.notes}</div>
               <div class="ex-equip">${ex.equipment}</div>
-              <div class="weight-row">
+              ${shouldHideLoadInputs(ex.category) ? '' : `<div class="weight-row">
                 <span class="weight-label">Weight:</span>
                 <input class="weight-input" type="text" placeholder="lbs" value="${s.weight || ''}" onchange="setWeight('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)">
                 <span class="weight-label">Reps:</span>
                 <select class="reps-select" onchange="setReps('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)">
                   ${renderRepsOptions(ex._repsVal)}
                 </select>
-              </div>
+              </div>`}
               ${EX_DESC[ex.exercise] ? `<span class="ex-info-toggle" onclick="toggleInfo(this)"><span class="arrow">&#9654;</span> How to do this</span><div class="ex-info-box"><div class="ex-info-content"><strong>${ex.exercise}:</strong> ${EX_DESC[ex.exercise]}<details class="ex-visual"><summary>Visual Guide</summary><div class="ex-visual-body"><img src="assets/diagrams/${getExerciseId(ex.exercise)}-1.png" alt="${ex.exercise}"></div></details></div></div>` : ''}
             </div>
           </div>
