@@ -618,7 +618,7 @@ let uiActiveTab = (localStorage.getItem(UI_TAB_KEY) || 'home').toLowerCase();
 if (!['home', 'program', 'history'].includes(uiActiveTab)) uiActiveTab = 'home';
 let hideCompleted = JSON.parse(localStorage.getItem(HIDE_COMPLETED_KEY) || 'false');
 let showCompletedOverride = false;
-let activeWorkoutTab = 'main';
+let activeWorkoutTab = 'pre';
 let workoutHistory = getWorkoutHistory();
 
 function setActiveTab(tab) {
@@ -831,6 +831,18 @@ function getViewDateISO(day) {
 
   // ============ INIT ============
   function init() {
+    const progress = getProgramProgress();
+    if (progress.started && !progress.finished) {
+      state.week = progress.week;
+      state.day = progress.dayName;
+    } else {
+      const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+      if (WEEK_DAYS.includes(todayName)) {
+        state.day = todayName;
+      }
+    }
+    save();
+
     document.getElementById('weekSelect').value = state.week;
     if (state.dark) document.body.classList.add('dark');
     renderTabs();
