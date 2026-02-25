@@ -90,7 +90,10 @@ body.detail-open{overflow:hidden}
 .phase-header.bonus{background:#fef3c7;color:#92400e}.dark .phase-header.bonus{background:#451a03;color:#fcd34d}
 
 /* Exercise Cards */
-.ex-card{background:var(--bg2);border:1px solid var(--border);border-top:none;padding:0.75rem;display:flex;gap:0.6rem;align-items:flex-start;transition:background 0.2s}
+.ex-card{background:var(--bg2);border:1px solid var(--border);border-top:none;padding:0.75rem;display:flex;gap:0.6rem;align-items:flex-start;transition:background 0.2s, transform 0.3s ease;position:relative;overflow:hidden;touch-action:pan-y}
+.ex-card.swiping{transition:none}
+.ex-card.swapped-ui{border-left:4px solid var(--amber)}
+.ex-swap-indicator{font-size:0.6rem;font-weight:800;color:var(--amber);text-transform:uppercase;margin-bottom:0.1rem;display:flex;align-items:center;gap:0.2rem}
 .ex-card:last-child{border-radius:0 0 var(--radius) var(--radius)}
 .ex-card.done{background:var(--accent-bg);opacity:0.75}
 .ex-card.completed{opacity:0.6}
@@ -607,8 +610,23 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   if (!state.programStarts) state.programStarts = {};
   function save() { localStorage.setItem('wt_state', JSON.stringify(state)); }
   function getKey(day, idx) { return `w${state.week}_${day}_${idx}`; }
-  function getExState(day, idx) { return state.data[getKey(day, idx)] || { done: false, weight: '', reps: '', collapsed: false, exercise: '' }; }
+  function getExState(day, idx) { return state.data[getKey(day, idx)] || { done: false, weight: '', reps: '', collapsed: false, exercise: '', swapped: false }; }
   function setExState(day, idx, val) { state.data[getKey(day, idx)] = val; save(); }
+
+  function getAlternative(notes) {
+    if (!notes) return null;
+    const match = notes.match(/SUB:\s*([^.]+)/i);
+    return match ? match[1].trim() : null;
+  }
+
+  function toggleSwap(day, idx) {
+    const s = getExState(day, idx);
+    const ex = (WORKOUTS[day] || [])[idx];
+    if (!getAlternative(ex.notes)) return;
+    s.swapped = !s.swapped;
+    setExState(day, idx, s);
+    renderDay(day);
+  }
 
 // ============ UI STATE ============
   const HISTORY_KEY = 'wt_ex_history';
@@ -1027,15 +1045,17 @@ function renderDay(day) {
         const checkedClass = s.done ? ' checked' : '';
         const collapsedClass = s.collapsed ? ' collapsed' : '';
         const toggleOpenClass = s.collapsed ? '' : ' open';
-        out += `<div class="ex-card${doneClass}${collapsedClass}" id="card-${ex._idx}">
+      out += `<div class="ex-card${doneClass}${collapsedClass}${s.swapped ? ' swapped-ui' : ''}" id="card-${ex._idx}" data-idx="${ex._idx}">
           <div class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx})" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</div>
           <div class="ex-body">
             <div class="ex-header">
             <div class="ex-name">
+              ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alternative</div>' : ''}
               <div class="ex-name-row">
-                <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx})">${ex.exercise}</button>
+                <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx})">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
                 ${(() => {
-                  const last = getLatestHistoryEntry(ex.exercise);
+                  const nameToFind = s.swapped ? getAlternative(ex.notes) : ex.exercise;
+                  const last = getLatestHistoryEntry(nameToFind);
                   if (!last) return '';
                   const d = new Date(last.ts);
                   const dateStr = `${formatDateOrdinal(d)}, ${d.getFullYear()}`;
@@ -1083,6 +1103,45 @@ function renderDay(day) {
   c.innerHTML = html;
   setWorkoutTab(activeWorkoutTab);
   updateProgress(day);
+  attachSwipeListeners();
+}
+
+function attachSwipeListeners() {
+  const cards = document.querySelectorAll('.ex-card');
+  cards.forEach(card => {
+    const idx = parseInt(card.dataset.idx);
+    const ex = (WORKOUTS[state.day] || [])[idx];
+    if (!ex || !getAlternative(ex.notes)) return;
+
+    let startX = 0, currentX = 0, isSwiping = false;
+
+    card.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      isSwiping = true;
+      card.classList.add('swiping');
+    }, { passive: true });
+
+    card.addEventListener('touchmove', e => {
+      if (!isSwiping) return;
+      currentX = e.touches[0].clientX;
+      const diff = currentX - startX;
+      if (diff < 0) { // Swipe left
+        card.style.transform = `translateX(${Math.max(diff, -100)}px)`;
+      }
+    }, { passive: true });
+
+    card.addEventListener('touchend', e => {
+      if (!isSwiping) return;
+      isSwiping = false;
+      card.classList.remove('swiping');
+      const diff = currentX - startX;
+      card.style.transform = '';
+      if (diff < -60) {
+        toggleSwap(state.day, idx);
+      }
+      startX = 0; currentX = 0;
+    });
+  });
 }
 
 function renderSundayHtml() {
