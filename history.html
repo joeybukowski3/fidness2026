@@ -42,6 +42,19 @@ h1 { font-size: 1.5rem; font-weight: 800; margin: 0; }
   const history = JSON.parse(localStorage.getItem('wt_ex_history') || '[]');
   const container = document.getElementById('historyList');
 
+  const HIDE_LOAD_INPUT_CATEGORIES = new Set(['stretches', 'cardio', 'yoga']);
+  function getExerciseCategory(name) {
+    if (!name) return 'Strength';
+    const n = name.toLowerCase();
+    if (n.includes('stretch')) return 'Stretches';
+    if (n.includes('yoga') || n.includes('pose')) return 'Yoga';
+    if (n.includes('walk') || n.includes('bike') || n.includes('elliptical')) return 'Cardio';
+    return 'Strength';
+  }
+  function shouldHideLoadInputs(category) {
+    return HIDE_LOAD_INPUT_CATEGORIES.has((category || '').toLowerCase());
+  }
+
   if (history.length === 0) {
     container.innerHTML = '<div class="card empty-state"><p>No workout history found. Start training to see your progress!</p></div>';
   } else {
@@ -59,13 +72,16 @@ h1 { font-size: 1.5rem; font-weight: 800; margin: 0; }
         currentDay = dayLabel;
       }
 
+      const category = getExerciseCategory(item.exercise);
+      const hideInputs = shouldHideLoadInputs(category);
+
       html += `
         <div class="history-item">
           <div>
             <div class="ex-name">${item.exercise}</div>
             <div class="ex-meta">${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
           </div>
-          <div class="ex-meta"><strong>${item.weight || '-'}</strong> lbs x <strong>${item.reps || '-'}</strong> reps</div>
+          ${hideInputs ? '<div style="font-size:0.75rem;color:var(--accent);font-weight:700;">Completed</div>' : `<div class="ex-meta"><strong>${item.weight || '-'}</strong> lbs x <strong>${item.reps || '-'}</strong> reps</div>`}
         </div>
       `;
     });

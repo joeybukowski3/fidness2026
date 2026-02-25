@@ -660,9 +660,12 @@ function renderHistory() {
       html += `<div class="program-card" style="margin-bottom:1rem"><h3>${dayLabel}</h3>`;
       currentDay = dayLabel;
     }
+    const category = getExerciseCategory({ exercise: item.exercise });
+    const hideInputs = shouldHideLoadInputs(category);
+    
     html += `<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:0.5rem 0;">
       <div><strong>${item.exercise}</strong><div style="font-size:0.7rem;color:var(--text3)">${date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div></div>
-      <div style="font-size:0.85rem">${item.weight || '-'} lbs x ${item.reps || '-'} reps</div>
+      ${hideInputs ? '<div style="font-size:0.75rem;color:var(--accent);font-weight:600;">Completed</div>' : `<div style="font-size:0.85rem">${item.weight || '-'} lbs x ${item.reps || '-'} reps</div>`}
     </div>`;
   });
   html += '</div><div style="text-align:center;margin-top:2rem;"><button class="reset-btn" style="font-size:0.8rem;" onclick="fullReset()">Hard Reset (Wipe All Data)</button></div>';
