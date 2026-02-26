@@ -601,6 +601,8 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   if (!state.ui) state.ui = {};
   if (!state.ui.phaseCollapsed) state.ui.phaseCollapsed = {};
   if (!state.ui.bwCollapsedDate) state.ui.bwCollapsedDate = '';
+  if (!state.activeWorkoutTab) state.activeWorkoutTab = 'pre';
+  if (!state.lastAccessedDate) state.lastAccessedDate = '';
   const WEEK_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
   const PROGRAMS = [
     { id: 'golf-6week', name: 'Golf Training 6-Week Cycle', weeks: 6 },
@@ -636,7 +638,7 @@ let uiActiveTab = (localStorage.getItem(UI_TAB_KEY) || 'home').toLowerCase();
 if (!['home', 'program', 'history'].includes(uiActiveTab)) uiActiveTab = 'home';
 let hideCompleted = JSON.parse(localStorage.getItem(HIDE_COMPLETED_KEY) || 'false');
 let showCompletedOverride = false;
-let activeWorkoutTab = 'pre';
+let activeWorkoutTab = state.activeWorkoutTab;
 let workoutHistory = getWorkoutHistory();
 
 function setActiveTab(tab) {
@@ -849,13 +851,28 @@ function getViewDateISO(day) {
 
   // ============ INIT ============
   function init() {
+    const nowISO = formatLocalISO(new Date());
+    const dateChanged = state.lastAccessedDate !== nowISO;
+    
+    if (dateChanged) {
+      state.activeWorkoutTab = 'pre';
+      activeWorkoutTab = 'pre';
+      state.lastAccessedDate = nowISO;
+      const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+      if (WEEK_DAYS.includes(todayName)) {
+        state.day = todayName;
+      }
+    }
+
     const progress = getProgramProgress();
     if (progress.started && !progress.finished) {
       state.week = progress.week;
-      state.day = progress.dayName;
+      // Only set day if it was a date change, or if we want the program day. 
+      // Requirement says reset daily and revert back to pre-workout. 
+      // If the user manually switched day, it should stay there until 12am reset.
     } else {
       const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-      if (WEEK_DAYS.includes(todayName)) {
+      if (WEEK_DAYS.includes(todayName) && !state.day) {
         state.day = todayName;
       }
     }
@@ -885,10 +902,19 @@ function getViewDateISO(day) {
   }).join('');
 }
 
-function switchDay(d) { state.day = d; showCompletedOverride = false; activeWorkoutTab = 'main'; save(); renderTabs(); renderDay(d); }
+function switchDay(d) { 
+  state.day = d; 
+  showCompletedOverride = false; 
+  // No longer reset tab automatically on day switch if we want "locked in"
+  save(); 
+  renderTabs(); 
+  renderDay(d); 
+}
 
 function setWorkoutTab(tabKey) {
   activeWorkoutTab = tabKey;
+  state.activeWorkoutTab = tabKey;
+  save();
   const tabs = document.querySelectorAll('.workout-tab');
   const sections = document.querySelectorAll('.workout-section');
   tabs.forEach(tab => {
@@ -1050,7 +1076,7 @@ function renderDay(day) {
           <div class="ex-body">
             <div class="ex-header">
             <div class="ex-name">
-              ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alternative</div>' : ''}
+              ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alternative</div>' : (getAlternative(ex.notes) ? '<div class="ex-swap-indicator" style="color:var(--text3);">&#9733; Sub Available</div>' : '')}
               <div class="ex-name-row">
                 <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
                 ${(() => {
