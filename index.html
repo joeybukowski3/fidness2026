@@ -1046,13 +1046,13 @@ function renderDay(day) {
         const collapsedClass = s.collapsed ? ' collapsed' : '';
         const toggleOpenClass = s.collapsed ? '' : ' open';
       out += `<div class="ex-card${doneClass}${collapsedClass}${s.swapped ? ' swapped-ui' : ''}" id="card-${ex._idx}" data-idx="${ex._idx}">
-          <div class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx})" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</div>
+          <div class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx}); event.stopPropagation();" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</div>
           <div class="ex-body">
             <div class="ex-header">
             <div class="ex-name">
               ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alternative</div>' : ''}
               <div class="ex-name-row">
-                <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx})">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
+                <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
                 ${(() => {
                   const nameToFind = s.swapped ? getAlternative(ex.notes) : ex.exercise;
                   const last = getLatestHistoryEntry(nameToFind);
@@ -1065,25 +1065,25 @@ function renderDay(day) {
                 })()}
               </div>
             </div>
-              <button class="ex-toggle${toggleOpenClass}" id="toggle-${ex._idx}" onclick="toggleExerciseCollapse('${day}',${ex._idx})"><span class="arrow">&#9654;</span> ${s.collapsed ? 'Expand' : 'Collapse'}</button>
+              <button class="ex-toggle${toggleOpenClass}" id="toggle-${ex._idx}" onclick="toggleExerciseCollapse('${day}',${ex._idx}); event.stopPropagation();"><span class="arrow">&#9654;</span> ${s.collapsed ? 'Expand' : 'Collapse'}</button>
             </div>
             <div class="ex-details">
               <div class="ex-meta">
                 <span class="ex-tag sets">${ex.sets} &times; ${ex.reps}</span>
-                ${ex.rest > 0 ? `<span class="ex-tag rest" onclick="timerSet(${ex.rest})" style="cursor:pointer">${ex.rest}s rest</span>` : ''}
+                ${ex.rest > 0 ? `<span class="ex-tag rest" onclick="timerSet(${ex.rest}); event.stopPropagation();" style="cursor:pointer">${ex.rest}s rest</span>` : ''}
                 <span class="ex-tag tempo">${ex.tempo}</span>
               </div>
               <div class="ex-notes">${ex.notes}</div>
               <div class="ex-equip">${ex.equipment}</div>
               ${shouldHideLoadInputs(ex.category) ? '' : `<div class="weight-row">
                 <span class="weight-label">Weight:</span>
-                <input class="weight-input" type="text" placeholder="lbs" value="${s.weight || ''}" onchange="setWeight('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)">
+                <input class="weight-input" type="text" placeholder="lbs" value="${s.weight || ''}" onchange="setWeight('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)" onclick="event.stopPropagation()">
                 <span class="weight-label">Reps:</span>
-                <select class="reps-select" onchange="setReps('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)">
+                <select class="reps-select" onchange="setReps('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)" onclick="event.stopPropagation()">
                   ${renderRepsOptions(ex._repsVal)}
                 </select>
               </div>`}
-              ${EX_DESC[ex.exercise] ? `<span class="ex-info-toggle" onclick="toggleInfo(this)"><span class="arrow">&#9654;</span> How to do this</span><div class="ex-info-box"><div class="ex-info-content"><strong>${ex.exercise}:</strong> ${EX_DESC[ex.exercise]}<details class="ex-visual"><summary>Visual Guide</summary><div class="ex-visual-body"><img src="assets/diagrams/${getExerciseId(ex.exercise)}-1.png" alt="${ex.exercise}"></div></details></div></div>` : ''}
+              ${EX_DESC[ex.exercise] ? `<span class="ex-info-toggle" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();"><span class="arrow">&#9654;</span> How to do this</span>` : ''}
             </div>
           </div>
         </div>`;
@@ -1113,10 +1113,13 @@ function attachSwipeListeners() {
     const ex = (WORKOUTS[state.day] || [])[idx];
     if (!ex || !getAlternative(ex.notes)) return;
 
-    let startX = 0, currentX = 0, isSwiping = false;
+    let startX = 0, startY = 0, currentX = 0, currentY = 0, isSwiping = false;
 
     card.addEventListener('touchstart', e => {
       startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      currentX = startX;
+      currentY = startY;
       isSwiping = true;
       card.classList.add('swiping');
     }, { passive: true });
@@ -1124,9 +1127,12 @@ function attachSwipeListeners() {
     card.addEventListener('touchmove', e => {
       if (!isSwiping) return;
       currentX = e.touches[0].clientX;
-      const diff = currentX - startX;
-      if (diff < 0) { // Swipe left
-        card.style.transform = `translateX(${Math.max(diff, -100)}px)`;
+      currentY = e.touches[0].clientY;
+      const diffX = currentX - startX;
+      const diffY = currentY - startY;
+      
+      if (Math.abs(diffX) > Math.abs(diffY)) {
+        card.style.transform = `translateX(${Math.max(Math.min(diffX, 100), -100)}px)`;
       }
     }, { passive: true });
 
@@ -1134,12 +1140,14 @@ function attachSwipeListeners() {
       if (!isSwiping) return;
       isSwiping = false;
       card.classList.remove('swiping');
-      const diff = currentX - startX;
+      const diffX = currentX - startX;
+      const diffY = currentY - startY;
       card.style.transform = '';
-      if (diff < -60) {
+      
+      if (Math.abs(diffX) >= 50 && Math.abs(diffX) > Math.abs(diffY)) {
         toggleSwap(state.day, idx);
       }
-      startX = 0; currentX = 0;
+      startX = 0; currentX = 0; startY = 0; currentY = 0;
     });
   });
 }
