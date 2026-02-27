@@ -665,35 +665,67 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   let currentSyncKey = localStorage.getItem('wt_sync_key') || null;
   let saveTimeout = null;
 
+  let syncChannel = null;
+
   async function initSupabase() {
     if (currentSyncKey) {
       updateSyncUI();
       await pullFromCloud();
+      subscribeToChanges();
     }
   }
 
-  function updateSyncUI() {
+  function subscribeToChanges() {
+    if (syncChannel) syncChannel.unsubscribe();
+    
+    syncChannel = _sb.channel('state-changes')
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'sync_data', 
+        filter: `sync_key=eq.${currentSyncKey}` 
+      }, payload => {
+        if (payload.new && payload.new.state) {
+          // Update local state and re-render only if cloud data is newer
+          state = payload.new.state;
+          localStorage.setItem('wt_state', JSON.stringify(state));
+          renderDay(state.day);
+          updateWeekHeader();
+          renderTabs();
+          showSyncIndicator('success');
+        }
+      })
+      .subscribe();
+  }
+
+  function showSyncIndicator(type) {
     const indicator = document.getElementById('syncIndicator');
-    if (currentSyncKey) {
-      indicator.innerText = currentSyncKey.split('_')[0].toUpperCase();
-      indicator.classList.remove('sync-off');
-      indicator.classList.add('sync-on');
-      indicator.onclick = signOut;
-    } else {
-      indicator.innerText = 'Offline Sync';
-      indicator.classList.remove('sync-on');
-      indicator.classList.add('sync-off');
-      indicator.onclick = openAuth;
+    if (!indicator) return;
+    const originalText = currentSyncKey.split('_')[0].toUpperCase();
+    
+    if (type === 'syncing') {
+      indicator.innerText = "Syncing...";
+      indicator.style.opacity = "0.7";
+    } else if (type === 'success') {
+      indicator.innerText = "Updated!";
+      indicator.style.color = "var(--accent)";
+      setTimeout(() => {
+        indicator.innerText = originalText;
+        indicator.style.opacity = "1";
+        indicator.style.color = "";
+      }, 2000);
     }
   }
 
   async function pushToCloud() {
     if (!currentSyncKey) return;
+    showSyncIndicator('syncing');
     try {
       const { error } = await _sb
         .from('sync_data')
         .upsert({ sync_key: currentSyncKey, state: state, updated_at: new Date().toISOString() });
       if (error) console.error('Cloud Push Error:', error);
+      else showSyncIndicator('success');
     } catch (e) {
       console.error('Push failed:', e);
     }
@@ -774,6 +806,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     currentSyncKey = key;
     localStorage.setItem('wt_sync_key', key);
     await pushToCloud();
+    subscribeToChanges(); // Start listening after login
     updateSyncUI();
     closeAuth();
     if (data) location.reload(); // Refresh if we loaded cloud data
