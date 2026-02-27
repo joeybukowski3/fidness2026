@@ -44,7 +44,7 @@
   </div>
 </div>
 <div class="header-controls">
-<button class="timer-btn" style="background:var(--bg3); color:var(--text); padding:0.35rem; border:1px solid var(--border); font-size:1rem; display:flex; align-items:center; justify-content:center; width:36px; height:36px;" onclick="pullFromCloud(); showSyncIndicator('success');" title="Force Cloud Pull">&#9729;</button>
+<button class="timer-btn" style="background:var(--bg3); color:var(--text); padding:0.35rem; border:1px solid var(--border); font-size:1rem; display:flex; align-items:center; justify-content:center; width:36px; height:36px;" onclick="pullFromCloud();" title="Force Cloud Pull">&#9729;</button>
 <span id="syncIndicator" class="sync-status sync-off" onclick="openAuth()">Offline</span>
 <button class="timer-btn home-only" style="padding:0.35rem 0.6rem;font-size:0.7rem;" onclick="shareWorkout()">Share</button>
 </div>
@@ -664,11 +664,13 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   if (!state.programStarts) state.programStarts = {};
 
   // MIGRATION: Move old history/weight logs into state if they exist
-  if (!state.history) {
-    state.history = JSON.parse(localStorage.getItem('wt_history') || '[]');
+  if (!state.history || state.history.length === 0) {
+    const oldHistory = JSON.parse(localStorage.getItem('wt_history') || '[]');
+    if (oldHistory.length > 0) state.history = oldHistory;
   }
-  if (!state.weightLog) {
-    state.weightLog = JSON.parse(localStorage.getItem('wt_weight_log') || '[]');
+  if (!state.weightLog || state.weightLog.length === 0) {
+    const oldWLog = JSON.parse(localStorage.getItem('wt_weight_log') || '[]');
+    if (oldWLog.length > 0) state.weightLog = oldWLog;
   }
 
   let currentSyncKey = localStorage.getItem('wt_sync_key') || null;
@@ -746,6 +748,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
 
   async function pullFromCloud() {
     if (!currentSyncKey) return;
+    showSyncIndicator('syncing');
     const { data, error } = await _sb
       .from('sync_data')
       .select('state')
@@ -762,6 +765,9 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
       renderDay(state.day);
       updateWeekHeader();
       renderTabs();
+      showSyncIndicator('success');
+    } else if (error) {
+      showSyncIndicator('error');
     }
   }
 
