@@ -769,7 +769,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     if (!rawName || !rawPin) return alert('Name and PIN required');
 
     // Supabase requires email and 6+ char password
-    const email = `${rawName}@fidness.app`;
+    const email = `${rawName}@fidnessapp.com`;
     const password = `${rawPin}sync_secret`;
 
     let error;
