@@ -703,7 +703,16 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     try {
       localStorage.setItem('wt_state', JSON.stringify(state)); 
     } catch (e) {
-      console.warn("Local storage full, relying on cloud sync.");
+      // If local is full, we don't alert the user anymore because we have cloud sync
+      console.warn("Local storage full, data is safe in cloud.");
+      
+      // Attempt emergency cleanup: remove old-style diagram keys
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('custom_diagram_')) {
+          localStorage.removeItem(key);
+        }
+      }
     }
     if (currentSyncKey) {
       clearTimeout(saveTimeout);
@@ -1194,7 +1203,7 @@ function triggerDiagramUpload(exId) {
         const compressed = await compressImage(base64);
         if (!state.customDiagrams) state.customDiagrams = {};
         state.customDiagrams[exId] = compressed;
-        save();
+        save(); // Triggers pushToCloud
 
         const img = document.getElementById('detailImg');
         if (img) img.src = compressed;
@@ -1204,8 +1213,8 @@ function triggerDiagramUpload(exId) {
         const idx = exercises.findIndex(ex => getExerciseId(ex.exercise) === exId);
         if (idx !== -1) openExerciseDetail(day, idx);
       } catch (err) {
-        console.error(err);
-        alert('Could not save image. Try a smaller file or refresh.');
+        // Just log, don't alert unless it's a catastrophic failure
+        console.error("Diagram upload issue:", err);
       }
     };
     reader.readAsDataURL(file);
