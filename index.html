@@ -663,6 +663,14 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   if (!state.programId) state.programId = PROGRAMS[0].id;
   if (!state.programStarts) state.programStarts = {};
 
+  // MIGRATION: Move old history/weight logs into state if they exist
+  if (!state.history) {
+    state.history = JSON.parse(localStorage.getItem('wt_history') || '[]');
+  }
+  if (!state.weightLog) {
+    state.weightLog = JSON.parse(localStorage.getItem('wt_weight_log') || '[]');
+  }
+
   let currentSyncKey = localStorage.getItem('wt_sync_key') || null;
   let saveTimeout = null;
 
@@ -1237,12 +1245,12 @@ function setWorkoutTab(tabKey) {
 }
 
 function getWorkoutHistory() {
-  const raw = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-  return Array.isArray(raw) ? raw : [];
+  return state.history || [];
 }
 
 function saveWorkoutHistory(list) {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
+  state.history = list;
+  save();
 }
 
 function logWorkoutHistory(exercise, weight, reps) {
@@ -1251,9 +1259,9 @@ function logWorkoutHistory(exercise, weight, reps) {
   const r = String(reps || '').trim();
   if (!w && !r) return;
   const entry = { exercise, weight: w, reps: r, ts: new Date().toISOString() };
-  workoutHistory = getWorkoutHistory();
-  workoutHistory.push(entry);
-  saveWorkoutHistory(workoutHistory);
+  const list = getWorkoutHistory();
+  list.push(entry);
+  saveWorkoutHistory(list);
 }
 
 function formatDateOrdinal(d) {
@@ -1689,6 +1697,7 @@ function setWeight(day, idx, name, val) {
   s.lastUpdated = new Date().toISOString();
   setExState(day, idx, s);
   logWorkoutHistory(s.exercise, s.weight, s.reps);
+  save(); // Sync cloud
 }
 
 function setReps(day, idx, name, val) {
@@ -1698,6 +1707,7 @@ function setReps(day, idx, name, val) {
   s.lastUpdated = new Date().toISOString();
   setExState(day, idx, s);
   logWorkoutHistory(s.exercise, s.weight, s.reps);
+  save(); // Sync cloud
 }
 
 function toggleInfo(el) {
@@ -1955,8 +1965,11 @@ function toggleBwPanel() {
 }
 
 // ============ BODY WEIGHT LOG ============
-function getWeightLog() { return JSON.parse(localStorage.getItem('wt_weight_log') || '[]'); }
-function saveWeightLog(log) { localStorage.setItem('wt_weight_log', JSON.stringify(log)); }
+function getWeightLog() { return state.weightLog || []; }
+function saveWeightLog(log) {
+  state.weightLog = log;
+  save();
+}
 
 function logBodyWeight() {
   const input = document.getElementById('bwInput');
