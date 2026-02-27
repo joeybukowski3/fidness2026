@@ -26,10 +26,10 @@
 <div class="modal-overlay" id="authModal">
   <div class="auth-card">
     <h2 id="authTitle">Sign In to Sync</h2>
-    <input type="email" id="authEmail" class="auth-input" placeholder="Email">
-    <input type="password" id="authPassword" class="auth-input" placeholder="Password">
+    <input type="text" id="authEmail" class="auth-input" placeholder="Your Name (e.g. Joey)">
+    <input type="password" id="authPassword" class="auth-input" placeholder="PIN (e.g. 1102)" inputmode="numeric">
     <button class="auth-btn" id="authBtn" onclick="handleAuth()">Sign In</button>
-    <div class="auth-switch" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? Sign Up</div>
+    <div class="auth-switch" id="authSwitch" onclick="toggleAuthMode()">New user? Register Name/PIN</div>
     <button class="reset-btn" style="width:100%; margin-top:0.5rem;" onclick="closeAuth()">Cancel</button>
   </div>
 </div>
@@ -734,20 +734,24 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   function closeAuth() { document.getElementById('authModal').classList.remove('active'); }
   function toggleAuthMode() {
     isSignUpMode = !isSignUpMode;
-    document.getElementById('authTitle').innerText = isSignUpMode ? 'Create Account' : 'Sign In to Sync';
-    document.getElementById('authBtn').innerText = isSignUpMode ? 'Sign Up' : 'Sign In';
-    document.getElementById('authSwitch').innerText = isSignUpMode ? 'Already have an account? Sign In' : "Don't have an account? Sign Up";
+    document.getElementById('authTitle').innerText = isSignUpMode ? 'Register Name & PIN' : 'Sign In to Sync';
+    document.getElementById('authBtn').innerText = isSignUpMode ? 'Register' : 'Sign In';
+    document.getElementById('authSwitch').innerText = isSignUpMode ? 'Already registered? Sign In' : "New user? Register Name/PIN";
   }
 
   async function handleAuth() {
-    const email = document.getElementById('authEmail').value;
-    const password = document.getElementById('authPassword').value;
-    if (!email || !password) return alert('Email and Password required');
+    const rawName = document.getElementById('authEmail').value.trim().toLowerCase();
+    const rawPin = document.getElementById('authPassword').value.trim();
+    if (!rawName || !rawPin) return alert('Name and PIN required');
+
+    // Supabase requires email and 6+ char password
+    const email = `${rawName}@fidness.app`;
+    const password = `${rawPin}sync_secret`;
 
     let error;
     if (isSignUpMode) {
       ({ error } = await _sb.auth.signUp({ email, password }));
-      if (!error) alert('Signup successful! Check your email (if enabled) or just sign in.');
+      if (!error) alert('Registration successful! You can now sign in.');
     } else {
       ({ error } = await _sb.auth.signInWithPassword({ email, password }));
     }
