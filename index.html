@@ -664,16 +664,33 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     currentUser = session?.user || null;
     updateSyncUI();
     
-    if (currentUser) {
-      await pullFromCloud();
-    }
-
     _sb.auth.onAuthStateChange(async (event, session) => {
-      currentUser = session?.user || null;
+      const newUser = session?.user || null;
+      const wasLoggedOut = !currentUser && newUser;
+      currentUser = newUser;
       updateSyncUI();
-      if (event === 'SIGNED_IN') {
-        await pushToCloud(); // Push any local changes to the new user account
-        await pullFromCloud(); // Pull cloud state
+
+      if (event === 'SIGNED_IN' && wasLoggedOut) {
+        // Handle Merge/Conflict detection
+        const { data, error } = await _sb
+          .from('user_profiles')
+          .select('state')
+          .eq('id', currentUser.id)
+          .single();
+
+        if (data && data.state) {
+          const choice = confirm("Cloud data found!\n\nOK: Load Cloud Data (Overwrites this device)\nCancel: Upload Local Data (Overwrites Cloud)");
+          if (choice) {
+            state = data.state;
+            localStorage.setItem('wt_state', JSON.stringify(state));
+            location.reload(); 
+          } else {
+            await pushToCloud();
+          }
+        } else {
+          // No cloud data yet, perform migration
+          await pushToCloud();
+        }
         renderDay(state.day);
       }
     });
@@ -1128,8 +1145,9 @@ function openExerciseDetail(day, idx) {
   const exId = getExerciseId(ex.exercise);
   const how = EX_DESC[ex.exercise] || 'No instructions yet.';
   
-  // Check for custom user-uploaded diagram
-  const customImg = localStorage.getItem('custom_diagram_' + exId);
+  // Check for custom diagram in state (for cloud sync)
+  if (!state.customDiagrams) state.customDiagrams = {};
+  const customImg = state.customDiagrams[exId];
   const imgSrc = customImg || `assets/diagrams/${exId}-1.png`;
 
   const history = getWorkoutHistory().filter(h => h.exercise === ex.exercise);
@@ -1184,13 +1202,14 @@ function triggerDiagramUpload(exId) {
     reader.onload = event => {
       const base64 = event.target.result;
       try {
-        localStorage.setItem('custom_diagram_' + exId, base64);
+        if (!state.customDiagrams) state.customDiagrams = {};
+        state.customDiagrams[exId] = base64;
+        save(); // Save locally + queue cloud push
+
         const img = document.getElementById('detailImg');
         if (img) img.src = base64;
-        // Re-render to show the Reset button
-        const activeIdx = Array.from(document.querySelectorAll('.ex-card')).findIndex(c => c.id === 'card-' + exId);
-        // We just re-open the detail to refresh UI state
-        // find day and index from state
+        
+        // Refresh detail view for Reset button
         const day = state.day;
         const exercises = WORKOUTS[day] || [];
         const idx = exercises.findIndex(ex => getExerciseId(ex.exercise) === exId);
@@ -1206,7 +1225,8 @@ function triggerDiagramUpload(exId) {
 
 function removeCustomDiagram(exId, day, idx) {
   if (!confirm('Reset to default diagram?')) return;
-  localStorage.removeItem('custom_diagram_' + exId);
+  if (state.customDiagrams) delete state.customDiagrams[exId];
+  save();
   openExerciseDetail(day, idx);
 }
 
