@@ -735,22 +735,37 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     }
   }
 
+  async function pullFromCloud() {
+    if (!currentSyncKey) return;
+    const { data, error } = await _sb
+      .from('sync_data')
+      .select('state')
+      .eq('sync_key', currentSyncKey)
+      .single();
+    
+    if (data && data.state) {
+      state = data.state;
+      localStorage.setItem('wt_state', JSON.stringify(state));
+      renderDay(state.day);
+      updateWeekHeader();
+      renderTabs();
+    }
+  }
+
   async function pushToCloud() {
     if (!currentSyncKey) return;
     showSyncIndicator('syncing');
     
-    // Check data size (Warn if > 1MB)
-    const size = new Blob([JSON.stringify(state)]).size;
-    if (size > 1024 * 1024) {
-      console.warn("State size is large:", (size / 1024).toFixed(2), "KB");
-    }
+    // We remove customDiagrams from the main state to keep sync small
+    const syncState = { ...state };
+    delete syncState.customDiagrams; 
 
     try {
       const { error } = await _sb
         .from('sync_data')
         .upsert({ 
           sync_key: currentSyncKey, 
-          state: state, 
+          state: syncState, 
           updated_at: new Date().toISOString() 
         });
 
@@ -764,6 +779,34 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
       console.error('Push failed connection:', e);
       showSyncIndicator('error');
     }
+  }
+
+  async function uploadDiagramToCloud(exId, base64) {
+    if (!currentSyncKey) return;
+    try {
+      const { error } = await _sb
+        .from('user_diagrams')
+        .upsert({ 
+          sync_key: currentSyncKey, 
+          ex_id: exId,
+          image_data: base64,
+          updated_at: new Date().toISOString() 
+        });
+      if (error) console.error('Diagram Upload Error:', error);
+    } catch (e) {
+      console.error('Diagram upload failed:', e);
+    }
+  }
+
+  async function fetchDiagramFromCloud(exId) {
+    if (!currentSyncKey) return null;
+    const { data, error } = await _sb
+      .from('user_diagrams')
+      .select('image_data')
+      .eq('sync_key', currentSyncKey)
+      .eq('ex_id', exId)
+      .single();
+    return data ? data.image_data : null;
   }
 
   function save() { 
@@ -1207,7 +1250,7 @@ function getLatestHistoryEntry(exercise) {
   return list[list.length - 1];
 }
 
-function openExerciseDetail(day, idx) {
+async function openExerciseDetail(day, idx) {
   const ex = (WORKOUTS[day] || [])[idx];
   if (!ex) return;
   const detail = document.getElementById('detailView');
@@ -1215,9 +1258,19 @@ function openExerciseDetail(day, idx) {
   const exId = getExerciseId(ex.exercise);
   const how = EX_DESC[ex.exercise] || 'No instructions yet.';
   
-  // Check for custom diagram in state (for cloud sync)
+  // Check local state first, then fetch from cloud if needed
   if (!state.customDiagrams) state.customDiagrams = {};
-  const customImg = state.customDiagrams[exId];
+  let customImg = state.customDiagrams[exId];
+  
+  // If not in local state, try fetching from dedicated cloud table
+  if (!customImg && currentSyncKey) {
+    customImg = await fetchDiagramFromCloud(exId);
+    if (customImg) {
+      state.customDiagrams[exId] = customImg;
+      localStorage.setItem('wt_state', JSON.stringify(state));
+    }
+  }
+
   const imgSrc = customImg || `assets/diagrams/${exId}-1.png`;
 
   const history = getWorkoutHistory().filter(h => h.exercise === ex.exercise);
@@ -1271,7 +1324,10 @@ function triggerDiagramUpload(exId) {
         const compressed = await compressImage(base64);
         if (!state.customDiagrams) state.customDiagrams = {};
         state.customDiagrams[exId] = compressed;
-        save(); // Triggers pushToCloud
+        save(); // Sync progress
+
+        // Parallel upload to dedicated image table
+        uploadDiagramToCloud(exId, compressed);
 
         const img = document.getElementById('detailImg');
         if (img) img.src = compressed;
@@ -1281,7 +1337,6 @@ function triggerDiagramUpload(exId) {
         const idx = exercises.findIndex(ex => getExerciseId(ex.exercise) === exId);
         if (idx !== -1) openExerciseDetail(day, idx);
       } catch (err) {
-        // Just log, don't alert unless it's a catastrophic failure
         console.error("Diagram upload issue:", err);
       }
     };
@@ -1290,10 +1345,16 @@ function triggerDiagramUpload(exId) {
   input.click();
 }
 
+async function removeDiagramFromCloud(exId) {
+  if (!currentSyncKey) return;
+  await _sb.from('user_diagrams').delete().eq('sync_key', currentSyncKey).eq('ex_id', exId);
+}
+
 function removeCustomDiagram(exId, day, idx) {
   if (!confirm('Reset to default diagram?')) return;
   if (state.customDiagrams) delete state.customDiagrams[exId];
   save();
+  removeDiagramFromCloud(exId);
   openExerciseDetail(day, idx);
 }
 
