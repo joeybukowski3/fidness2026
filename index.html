@@ -662,51 +662,20 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   if (!state.programId) state.programId = PROGRAMS[0].id;
   if (!state.programStarts) state.programStarts = {};
 
-  let currentUser = null;
-  let isSignUpMode = false;
+  let currentSyncKey = localStorage.getItem('wt_sync_key') || null;
   let saveTimeout = null;
 
   async function initSupabase() {
-    const { data: { session } } = await _sb.auth.getSession();
-    currentUser = session?.user || null;
-    updateSyncUI();
-    
-    _sb.auth.onAuthStateChange(async (event, session) => {
-      const newUser = session?.user || null;
-      const wasLoggedOut = !currentUser && newUser;
-      currentUser = newUser;
+    if (currentSyncKey) {
       updateSyncUI();
-
-      if (event === 'SIGNED_IN' && wasLoggedOut) {
-        // Handle Merge/Conflict detection
-        const { data, error } = await _sb
-          .from('user_profiles')
-          .select('state')
-          .eq('id', currentUser.id)
-          .single();
-
-        if (data && data.state) {
-          const choice = confirm("Cloud data found!\n\nOK: Load Cloud Data (Overwrites this device)\nCancel: Upload Local Data (Overwrites Cloud)");
-          if (choice) {
-            state = data.state;
-            localStorage.setItem('wt_state', JSON.stringify(state));
-            location.reload(); 
-          } else {
-            await pushToCloud();
-          }
-        } else {
-          // No cloud data yet, perform migration
-          await pushToCloud();
-        }
-        renderDay(state.day);
-      }
-    });
+      await pullFromCloud();
+    }
   }
 
   function updateSyncUI() {
     const indicator = document.getElementById('syncIndicator');
-    if (currentUser) {
-      indicator.innerText = currentUser.email.split('@')[0];
+    if (currentSyncKey) {
+      indicator.innerText = currentSyncKey.split('_')[0].toUpperCase();
       indicator.classList.remove('sync-off');
       indicator.classList.add('sync-on');
       indicator.onclick = signOut;
@@ -719,37 +688,36 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   }
 
   async function pushToCloud() {
-    if (!currentUser) return;
+    if (!currentSyncKey) return;
     const { error } = await _sb
-      .from('user_profiles')
-      .upsert({ id: currentUser.id, state: state });
+      .from('sync_data')
+      .upsert({ sync_key: currentSyncKey, state: state, updated_at: new Date().toISOString() });
     if (error) console.error('Cloud Push Error:', error);
   }
 
   async function pullFromCloud() {
-    if (!currentUser) return;
+    if (!currentSyncKey) return;
     const { data, error } = await _sb
-      .from('user_profiles')
+      .from('sync_data')
       .select('state')
-      .eq('id', currentUser.id)
+      .eq('sync_key', currentSyncKey)
       .single();
     
     if (data && data.state) {
+      // Check for structural differences or newer data
       state = data.state;
       localStorage.setItem('wt_state', JSON.stringify(state));
       renderDay(state.day);
       updateWeekHeader();
       renderTabs();
-    } else if (error && error.code !== 'PGRST116') {
-      console.error('Cloud Pull Error:', error);
     }
   }
 
   function save() { 
     localStorage.setItem('wt_state', JSON.stringify(state)); 
-    if (currentUser) {
+    if (currentSyncKey) {
       clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(pushToCloud, 2000); // Debounce cloud push
+      saveTimeout = setTimeout(pushToCloud, 2000);
     }
   }
 
@@ -757,10 +725,8 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   function openAuth() { document.getElementById('authModal').classList.add('active'); }
   function closeAuth() { document.getElementById('authModal').classList.remove('active'); }
   function toggleAuthMode() {
-    isSignUpMode = !isSignUpMode;
-    document.getElementById('authTitle').innerText = isSignUpMode ? 'Register Name & PIN' : 'Sign In to Sync';
-    document.getElementById('authBtn').innerText = isSignUpMode ? 'Register' : 'Sign In';
-    document.getElementById('authSwitch').innerText = isSignUpMode ? 'Already registered? Sign In' : "New user? Register Name/PIN";
+    // No longer needed for PIN sync, but keeping UI stable
+    alert("Just enter your Name and PIN to sync!");
   }
 
   async function handleAuth() {
@@ -768,26 +734,35 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     const rawPin = document.getElementById('authPassword').value.trim();
     if (!rawName || !rawPin) return alert('Name and PIN required');
 
-    // Supabase requires email and 6+ char password
-    const email = `${rawName}@fidnessapp.com`;
-    const password = `${rawPin}sync_secret`;
+    const key = `${rawName}_${rawPin}`;
 
-    let error;
-    if (isSignUpMode) {
-      ({ error } = await _sb.auth.signUp({ email, password }));
-      if (!error) alert('Registration successful! You can now sign in.');
-    } else {
-      ({ error } = await _sb.auth.signInWithPassword({ email, password }));
+    // Check if data exists in cloud
+    const { data, error } = await _sb
+      .from('sync_data')
+      .select('state')
+      .eq('sync_key', key)
+      .single();
+
+    if (data) {
+      const choice = confirm("Cloud data found for this PIN!\n\nOK: Load Cloud Data (Overwrites this device)\nCancel: Use Local Data (Overwrites Cloud)");
+      if (choice) {
+        state = data.state;
+        localStorage.setItem('wt_state', JSON.stringify(state));
+      }
     }
-
-    if (error) alert(error.message);
-    else closeAuth();
+    
+    currentSyncKey = key;
+    localStorage.setItem('wt_sync_key', key);
+    await pushToCloud();
+    updateSyncUI();
+    closeAuth();
+    if (data) location.reload(); // Refresh if we loaded cloud data
   }
 
-  async function signOut() {
-    if (!confirm('Sign out? Offline changes will sync once you sign in again.')) return;
-    await _sb.auth.signOut();
-    currentUser = null;
+  function signOut() {
+    if (!confirm('Stop syncing on this device?')) return;
+    currentSyncKey = null;
+    localStorage.removeItem('wt_sync_key');
     updateSyncUI();
   }
   function getKey(day, idx) { return `w${state.week}_${day}_${idx}`; }
