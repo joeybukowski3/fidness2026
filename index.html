@@ -44,6 +44,7 @@
   </div>
 </div>
 <div class="header-controls">
+<button class="timer-btn" style="background:var(--bg3); color:var(--text); padding:0.35rem; border:1px solid var(--border); font-size:1rem; display:flex; align-items:center; justify-content:center; width:36px; height:36px;" onclick="pullFromCloud(); showSyncIndicator('success');" title="Force Cloud Pull">&#9729;</button>
 <span id="syncIndicator" class="sync-status sync-off" onclick="openAuth()">Offline</span>
 <button class="timer-btn home-only" style="padding:0.35rem 0.6rem;font-size:0.7rem;" onclick="shareWorkout()">Share</button>
 </div>
@@ -1274,10 +1275,13 @@ function getLatestHistoryEntry(exercise) {
 async function openExerciseDetail(day, idx) {
   const ex = (WORKOUTS[day] || [])[idx];
   if (!ex) return;
+  const s = getExState(day, idx);
+  const exName = s.swapped ? getAlternative(ex.notes) : ex.exercise;
+  
   const detail = document.getElementById('detailView');
   const content = document.getElementById('detailContent');
-  const exId = getExerciseId(ex.exercise);
-  const how = EX_DESC[ex.exercise] || 'No instructions yet.';
+  const exId = getExerciseId(exName);
+  const how = EX_DESC[exName] || 'No instructions yet.';
   
   // Check local state first, then fetch from cloud if needed
   if (!state.customDiagrams) state.customDiagrams = {};
@@ -1294,7 +1298,7 @@ async function openExerciseDetail(day, idx) {
 
   const imgSrc = customImg || `assets/diagrams/${exId}-1.png`;
 
-  const history = getWorkoutHistory().filter(h => h.exercise === ex.exercise);
+  const history = getWorkoutHistory().filter(h => h.exercise === exName);
   const historyHtml = history.length
     ? `<div class="detail-history">${history.map(h => {
         const d = new Date(h.ts);
@@ -1306,7 +1310,7 @@ async function openExerciseDetail(day, idx) {
   content.innerHTML = `
     <div class="detail-header">
       <button class="detail-back" onclick="closeExerciseDetail()">Back</button>
-      <div class="detail-title">${ex.exercise}</div>
+      <div class="detail-title">${exName}</div>
     </div>
     <div class="detail-card detail-diagram">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
@@ -1316,7 +1320,7 @@ async function openExerciseDetail(day, idx) {
           ${customImg ? `<button class="ex-toggle" style="background:var(--bg3);" onclick="removeCustomDiagram('${exId}', '${day}', ${idx})">Reset</button>` : ''}
         </div>
       </div>
-      <img id="detailImg" src="${imgSrc}" alt="${ex.exercise}" onerror="this.onerror=null; this.src='assets/diagrams/placeholder.svg';">
+      <img id="detailImg" src="${imgSrc}" alt="${exName}" onerror="this.onerror=null; this.src='assets/diagrams/placeholder.svg';">
     </div>
     <div class="detail-card">
       <h3>How to do this</h3>
