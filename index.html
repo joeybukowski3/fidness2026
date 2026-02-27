@@ -1650,6 +1650,9 @@ function renderProgram() {
     <div class="program-meta"><strong>Active:</strong> ${program.name}</div>
     <div class="program-meta"><strong>Start date:</strong> ${startLabel}</div>
     <div class="program-meta"><strong>Status:</strong> ${progressText}</div>
+    <div style="margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
+       <button class="auth-btn" style="margin-bottom:0" onclick="renderMasterExerciseList()">Browse All Exercises</button>
+    </div>
   </div>`;
   const guideHtml = PROGRAM_GUIDES[program.id];
   if (guideHtml) {
@@ -1658,6 +1661,52 @@ function renderProgram() {
     html += `<div class="program-card" style="margin-top:0.75rem"><h2>Program Guide</h2><div class="program-meta">No guide available yet.</div></div>`;
   }
   c.innerHTML = html;
+}
+
+function renderMasterExerciseList() {
+  const c = document.getElementById('programArea');
+  const program = getActiveProgram();
+  
+  let html = `<div class="detail-header">
+    <button class="detail-back" onclick="renderProgram()">Back to Program</button>
+    <div class="detail-title">All Exercises</div>
+  </div>`;
+  
+  html += `<div class="home-controls">
+    <input type="text" id="exSearch" class="auth-input" style="margin-bottom:0" placeholder="Search exercises..." oninput="filterMasterList(this.value)">
+  </div>`;
+
+  html += `<div id="masterExList">`;
+  const all = [];
+  WEEK_DAYS.forEach(day => {
+    (WORKOUTS[day] || []).forEach((ex, idx) => {
+      if (!ex.exercise) return;
+      if (!all.find(a => a.name === ex.exercise)) {
+        all.push({ name: ex.exercise, day, idx });
+      }
+    });
+  });
+
+  all.sort((a,b) => a.name.localeCompare(b.name)).forEach(item => {
+    html += `<div class="ex-card master-ex-item" data-name="${item.name.toLowerCase()}">
+      <div class="ex-body" onclick="openExerciseDetail('${item.day}', ${item.idx})">
+        <div class="ex-header" style="border-bottom:none; margin-bottom:0;">
+          <div class="ex-name" style="font-size:0.9rem; font-weight:700;">${item.name}</div>
+          <div style="font-size:0.65rem; color:var(--text3); font-weight:600;">Found on: ${item.day}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  c.innerHTML = html;
+}
+
+function filterMasterList(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('.master-ex-item').forEach(el => {
+    const name = el.getAttribute('data-name');
+    el.style.display = name.includes(q) ? 'block' : 'none';
+  });
 }
 
 function changeProgram(id) {
