@@ -698,36 +698,71 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
       .subscribe();
   }
 
+  let syncIndicatorTimeout = null;
+
   function showSyncIndicator(type) {
     const indicator = document.getElementById('syncIndicator');
     if (!indicator) return;
-    const originalText = currentSyncKey.split('_')[0].toUpperCase();
+    const originalText = currentSyncKey ? currentSyncKey.split('_')[0].toUpperCase() : 'OFFLINE';
     
+    clearTimeout(syncIndicatorTimeout);
+
     if (type === 'syncing') {
       indicator.innerText = "Syncing...";
       indicator.style.opacity = "0.7";
+      indicator.style.color = "var(--amber)";
+      // Safety timeout: if sync hangs, reset UI after 10s
+      syncIndicatorTimeout = setTimeout(() => {
+        indicator.innerText = "Retry Sync";
+        indicator.style.color = "var(--red)";
+      }, 10000);
     } else if (type === 'success') {
       indicator.innerText = "Updated!";
       indicator.style.color = "var(--accent)";
-      setTimeout(() => {
+      indicator.style.opacity = "1";
+      syncIndicatorTimeout = setTimeout(() => {
         indicator.innerText = originalText;
-        indicator.style.opacity = "1";
         indicator.style.color = "";
       }, 2000);
+    } else if (type === 'error') {
+      indicator.innerText = "Sync Error";
+      indicator.style.color = "var(--red)";
+      indicator.style.opacity = "1";
+      syncIndicatorTimeout = setTimeout(() => {
+        indicator.innerText = originalText;
+        indicator.style.color = "";
+      }, 3000);
     }
   }
 
   async function pushToCloud() {
     if (!currentSyncKey) return;
     showSyncIndicator('syncing');
+    
+    // Check data size (Warn if > 1MB)
+    const size = new Blob([JSON.stringify(state)]).size;
+    if (size > 1024 * 1024) {
+      console.warn("State size is large:", (size / 1024).toFixed(2), "KB");
+    }
+
     try {
       const { error } = await _sb
         .from('sync_data')
-        .upsert({ sync_key: currentSyncKey, state: state, updated_at: new Date().toISOString() });
-      if (error) console.error('Cloud Push Error:', error);
-      else showSyncIndicator('success');
+        .upsert({ 
+          sync_key: currentSyncKey, 
+          state: state, 
+          updated_at: new Date().toISOString() 
+        });
+
+      if (error) {
+        console.error('Cloud Push Error:', error);
+        showSyncIndicator('error');
+      } else {
+        showSyncIndicator('success');
+      }
     } catch (e) {
-      console.error('Push failed:', e);
+      console.error('Push failed connection:', e);
+      showSyncIndicator('error');
     }
   }
 
@@ -735,10 +770,10 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     try {
       localStorage.setItem('wt_state', JSON.stringify(state)); 
     } catch (e) {
-      // If local is full, we don't alert the user anymore because we have cloud sync
-      console.warn("Local storage full, data is safe in cloud.");
+      console.warn("Local storage full, relying on cloud sync.");
+      showSyncIndicator('error');
       
-      // Attempt emergency cleanup: remove old-style diagram keys
+      // Cleanup attempt for older, potentially larger keys
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith('custom_diagram_')) {
