@@ -44,9 +44,13 @@
   </div>
 </div>
 <div class="header-controls">
-<button class="timer-btn" style="background:var(--bg3); color:var(--text); padding:0.35rem; border:1px solid var(--border); font-size:1rem; display:flex; align-items:center; justify-content:center; width:36px; height:36px;" onclick="pullFromCloud();" title="Force Cloud Pull">&#9729;</button>
-<span id="syncIndicator" class="sync-status sync-off" onclick="openAuth()">Offline</span>
-<button class="timer-btn home-only" style="padding:0.35rem 0.6rem;font-size:0.7rem;" onclick="shareWorkout()">Share</button>
+  <select class="week-select" id="weekSelect" onchange="setWeek(this.value)">
+    <option value="1">W1</option><option value="2">W2</option><option value="3">W3</option>
+    <option value="4">W4</option><option value="5">W5</option><option value="6">W6</option>
+  </select>
+  <button class="timer-btn" style="background:var(--bg3); color:var(--text); padding:0.35rem; border:1px solid var(--border); font-size:1rem; display:flex; align-items:center; justify-content:center; width:36px; height:36px;" onclick="pullFromCloud();" title="Force Cloud Pull">&#9729;</button>
+  <span id="syncIndicator" class="sync-status sync-off" style="font-size:0.6rem; cursor:pointer;" onclick="openAuth()">Offline</span>
+  <button class="dark-toggle" id="darkToggle" onclick="toggleDark()" title="Toggle Dark Mode" style="width:32px; height:32px; font-size:0.9rem;">&#9790;</button>
 </div>
 </div>
 </div>
@@ -329,27 +333,6 @@ body{overflow-x:hidden; width:100%; position:relative;}
 </style>
 </head>
 <body>
-
-<div class="header">
-<div class="header-top">
-<div class="logo">
-  <div class="logo-mark">PT</div>
-  <div class="logo-text">
-    <span class="logo-title">Pro Trainer Elite</span>
-    <span class="logo-tag">Train Like a Pro</span>
-  </div>
-</div>
-<div class="header-controls">
-<button class="timer-btn home-only" style="padding:0.35rem 0.6rem;font-size:0.7rem;" onclick="shareWorkout()">Share</button>
-<select class="week-select home-only" id="weekSelect" onchange="setWeek(this.value)">
-<option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option>
-<option value="4">Week 4</option><option value="5">Week 5</option><option value="6">Week 6 (Deload)</option>
-</select>
-<button class="dark-toggle" id="darkToggle" onclick="toggleDark()">&#9790;</button>
-<button class="reset-btn home-only" onclick="if(confirm('Reset ALL progress for this week?')){resetWeek()}">Reset</button>
-</div>
-</div>
-</div>
 
 <div class="top-tabs">
 <div class="top-tabs-inner">
