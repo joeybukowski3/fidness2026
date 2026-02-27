@@ -6,9 +6,46 @@
 <title>Pro Trainer Elite</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
+/* Auth Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.active{display:flex}
+.auth-card{background:var(--bg2);padding:1.5rem;border-radius:var(--radius);width:100%;max-width:360px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1)}
+.auth-card h2{margin-bottom:1rem;font-size:1.2rem;font-weight:800}
+.auth-input{width:100%;padding:0.6rem;margin-bottom:0.75rem;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit}
+.auth-btn{width:100%;padding:0.7rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-bottom:0.5rem}
+.auth-switch{text-align:center;font-size:0.75rem;color:var(--text3);cursor:pointer}
+.sync-status{font-size:0.65rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:99px;margin-left:auto}
+.sync-on{background:var(--accent-bg);color:var(--accent)}
+.sync-off{background:var(--bg3);color:var(--text3)}
+</style>
+</head>
+<body>
+
+<div class="modal-overlay" id="authModal">
+  <div class="auth-card">
+    <h2 id="authTitle">Sign In to Sync</h2>
+    <input type="email" id="authEmail" class="auth-input" placeholder="Email">
+    <input type="password" id="authPassword" class="auth-input" placeholder="Password">
+    <button class="auth-btn" id="authBtn" onclick="handleAuth()">Sign In</button>
+    <div class="auth-switch" id="authSwitch" onclick="toggleAuthMode()">Don't have an account? Sign Up</div>
+    <button class="reset-btn" style="width:100%; margin-top:0.5rem;" onclick="closeAuth()">Cancel</button>
+  </div>
+</div>
+
+<div class="header">
+<div class="header-top">
+<div class="logo">
+  <div class="logo-mark">PT</div>
+  <div class="logo-text">
+    <span class="logo-title">Pro Trainer Elite</span>
+    <span class="logo-tag">Train Like a Pro</span>
+  </div>
+</div>
+<div class="header-controls">
+<span id="syncIndicator" class="sync-status sync-off" onclick="openAuth()">Offline</span>
+<button class="timer-btn home-only" style="padding:0.35rem 0.6rem;font-size:0.7rem;" onclick="shareWorkout()">Share</button>
 --bg:#f1f5f9;--bg2:#ffffff;--bg3:#f8fafc;--text:#1e293b;--text2:#475569;--text3:#94a3b8;
 --border:#e2e8f0;--accent:#16a34a;--accent2:#22c55e;--accent-bg:#f0fdf4;
 --red:#ef4444;--blue:#3b82f6;--amber:#f59e0b;--purple:#8b5cf6;
@@ -592,6 +629,13 @@ const EX_DESC = {
 };
 
 // ============ STATE ============
+// ============ SUPABASE CLIENT ============
+const _sb = supabase.createClient(
+  'https://mjxytssjgavwfcypoyti.supabase.co',
+  'sb_publishable_O4XRvCgQXMyn1ulMslutdQ_Fdz38KPO'
+);
+
+// ============ STATE ============
 let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   if (!state.week) state.week = 1;
   if (!state.dark) state.dark = false;
@@ -610,7 +654,114 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   ];
   if (!state.programId) state.programId = PROGRAMS[0].id;
   if (!state.programStarts) state.programStarts = {};
-  function save() { localStorage.setItem('wt_state', JSON.stringify(state)); }
+
+  let currentUser = null;
+  let isSignUpMode = false;
+  let saveTimeout = null;
+
+  async function initSupabase() {
+    const { data: { session } } = await _sb.auth.getSession();
+    currentUser = session?.user || null;
+    updateSyncUI();
+    
+    if (currentUser) {
+      await pullFromCloud();
+    }
+
+    _sb.auth.onAuthStateChange(async (event, session) => {
+      currentUser = session?.user || null;
+      updateSyncUI();
+      if (event === 'SIGNED_IN') {
+        await pushToCloud(); // Push any local changes to the new user account
+        await pullFromCloud(); // Pull cloud state
+        renderDay(state.day);
+      }
+    });
+  }
+
+  function updateSyncUI() {
+    const indicator = document.getElementById('syncIndicator');
+    if (currentUser) {
+      indicator.innerText = currentUser.email.split('@')[0];
+      indicator.classList.remove('sync-off');
+      indicator.classList.add('sync-on');
+      indicator.onclick = signOut;
+    } else {
+      indicator.innerText = 'Offline Sync';
+      indicator.classList.remove('sync-on');
+      indicator.classList.add('sync-off');
+      indicator.onclick = openAuth;
+    }
+  }
+
+  async function pushToCloud() {
+    if (!currentUser) return;
+    const { error } = await _sb
+      .from('user_profiles')
+      .upsert({ id: currentUser.id, state: state });
+    if (error) console.error('Cloud Push Error:', error);
+  }
+
+  async function pullFromCloud() {
+    if (!currentUser) return;
+    const { data, error } = await _sb
+      .from('user_profiles')
+      .select('state')
+      .eq('id', currentUser.id)
+      .single();
+    
+    if (data && data.state) {
+      state = data.state;
+      localStorage.setItem('wt_state', JSON.stringify(state));
+      renderDay(state.day);
+      updateWeekHeader();
+      renderTabs();
+    } else if (error && error.code !== 'PGRST116') {
+      console.error('Cloud Pull Error:', error);
+    }
+  }
+
+  function save() { 
+    localStorage.setItem('wt_state', JSON.stringify(state)); 
+    if (currentUser) {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(pushToCloud, 2000); // Debounce cloud push
+    }
+  }
+
+  // Auth UI Handlers
+  function openAuth() { document.getElementById('authModal').classList.add('active'); }
+  function closeAuth() { document.getElementById('authModal').classList.remove('active'); }
+  function toggleAuthMode() {
+    isSignUpMode = !isSignUpMode;
+    document.getElementById('authTitle').innerText = isSignUpMode ? 'Create Account' : 'Sign In to Sync';
+    document.getElementById('authBtn').innerText = isSignUpMode ? 'Sign Up' : 'Sign In';
+    document.getElementById('authSwitch').innerText = isSignUpMode ? 'Already have an account? Sign In' : "Don't have an account? Sign Up";
+  }
+
+  async function handleAuth() {
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+    if (!email || !password) return alert('Email and Password required');
+
+    let error;
+    if (isSignUpMode) {
+      ({ error } = await _sb.auth.signUp({ email, password }));
+      if (!error) alert('Signup successful! Check your email (if enabled) or just sign in.');
+    } else {
+      ({ error } = await _sb.auth.signInWithPassword({ email, password }));
+    }
+
+    if (error) alert(error.message);
+    else closeAuth();
+  }
+
+  async function signOut() {
+    if (!confirm('Sign out? Offline changes will sync once you sign in again.')) return;
+    await _sb.auth.signOut();
+    currentUser = null;
+    updateSyncUI();
+  }
   function getKey(day, idx) { return `w${state.week}_${day}_${idx}`; }
   function getExState(day, idx) { return state.data[getKey(day, idx)] || { done: false, weight: '', reps: '', collapsed: false, exercise: '', swapped: false }; }
   function setExState(day, idx, val) { state.data[getKey(day, idx)] = val; save(); }
@@ -851,6 +1002,7 @@ function getViewDateISO(day) {
 
   // ============ INIT ============
   function init() {
+    initSupabase();
     const nowISO = formatLocalISO(new Date());
     const dateChanged = state.lastAccessedDate !== nowISO;
     
