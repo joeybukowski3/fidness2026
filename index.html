@@ -63,8 +63,18 @@
   --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--text:#f1f5f9;--text2:#cbd5e1;--text3:#64748b;
   --border:#334155;--accent-bg:#064e3b;--shadow:0 1px 3px rgba(0,0,0,0.3);
 }
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent}
-body.detail-open{overflow:hidden}
+/* Global Mobile Fixes */
+body{overflow-x:hidden; width:100%; position:relative;}
+.content{padding:0.75rem 0.5rem; width:100%; max-width:100vw; overflow-x:hidden;}
+.ex-card{width:100%; margin-left:0; margin-right:0; overflow:hidden;}
+.weight-row{flex-wrap:wrap; gap:0.4rem;}
+.weight-input{width:60px !important;}
+.reps-select{width:60px !important;}
+.wlog-table{width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch;}
+.wlog-table table{min-width:100%; font-size:0.8rem;}
+.wlog-table th, .wlog-table td{padding:0.5rem 0.25rem;}
+.ex-details{padding-left:0.5rem; padding-right:0.5rem;}
+.ex-name-preview{display:block; font-size:0.6rem; opacity:0.7; margin-top:2px;}
 
 /* Header */
 .header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.75rem 1rem;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
@@ -1999,10 +2009,41 @@ function deleteWeightEntry(idx) {
 
 let wlogRange = '1w';
 
+function logWeightFromPage() {
+  const input = document.getElementById('wlogPageInput');
+  const val = parseFloat(input.value);
+  if (!val || val < 50 || val > 700) return;
+  const log = getWeightLog();
+  log.push({ weight: val, ts: new Date().toISOString() });
+  saveWeightLog(log);
+  input.value = '';
+  renderDay('Weight Log');
+}
+
 function renderWeightLog(c) {
   const log = getWeightLog();
+  
+  let html = `<div class="wlog-header">
+    <h2 style="font-size:1.1rem">Weight Tracker</h2>
+    <div class="wlog-range-btns">
+      <button class="wlog-range-btn ${wlogRange==='1w'?'active':''}" onclick="wlogRange='1w';renderDay('Weight Log')">1W</button>
+      <button class="wlog-range-btn ${wlogRange==='2w'?'active':''}" onclick="wlogRange='2w';renderDay('Weight Log')">2W</button>
+      <button class="wlog-range-btn ${wlogRange==='1m'?'active':''}" onclick="wlogRange='1m';renderDay('Weight Log')">1M</button>
+      <button class="wlog-range-btn ${wlogRange==='all'?'active':''}" onclick="wlogRange='all';renderDay('Weight Log')">All</button>
+    </div>
+  </div>`;
+
+  // Quick Add
+  html += `<div class="sunday-card" style="margin-bottom:1rem; padding:0.75rem;">
+    <h3 style="margin-bottom:0.5rem; font-size:0.85rem;">Log New Weight</h3>
+    <div style="display:flex; gap:0.5rem;">
+      <input type="number" id="wlogPageInput" class="weight-input" style="flex:1; height:36px; width:auto !important; border:1px solid var(--border); border-radius:8px;" placeholder="lbs" step="0.1">
+      <button class="auth-btn" style="width:auto; padding:0 1rem; margin-bottom:0; height:36px; font-size:0.8rem;" onclick="logWeightFromPage()">Log Weight</button>
+    </div>
+  </div>`;
+
   if (log.length === 0) {
-    c.innerHTML = '<div class="wlog-empty"><p>No weight entries yet.</p><p>Use the Today\'s Weight panel on any day to log your daily weight.</p></div>';
+    c.innerHTML = html + '<div class="wlog-empty"><p>No weight entries yet.</p></div>';
     return;
   }
 
@@ -2022,16 +2063,12 @@ function renderWeightLog(c) {
   const avg = (weights.reduce((a, b) => a + b, 0) / weights.length).toFixed(1);
   const change = (current - first).toFixed(1);
   const changeSign = change > 0 ? '+' : '';
-  const trend = weights.length >= 2 ? (weights[weights.length - 1] - weights[weights.length - 2]).toFixed(1) : '0.0';
 
-  let html = `<div class="wlog-header">
-    <h2>Weight Log</h2>
-    <div class="wlog-range-btns">
-      <button class="wlog-range-btn ${wlogRange==='1w'?'active':''}" onclick="wlogRange='1w';renderDay('Weight Log')">1 Week</button>
-      <button class="wlog-range-btn ${wlogRange==='2w'?'active':''}" onclick="wlogRange='2w';renderDay('Weight Log')">2 Weeks</button>
-      <button class="wlog-range-btn ${wlogRange==='1m'?'active':''}" onclick="wlogRange='1m';renderDay('Weight Log')">Month</button>
-      <button class="wlog-range-btn ${wlogRange==='all'?'active':''}" onclick="wlogRange='all';renderDay('Weight Log')">All</button>
-    </div>
+  html += `<div class="wlog-stats" style="grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+    <div class="wlog-stat" style="padding:0.5rem;"><div class="val" style="font-size:1.1rem">${current}</div><div class="lbl">Now (lbs)</div></div>
+    <div class="wlog-stat" style="padding:0.5rem;"><div class="val" style="font-size:1.1rem">${avg}</div><div class="lbl">Avg</div></div>
+    <div class="wlog-stat" style="padding:0.5rem;"><div class="val" style="font-size:1.1rem">${changeSign}${change}</div><div class="lbl">Total</div></div>
+    <div class="wlog-stat" style="padding:0.5rem;"><div class="val" style="font-size:1rem">${low}-${high}</div><div class="lbl">Range</div></div>
   </div>`;
 
   html += `<div class="wlog-stats">
