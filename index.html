@@ -744,6 +744,10 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
       .single();
     
     if (data && data.state) {
+      // Prune if cloud has old image data
+      if (data.state.customDiagrams) {
+        delete data.state.customDiagrams;
+      }
       state = data.state;
       localStorage.setItem('wt_state', JSON.stringify(state));
       renderDay(state.day);
@@ -756,24 +760,33 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     if (!currentSyncKey) return;
     showSyncIndicator('syncing');
     
-    // We remove customDiagrams from the main state to keep sync small
-    const syncState = { ...state };
-    delete syncState.customDiagrams; 
+    // PERMANENTLY purge images from local state to stop the bloat
+    if (state.customDiagrams) {
+      console.log("Migrating images out of main state...");
+      delete state.customDiagrams;
+      localStorage.setItem('wt_state', JSON.stringify(state));
+    }
 
     try {
       const { error } = await _sb
         .from('sync_data')
         .upsert({ 
           sync_key: currentSyncKey, 
-          state: syncState, 
+          state: state, // Progress only
           updated_at: new Date().toISOString() 
         });
 
       if (error) {
-        console.error('Cloud Push Error:', error);
+        console.error('Cloud Push Error Details:', error.message, error.hint, error.details);
         showSyncIndicator('error');
+        // Tell the user exactly what's wrong once
+        if (!window._lastSyncError) {
+          alert("Sync Error: " + error.message + "\nCheck console for details.");
+          window._lastSyncError = true;
+        }
       } else {
         showSyncIndicator('success');
+        window._lastSyncError = false;
       }
     } catch (e) {
       console.error('Push failed connection:', e);
