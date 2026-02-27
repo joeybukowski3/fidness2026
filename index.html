@@ -1161,7 +1161,15 @@ function renderDay(day) {
                   ${renderRepsOptions(ex._repsVal)}
                 </select>
               </div>`}
-              ${EX_DESC[ex.exercise] ? `<span class="ex-info-toggle" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();"><span class="arrow">&#9654;</span> How to do this</span>` : ''}
+              ${EX_DESC[ex.exercise] ? `
+                <span class="ex-info-toggle" onclick="toggleInfo(this); event.stopPropagation();"><span class="arrow">&#9654;</span> How to do this</span>
+                <div class="ex-info-box">
+                  <div class="ex-info-content">
+                    <div style="margin-bottom:0.5rem">${EX_DESC[ex.exercise]}</div>
+                    <button class="ex-toggle" style="background:var(--accent); color:#fff; border:none; padding:0.25rem 0.6rem; font-size:0.65rem;" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">View Visual Guide</button>
+                  </div>
+                </div>
+              ` : ''}
             </div>
           </div>
         </div>`;
