@@ -1,5 +1,1 @@
-<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
-  <rect width="100%" height="100%" fill="#f8fafc"/>
-  <text x="50%" y="50%" font-family="Arial" font-size="20" fill="#94a3b8" text-anchor="middle" dominant-baseline="middle">Exercise Diagram Placeholder</text>
-  <rect x="50" y="50" width="300" height="200" rx="10" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="5,5"/>
-</svg>
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#f8fafc"/><g stroke="#16a34a" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="100" cy="180" r="15"/><path d="M115 180 h60 m-50 0 v-30 m30 30 v-30 m20 0 h20 m-20 0 l10 30"/></g><text x="50%" y="270" font-family="Arial" font-size="14" fill="#94a3b8" text-anchor="middle">LYING/CORE EXERCISE</text></svg>

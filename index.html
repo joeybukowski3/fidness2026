@@ -971,6 +971,11 @@ function openExerciseDetail(day, idx) {
   const content = document.getElementById('detailContent');
   const exId = getExerciseId(ex.exercise);
   const how = EX_DESC[ex.exercise] || 'No instructions yet.';
+  
+  // Check for custom user-uploaded diagram
+  const customImg = localStorage.getItem('custom_diagram_' + exId);
+  const imgSrc = customImg || `assets/diagrams/${exId}-1.png`;
+
   const history = getWorkoutHistory().filter(h => h.exercise === ex.exercise);
   const historyHtml = history.length
     ? `<div class="detail-history">${history.map(h => {
@@ -986,8 +991,14 @@ function openExerciseDetail(day, idx) {
       <div class="detail-title">${ex.exercise}</div>
     </div>
     <div class="detail-card detail-diagram">
-      <h3>Visual Guide</h3>
-      <img src="assets/diagrams/${exId}-1.png" alt="${ex.exercise}" onerror="this.onerror=null; this.src='assets/diagrams/placeholder.svg';">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+        <h3 style="margin-bottom:0">Visual Guide</h3>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="ex-toggle" style="background:var(--accent); color:#fff; border:none;" onclick="triggerDiagramUpload('${exId}')">Change</button>
+          ${customImg ? `<button class="ex-toggle" style="background:var(--bg3);" onclick="removeCustomDiagram('${exId}', '${day}', ${idx})">Reset</button>` : ''}
+        </div>
+      </div>
+      <img id="detailImg" src="${imgSrc}" alt="${ex.exercise}" onerror="this.onerror=null; this.src='assets/diagrams/placeholder.svg';">
     </div>
     <div class="detail-card">
       <h3>How to do this</h3>
@@ -1000,6 +1011,47 @@ function openExerciseDetail(day, idx) {
   detail.classList.add('active');
   detail.setAttribute('aria-hidden', 'false');
   document.body.classList.add('detail-open');
+}
+
+function triggerDiagramUpload(exId) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert('File too large. Please select an image under 2MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = event => {
+      const base64 = event.target.result;
+      try {
+        localStorage.setItem('custom_diagram_' + exId, base64);
+        const img = document.getElementById('detailImg');
+        if (img) img.src = base64;
+        // Re-render to show the Reset button
+        const activeIdx = Array.from(document.querySelectorAll('.ex-card')).findIndex(c => c.id === 'card-' + exId);
+        // We just re-open the detail to refresh UI state
+        // find day and index from state
+        const day = state.day;
+        const exercises = WORKOUTS[day] || [];
+        const idx = exercises.findIndex(ex => getExerciseId(ex.exercise) === exId);
+        if (idx !== -1) openExerciseDetail(day, idx);
+      } catch (err) {
+        alert('Storage full. Could not save image.');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function removeCustomDiagram(exId, day, idx) {
+  if (!confirm('Reset to default diagram?')) return;
+  localStorage.removeItem('custom_diagram_' + exId);
+  openExerciseDetail(day, idx);
 }
 
 function closeExerciseDetail() {
