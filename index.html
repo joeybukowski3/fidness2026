@@ -3,10 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#16a34a">
+<link rel="icon" type="image/svg+xml" href="assets/diagrams/placeholder.svg">
+<link rel="apple-touch-icon" href="assets/diagrams/placeholder.svg">
+<link rel="manifest" href="manifest.json?v=2">
 <title>Pro Trainer Elite</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      console.log('SW Registered!', reg);
+    }).catch(err => {
+      console.log('SW Reg Failed:', err);
+    });
+  });
+}
+</script>
 <style>
 /* Auth Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem}
