@@ -688,6 +688,20 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
 
   let syncChannel = null;
 
+  function updateSyncUI() {
+    const indicator = document.getElementById('syncIndicator');
+    if (!indicator) return;
+    if (currentSyncKey) {
+      indicator.innerText = currentSyncKey.split('_')[0].toUpperCase();
+      indicator.classList.remove('sync-off');
+      indicator.classList.add('sync-on');
+    } else {
+      indicator.innerText = 'Offline';
+      indicator.classList.remove('sync-on');
+      indicator.classList.add('sync-off');
+    }
+  }
+
   async function initSupabase() {
     if (currentSyncKey) {
       updateSyncUI();
@@ -777,6 +791,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
       renderTabs();
       showSyncIndicator('success');
     } else if (error) {
+      console.error("Pull failed:", error);
       showSyncIndicator('error');
     }
   }
