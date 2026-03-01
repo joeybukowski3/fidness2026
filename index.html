@@ -25,6 +25,53 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 <style>
+/* Landing Page Sleek CSS */
+.landing-view {
+  position: fixed; inset: 0; background: var(--bg); z-index: 500;
+  display: none; align-items: center; justify-content: center; padding: 1.5rem;
+}
+.landing-view.active { display: flex; }
+.landing-content {
+  width: 100%; max-width: 480px; text-align: center;
+}
+.landing-logo {
+  flex-direction: column; gap: 1rem; margin-bottom: 3rem;
+}
+.landing-mark {
+  width: 80px; height: 80px; font-size: 2rem; border-radius: 20px;
+}
+.landing-title { font-size: 1.6rem; letter-spacing: 0.2em; }
+.landing-tag { font-size: 0.8rem; letter-spacing: 0.3em; margin-top: 0.5rem; }
+
+.landing-actions {
+  display: grid; gap: 1rem; margin-bottom: 3rem;
+}
+.landing-btn {
+  display: flex; align-items: center; gap: 1.25rem;
+  padding: 1.25rem; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; cursor: pointer; text-align: left;
+  transition: all 0.2s; box-shadow: var(--shadow);
+}
+.landing-btn:active { transform: scale(0.98); opacity: 0.9; }
+.landing-btn.primary { border-color: var(--accent); background: var(--accent-bg); }
+.landing-btn .icon {
+  font-size: 1.75rem; width: 48px; height: 48px;
+  background: var(--bg3); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+.landing-btn.primary .icon { background: var(--accent); color: #fff; }
+.landing-btn .btn-text { display: flex; flex-direction: column; gap: 0.25rem; }
+.landing-btn strong { font-size: 1rem; color: var(--text); }
+.landing-btn span { font-size: 0.75rem; color: var(--text3); }
+
+.landing-footer { margin-top: 1rem; font-size: 0.8rem; }
+.landing-footer span { 
+  background: var(--bg3); padding: 0.4rem 1rem; border-radius: 99px;
+  color: var(--text3); font-weight: 700; cursor: pointer;
+}
+.app-shell { display: none; }
+.app-shell.active { display: block; }
+
 /* Auth Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem}
 .modal-overlay.active{display:flex}
@@ -351,9 +398,53 @@ body{overflow-x:hidden; width:100%; position:relative;}
 </head>
 <body>
 
+<div class="landing-view active" id="landingView">
+  <div class="landing-content">
+    <div class="logo landing-logo">
+      <div class="logo-mark landing-mark">PT</div>
+      <div class="logo-text">
+        <span class="logo-title landing-title">Pro Trainer Elite</span>
+        <span class="logo-tag landing-tag">Train Like a Pro</span>
+      </div>
+    </div>
+    
+    <div class="landing-actions">
+      <button class="landing-btn primary" onclick="handleLandingAction('workout')">
+        <span class="icon">&#127947;</span>
+        <div class="btn-text">
+          <strong>Continue Workout</strong>
+          <span>Jump into today's session</span>
+        </div>
+      </button>
+      
+      <button class="landing-btn" onclick="handleLandingAction('progress')">
+        <span class="icon">&#128200;</span>
+        <div class="btn-text">
+          <strong>View Progress</strong>
+          <span>Check your weight and stats</span>
+        </div>
+      </button>
+      
+      <button class="landing-btn" onclick="handleLandingAction('program')">
+        <span class="icon">&#128197;</span>
+        <div class="btn-text">
+          <strong>Change Programs</strong>
+          <span>Adjust your 6-week cycle</span>
+        </div>
+      </button>
+    </div>
+
+    <div class="landing-footer">
+      <span id="landingSyncStatus" onclick="openAuth()">Offline</span>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell" id="appShell">
 <div class="top-tabs">
 <div class="top-tabs-inner">
-<button class="top-tab" id="homeTabBtn" onclick="setActiveTab('home')">Home</button>
+<button class="top-tab" onclick="showLandingPage()">Home</button>
+<button class="top-tab" id="homeTabBtn" onclick="setActiveTab('home')">Workout</button>
 <button class="top-tab" id="programTabBtn" onclick="setActiveTab('program')">Program</button>
 <button class="top-tab" id="historyTabBtn" onclick="setActiveTab('history')">History</button>
 </div>
@@ -688,11 +779,51 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
 
   let syncChannel = null;
 
+  let pendingDestination = null;
+
+  function showLandingPage() {
+    document.getElementById('landingView').classList.add('active');
+    document.getElementById('appShell').classList.remove('active');
+    updateSyncUI();
+  }
+
+  function hideLandingPage() {
+    document.getElementById('landingView').classList.remove('active');
+    document.getElementById('appShell').classList.add('active');
+  }
+
+  function handleLandingAction(action) {
+    if (!currentSyncKey) {
+      pendingDestination = action;
+      openAuth();
+      return;
+    }
+
+    hideLandingPage();
+    if (action === 'workout') {
+      const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+      switchDay(WEEK_DAYS.includes(today) ? today : 'Monday');
+      setWorkoutTab('pre');
+      setActiveTab('home');
+    } else if (action === 'progress') {
+      switchDay('Weight Log');
+      setActiveTab('home');
+    } else if (action === 'program') {
+      setActiveTab('program');
+    }
+  }
+
   function updateSyncUI() {
     const indicator = document.getElementById('syncIndicator');
+    const landingStatus = document.getElementById('landingSyncStatus');
     if (!indicator) return;
+    
+    const statusText = currentSyncKey ? currentSyncKey.split('_')[0].toUpperCase() : 'Offline';
+    
+    indicator.innerText = statusText;
+    if (landingStatus) landingStatus.innerText = currentSyncKey ? `Logged in as ${statusText}` : 'Sign In to Sync';
+
     if (currentSyncKey) {
-      indicator.innerText = currentSyncKey.split('_')[0].toUpperCase();
       indicator.classList.remove('sync-off');
       indicator.classList.add('sync-on');
     } else {
