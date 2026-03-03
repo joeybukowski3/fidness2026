@@ -4,25 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Workout History - Pro Trainer Elite</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f1f5f9; --bg2: #ffffff; --text: #1e293b; --text2: #475569; --border: #e2e8f0; --accent: #16a34a; --radius: 12px;
+  --bg: #0a0a0f; --bg2: #1a1a25; --text: #eef0f4; --text2: #c8cfda; --border: rgba(255,255,255,0.07); --accent: #c8f55a; --accent2:#5af5c8; --radius: 18px;
 }
 .dark {
-  --bg: #0f172a; --bg2: #1e293b; --text: #f1f5f9; --text2: #cbd5e1; --border: #334155;
+  --bg: #0a0a0f; --bg2: #1a1a25; --text: #eef0f4; --text2: #c8cfda; --border: rgba(255,255,255,0.07);
 }
-body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 1.5rem; margin: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding: 1.25rem; margin: 0; }
 .container { max-width: 800px; margin: 0 auto; }
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-.card { background: var(--bg2); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 1rem; }
-h1 { font-size: 1.5rem; font-weight: 800; margin: 0; }
-.btn { display: inline-block; padding: 0.6rem 1rem; background: var(--accent); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 0.85rem; }
+.card { background: var(--bg2); padding: 1.2rem; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: 0 14px 35px rgba(0,0,0,0.35); margin-bottom: 0.8rem; }
+h1 { font-size: 2rem; font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.06em; margin: 0; }
+.btn { display: inline-block; padding: 0.55rem 0.95rem; background: linear-gradient(120deg,var(--accent),#9dcf42); color: #11150d; text-decoration: none; border-radius: 12px; font-weight: 700; font-size: 0.78rem; border:1px solid rgba(200,245,90,0.4); text-transform:uppercase; letter-spacing:0.12em; }
 .history-item { border-bottom: 1px solid var(--border); padding: 0.75rem 0; display: flex; justify-content: space-between; align-items: center; }
 .history-item:last-child { border-bottom: none; }
 .ex-name { font-weight: 700; font-size: 0.9rem; }
 .ex-meta { font-size: 0.8rem; color: var(--text2); }
 .empty-state { text-align: center; padding: 3rem; color: var(--text2); }
+h3{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text2);margin-bottom:0.55rem}
+strong{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.04em;color:var(--accent)}
 </style>
 </head>
 <body class="light">

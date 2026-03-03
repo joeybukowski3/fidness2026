@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#16a34a">
+<meta name="theme-color" content="#0a0a0f">
 <link rel="icon" type="image/png" href="assets/icon.png">
 <link rel="apple-touch-icon" href="assets/icon.png">
 <link rel="manifest" href="manifest.json?v=6">
 <title>Pro Trainer Elite</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 if ('serviceWorker' in navigator) {
@@ -109,10 +109,9 @@ if ('serviceWorker' in navigator) {
 </div>
 <div class="header-controls">
   <button class="top-icon-btn" onclick="forceUpdateApp()" title="Check for Updates" style="background:var(--bg3); border:1px solid var(--border); color:var(--text); padding:0.35rem; font-size:1rem; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:3px;">
-    <span style="font-size:0.55rem; opacity:0.7;">v5</span>
+    <span style="font-size:0.55rem; opacity:0.7;">v6</span>
     &#8635;
-  </button>
-  <select class="week-select" id="weekSelect" onchange="setWeek(this.value)">
+  </button>  <select class="week-select" id="weekSelect" onchange="setWeek(this.value)">
     <option value="1">W1</option><option value="2">W2</option><option value="3">W3</option>
     <option value="4">W4</option><option value="5">W5</option><option value="6">W6</option>
   </select>
@@ -126,14 +125,15 @@ if ('serviceWorker' in navigator) {
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f1f5f9;--bg2:#ffffff;--bg3:#f8fafc;--text:#1e293b;--text2:#475569;--text3:#94a3b8;
-  --border:#e2e8f0;--accent:#16a34a;--accent2:#22c55e;--accent-bg:#f0fdf4;
-  --red:#ef4444;--blue:#3b82f6;--amber:#f59e0b;--purple:#8b5cf6;
-  --radius:12px;--shadow:0 1px 3px rgba(0,0,0,0.08);
+  --bg:#0a0a0f;--bg2:#1a1a25;--bg3:#12121b;--text:#eef0f4;--text2:#c8cfda;--text3:#80889a;
+  --border:rgba(255,255,255,0.07);--accent:#c8f55a;--accent2:#5af5c8;--accent-bg:rgba(200,245,90,0.1);
+  --red:#ff6b7a;--blue:#5af5c8;--amber:#f5cc5a;--purple:#8b5cf6;
+  --radius:18px;--shadow:0 14px 35px rgba(0,0,0,0.35);
+  --font-body:'DM Sans',sans-serif;--font-display:'Bebas Neue',sans-serif;
 }
 .dark{
-  --bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--text:#f1f5f9;--text2:#cbd5e1;--text3:#64748b;
-  --border:#1e293b;--accent-bg:#064e3b;--shadow:0 1px 3px rgba(0,0,0,0.3);
+  --bg:#0a0a0f;--bg2:#1a1a25;--bg3:#12121b;--text:#eef0f4;--text2:#c8cfda;--text3:#80889a;
+  --border:rgba(255,255,255,0.07);--accent-bg:rgba(200,245,90,0.1);--shadow:0 14px 35px rgba(0,0,0,0.35);
 }
 /* Dark Mode Consistency Fixes */
 .dark .workout-tabs { border-color: var(--border); background: var(--bg2); }
@@ -407,16 +407,111 @@ body{overflow-x:hidden; width:100%; position:relative;}
 .detail-history-item span{white-space:nowrap}
 .detail-history-empty{font-size:0.78rem;color:var(--text3)}
 
+/* 2026 Visual Overhaul */
+html,body{background:var(--bg);color:var(--text);font-family:var(--font-body)}
+body{padding-bottom:104px}
+.logo-title,.landing-title,.detail-title,.wlog-stat .val,.timer-display,.progress-text,.tab,.week-select,.num-font{font-family:var(--font-display);letter-spacing:0.03em}
+.logo-tag,.phase-header,.weight-header,.wlog-table th,.section-label{text-transform:uppercase;letter-spacing:0.18em;font-size:10px;color:var(--text3)}
+.header,.top-tabs,.tabs-wrap,.progress-bar-wrap,.program-card,.guide-content,.sunday-card,.weight-panel,.wlog-chart,.wlog-table,.wlog-stat,.detail-card,.ex-card,.landing-btn,.auth-card{border-radius:18px;border:1px solid var(--border);box-shadow:none}
+.header,.tabs-wrap,.progress-bar-wrap,.top-tabs{background:var(--bg)}
+.content{padding:0.75rem}
+
+.top-tabs{position:fixed;left:0;right:0;bottom:0;padding:0.35rem 0.5rem calc(env(safe-area-inset-bottom) + 0.4rem);z-index:130;background:rgba(10,10,15,0.72);backdrop-filter:blur(20px);border-top:1px solid var(--border);border-bottom:none}
+.top-tabs-inner{max-width:560px;justify-content:space-between}
+.top-tab{position:relative;flex:1;padding:0.5rem 0.25rem;font-size:0.68rem;text-transform:uppercase;letter-spacing:0.12em;color:var(--text3);border:none}
+.top-tab.active{color:var(--accent)}
+.top-tab.active::after{content:'';position:absolute;left:50%;transform:translateX(-50%);bottom:4px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+
+.progress-bar-wrap{padding:0.4rem 1rem 0.5rem}
+.progress-track{height:5px;background:rgba(255,255,255,0.08)}
+.progress-fill{background:linear-gradient(90deg,var(--accent2),var(--accent))}
+.progress-text{font-size:0.95rem;color:var(--accent)}
+
+.phase-header{background:transparent!important;border-bottom:1px solid var(--border);padding:0.55rem 0.1rem;border-radius:0}
+.phase{margin-bottom:1.25rem}
+.phase-body{display:grid;gap:0.6rem}
+.ex-card{border-radius:18px;padding:0.8rem;margin:0;border:1px solid var(--border);background:var(--bg2);border-top:1px solid var(--border)}
+.ex-card.done,.ex-card.completed{opacity:0.55}
+.ex-card.done .ex-check,.ex-card.completed .ex-check{background:var(--accent);border-color:var(--accent);color:#10140c}
+.ex-card.active-card{border-color:rgba(200,245,90,0.5);box-shadow:0 0 0 1px rgba(200,245,90,0.4),0 0 22px rgba(200,245,90,0.18);background:linear-gradient(160deg,rgba(39,59,20,0.62),rgba(26,26,37,0.95))}
+.ex-header{align-items:flex-start}
+.ex-name{font-size:1rem;margin:0}
+.ex-name-row{align-items:flex-start}
+.ex-target{font-size:1.15rem;font-family:var(--font-display);letter-spacing:0.04em;color:var(--accent)}
+.ex-check{border-radius:10px;background:var(--bg3)}
+.ex-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;margin-top:0.6rem}
+.ex-info-cell{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:0.45rem 0.55rem}
+.ex-info-cell b{display:block;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-bottom:0.15rem}
+.ex-info-cell span{font-size:0.7rem;color:var(--text2)}
+.ex-dot-row{display:flex;gap:6px;align-items:center;margin-top:0.55rem}
+.ex-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,0.15);border:1px solid var(--border)}
+.ex-dot.done{background:var(--accent);border-color:var(--accent)}
+.ex-details,.ex-notes,.ex-equip,.ex-info-toggle,.ex-visual,.weight-row{display:none!important}
+
+.timer-toggle{position:fixed;bottom:88px;right:16px;width:58px;height:58px;border-radius:999px;background:linear-gradient(140deg,var(--accent),#93c241);color:#121607;border:none;box-shadow:0 10px 24px rgba(200,245,90,0.26);z-index:120;display:flex;align-items:center;justify-content:center;font-size:1.25rem}
+.timer-toggle small{position:absolute;top:62px;font-size:11px;color:var(--text3);font-family:var(--font-display);letter-spacing:0.06em}
+.timer-bar{position:fixed;left:auto;right:16px;bottom:152px;width:min(300px,calc(100vw - 32px));padding:0.65rem;border-radius:16px;border:1px solid var(--border);background:rgba(26,26,37,0.94);backdrop-filter:blur(10px);box-shadow:var(--shadow);transform:translateY(8px) scale(0.96);opacity:0;pointer-events:none}
+.timer-bar.visible{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+.timer-inner{max-width:none;display:grid;gap:0.55rem}
+.timer-display{font-size:2rem;color:var(--accent);text-align:center;line-height:1}
+.timer-btns{display:grid;grid-template-columns:1fr 1fr;gap:0.45rem}
+.timer-btn{padding:0.5rem;font-size:0.72rem;border-radius:10px;background:var(--bg3)}
+.timer-btn.go{background:var(--accent);color:#11150c}
+.timer-presets{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:0.45rem}
+.timer-preset{padding:0.45rem;font-size:0.72rem;border-radius:10px}
+
+.set-sheet{position:fixed;inset:0;display:flex;align-items:flex-end;z-index:220;background:rgba(5,5,8,0);pointer-events:none;transition:background 0.2s ease}
+.set-sheet.active{background:rgba(5,5,8,0.45);pointer-events:auto}
+.set-sheet-card{margin:0 auto;max-width:900px;background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;padding:1rem 1rem calc(env(safe-area-inset-bottom) + 1rem);transform:translateY(102%);transition:transform 0.24s ease}
+.set-sheet.active .set-sheet-card{transform:translateY(0)}
+.sheet-head{display:flex;justify-content:space-between;align-items:flex-start;gap:0.75rem;margin-bottom:0.75rem}
+.sheet-title{font-size:1.15rem;font-weight:700}
+.target-badge{padding:0.2rem 0.6rem;border-radius:999px;border:1px solid rgba(200,245,90,0.4);background:rgba(200,245,90,0.14);color:var(--accent);font-family:var(--font-display);font-size:0.9rem}
+.set-pills{display:flex;gap:0.45rem;flex-wrap:wrap;margin-bottom:0.7rem}
+.set-pill{border:1px solid var(--border);border-radius:999px;background:var(--bg3);color:var(--text2);padding:0.25rem 0.65rem;font-size:0.75rem}
+.set-pill.active{border-color:var(--accent);color:var(--accent)}
+.stepper-row{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.7rem}
+.stepper{border:1px solid var(--border);border-radius:14px;padding:0.55rem;background:var(--bg3)}
+.stepper h4{font-size:10px;text-transform:uppercase;letter-spacing:0.16em;color:var(--text3);margin-bottom:0.35rem}
+.stepper-ctrl{display:flex;align-items:center;justify-content:space-between;gap:0.35rem}
+.stepper-ctrl button{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:#0f0f18;color:var(--text);font-size:1.05rem}
+.stepper-ctrl span{font-size:1.4rem;font-family:var(--font-display)}
+.effort-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0.4rem;margin-bottom:0.75rem}
+.effort-btn{border:1px solid var(--border);background:var(--bg3);color:var(--text2);padding:0.45rem;border-radius:12px;font-size:0.7rem}
+.effort-btn.active{border-color:var(--accent2);color:var(--accent2)}
+.sheet-log-btn{width:100%;padding:0.78rem;border:none;border-radius:14px;background:linear-gradient(130deg,var(--accent),#9cd847);color:#10140d;font-family:var(--font-display);font-size:1.2rem;letter-spacing:0.05em}
+
+.detail-view{background:linear-gradient(180deg,#0e1118,#0a0a0f)}
+.detail-tabs{display:flex;gap:0.5rem;margin-bottom:0.7rem}
+.detail-tab{flex:1;border:1px solid var(--border);background:var(--bg3);color:var(--text2);border-radius:10px;padding:0.4rem 0.55rem;font-size:0.72rem}
+.detail-tab.active{border-color:var(--accent);color:var(--accent)}
+.diagram-stage{background:radial-gradient(circle at 30% 20%,rgba(90,245,200,0.16),transparent 50%),var(--bg3);border:1px solid var(--border);border-radius:14px;padding:0.8rem}
+.diagram-stage img,.diagram-stage svg{display:block;width:100%;height:220px;object-fit:contain;border-radius:10px;background:#0f1018}
+.muscle-legend{display:flex;gap:0.8rem;font-size:0.72rem;color:var(--text2);margin-top:0.6rem}
+.legend-dot{display:inline-block;width:9px;height:9px;border-radius:999px;margin-right:0.25rem}
+.upload-row{display:flex;gap:0.5rem;margin-top:0.7rem}
+.upload-row button{flex:1}
+.instruction-steps{display:grid;gap:0.45rem}
+.instruction-step{padding:0.55rem 0.65rem;border:1px solid var(--border);border-radius:12px;background:var(--bg3);font-size:0.76rem;color:var(--text2)}
+.history-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.45rem}
+.history-kpi{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:0.5rem}
+.history-kpi b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:0.15em;color:var(--text3)}
+.history-kpi span{font-family:var(--font-display);font-size:1.2rem;color:var(--accent)}
+.pr-badge{display:inline-block;padding:0.15rem 0.45rem;border-radius:999px;background:rgba(200,245,90,0.14);border:1px solid rgba(200,245,90,0.38);color:var(--accent);font-size:0.64rem;letter-spacing:0.12em;text-transform:uppercase}
+.mini-table{width:100%;border-collapse:collapse}
+.mini-table th,.mini-table td{padding:0.4rem;border-bottom:1px solid var(--border);font-size:0.72rem;text-align:left}
+.mini-chart{display:flex;align-items:flex-end;gap:4px;height:120px;margin-top:0.45rem}
+.mini-bar{flex:1;background:linear-gradient(180deg,var(--accent2),var(--accent));border-radius:6px 6px 2px 2px;min-height:8px;opacity:0.9}
+.mini-bar-label{font-size:0.57rem;color:var(--text3);text-align:center;margin-top:0.2rem}
+
 /* Mobile */
 @media(max-width:640px){
 .tab{padding:0.5rem 0.6rem;font-size:0.7rem}
-.ex-card{padding:0.6rem}
-.timer-presets{display:none}
+.ex-card{padding:0.65rem}
+.stepper-ctrl span{font-size:1.25rem}
 }
 @media(min-width:641px){
-.timer-toggle{display:none}
-.timer-bar{transform:translateY(0) !important}
-.timer-bar.visible{transform:translateY(0)}
+.timer-toggle{display:flex}
 }
 </style>
 </head>
@@ -467,10 +562,10 @@ body{overflow-x:hidden; width:100%; position:relative;}
 <div class="app-shell" id="appShell">
 <div class="top-tabs">
 <div class="top-tabs-inner">
-<button class="top-tab" onclick="showLandingPage()">Home</button>
-<button class="top-tab" id="homeTabBtn" onclick="setActiveTab('home')">Workout</button>
-<button class="top-tab" id="programTabBtn" onclick="setActiveTab('program')">Program</button>
-<button class="top-tab" id="historyTabBtn" onclick="setActiveTab('history')">History</button>
+<button class="top-tab" onclick="showLandingPage()">&#8962; Home</button>
+<button class="top-tab" id="homeTabBtn" onclick="setActiveTab('home')">&#127947; Workout</button>
+<button class="top-tab" id="programTabBtn" onclick="setActiveTab('program')">&#128197; Program</button>
+<button class="top-tab" id="historyTabBtn" onclick="setActiveTab('history')">&#128200; History</button>
 </div>
 </div>
 
@@ -493,20 +588,21 @@ body{overflow-x:hidden; width:100%; position:relative;}
   <div class="detail-inner" id="detailContent"></div>
 </div>
 
-<button class="timer-toggle home-only" id="timerToggle" onclick="showTimer()">&#9201;</button>
+<div class="set-sheet" id="setSheet" aria-hidden="true">
+  <div class="set-sheet-card" id="setSheetCard"></div>
+</div>
+
+<button class="timer-toggle home-only" id="timerToggle" onclick="showTimer()">&#9201;<small id="timerLastLabel">00:00</small></button>
 <div class="timer-bar home-only" id="timerBar">
 <div class="timer-inner">
 <div class="timer-display" id="timerDisplay">0:00</div>
 <div class="timer-btns">
 <button class="timer-btn go" id="timerStartBtn" onclick="timerStart()">Start</button>
-<button class="timer-btn" onclick="timerReset()">Reset</button>
+<button class="timer-btn" onclick="timerSet(timerSec + 30)">+30s</button>
 </div>
 <div class="timer-presets">
-<button class="timer-preset" onclick="timerSet(30)">30s</button>
-<button class="timer-preset" onclick="timerSet(45)">45s</button>
-<button class="timer-preset" onclick="timerSet(60)">60s</button>
-<button class="timer-preset" onclick="timerSet(90)">90s</button>
-<button class="timer-preset" onclick="timerSet(120)">2m</button>
+<button class="timer-preset" onclick="timerReset()">Done</button>
+<button class="timer-preset" onclick="timerSkip()">Skip</button>
 </div>
 </div>
 </div>
@@ -1409,6 +1505,14 @@ function getViewDateISO(day) {
     renderDay(state.day);
     renderProgram();
     updateWeekHeader();
+    updateTimerDisplay();
+    setActiveTab(uiActiveTab);
+    const sheet = document.getElementById('setSheet');
+    if (sheet) {
+      sheet.addEventListener('click', e => {
+        if (e.target.id === 'setSheet') closeSetLogger();
+      });
+    }
   }
   
   function renderTabs() {
@@ -1515,13 +1619,69 @@ async function openExerciseDetail(day, idx) {
   const imgSrc = customImg || `assets/diagrams/${exId}-1.png`;
 
   const history = getWorkoutHistory().filter(h => h.exercise === exName);
-  const historyHtml = history.length
-    ? `<div class="detail-history">${history.map(h => {
-        const d = new Date(h.ts);
-        const dateStr = `${formatDateOrdinal(d)}, ${d.getFullYear()}`;
-        return `<div class="detail-history-item"><span>${dateStr}</span><span>${h.weight || '-'} lbs</span><span>${h.reps || '-' } reps</span></div>`;
-      }).join('')}</div>`
-    : `<div class="detail-history-empty">No history yet.</div>`;
+  const groupedByDate = {};
+  history.forEach(h => {
+    const key = new Date(h.ts).toLocaleDateString('en-US');
+    if (!groupedByDate[key]) groupedByDate[key] = [];
+    groupedByDate[key].push(h);
+  });
+  const sessionKeys = Object.keys(groupedByDate);
+  const lastSessionKey = sessionKeys.length ? sessionKeys[sessionKeys.length - 1] : null;
+  const lastSession = lastSessionKey ? groupedByDate[lastSessionKey] : [];
+  const lastWeights = lastSession.map(entry => parseFloat(entry.weight) || 0).filter(Boolean);
+  const topWeight = lastWeights.length ? Math.max(...lastWeights) : 0;
+  const totalVolume = lastSession.reduce((sum, entry) => {
+    const w = parseFloat(entry.weight) || 0;
+    const r = parseFloat(entry.reps) || 0;
+    return sum + (w * r);
+  }, 0);
+  const isPR = history.length > 0 ? topWeight >= Math.max(...history.map(entry => parseFloat(entry.weight) || 0)) : false;
+  const sixWeeks = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - (i * 7));
+    const start = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const end = new Date(start.getTime() + 7 * 86400000);
+    const weekVals = history
+      .filter(h => new Date(h.ts) >= start && new Date(h.ts) < end)
+      .map(h => parseFloat(h.weight) || 0)
+      .filter(Boolean);
+    const best = weekVals.length ? Math.max(...weekVals) : 0;
+    sixWeeks.push({ label: `W${6 - i}`, value: best });
+  }
+  const peak = Math.max(...sixWeeks.map(w => w.value), 1);
+  const barChartHtml = sixWeeks.map(w => `
+    <div style="flex:1">
+      <div class="mini-bar" style="height:${Math.max((w.value / peak) * 100, 6)}px"></div>
+      <div class="mini-bar-label">${w.label}</div>
+    </div>`).join('');
+  const steps = how.split('. ').filter(Boolean).slice(0, 6).map((step, i) => `<div class="instruction-step"><strong>${i + 1}.</strong> ${step.replace(/\.$/, '')}.</div>`).join('');
+  const sessionRows = lastSession.length ? lastSession.map((entry, i) => `
+    <tr><td>S${i + 1}</td><td>${entry.weight || '-'}</td><td>${entry.reps || '-'}</td><td>${i === 0 ? 'Moderate' : i % 2 ? 'Easy' : 'Hard'}</td></tr>
+  `).join('') : '<tr><td colspan="4">No recent set logs.</td></tr>';
+  const animatedSvg = `
+    <svg viewBox="0 0 360 220" role="img" aria-label="Movement animation">
+      <defs>
+        <linearGradient id="limeline" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#5af5c8"/><stop offset="100%" stop-color="#c8f55a"/>
+        </linearGradient>
+      </defs>
+      <rect width="360" height="220" fill="#0f1018"/>
+      <circle cx="180" cy="54" r="16" fill="url(#limeline)">
+        <animate attributeName="cy" values="54;48;54" dur="1.2s" repeatCount="indefinite"/>
+      </circle>
+      <line x1="180" y1="72" x2="180" y2="132" stroke="url(#limeline)" stroke-width="10" stroke-linecap="round">
+        <animate attributeName="y2" values="132;124;132" dur="1.2s" repeatCount="indefinite"/>
+      </line>
+      <line x1="180" y1="86" x2="135" y2="110" stroke="#5af5c8" stroke-width="8" stroke-linecap="round">
+        <animate attributeName="y2" values="110;102;110" dur="1.2s" repeatCount="indefinite"/>
+      </line>
+      <line x1="180" y1="86" x2="225" y2="110" stroke="#5af5c8" stroke-width="8" stroke-linecap="round">
+        <animate attributeName="y2" values="110;102;110" dur="1.2s" repeatCount="indefinite"/>
+      </line>
+      <line x1="180" y1="132" x2="146" y2="180" stroke="#c8f55a" stroke-width="9" stroke-linecap="round"/>
+      <line x1="180" y1="132" x2="214" y2="180" stroke="#c8f55a" stroke-width="9" stroke-linecap="round"/>
+    </svg>`;
 
   content.innerHTML = `
     <div class="detail-header">
@@ -1529,22 +1689,53 @@ async function openExerciseDetail(day, idx) {
       <div class="detail-title">${exName}</div>
     </div>
     <div class="detail-card detail-diagram">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-        <h3 style="margin-bottom:0">Visual Guide</h3>
-        <div style="display:flex; gap:0.5rem;">
-          <button class="ex-toggle" style="background:var(--accent); color:#fff; border:none;" onclick="triggerDiagramUpload('${exId}')">Change</button>
-          ${customImg ? `<button class="ex-toggle" style="background:var(--bg3);" onclick="removeCustomDiagram('${exId}', '${day}', ${idx})">Reset</button>` : ''}
+      <div class="detail-tabs">
+        <button class="detail-tab active" id="movementTab" onclick="toggleDetailGuide('movement')">Movement</button>
+        <button class="detail-tab" id="musclesTab" onclick="toggleDetailGuide('muscles')">Muscles</button>
+      </div>
+      <div class="diagram-stage" id="movementGuide" style="${customImg ? '' : ''}">
+        ${customImg ? `<img id="detailImg" src="${imgSrc}" alt="${exName}" onerror="this.onerror=null; this.src='assets/diagrams/placeholder.svg';">` : `<div id="detailImg">${animatedSvg}</div>`}
+        <div class="muscle-legend">
+          <span><i class="legend-dot" style="background:var(--accent)"></i>Primary</span>
+          <span><i class="legend-dot" style="background:var(--accent2)"></i>Secondary</span>
         </div>
       </div>
-      <img id="detailImg" src="${imgSrc}" alt="${exName}" onerror="this.onerror=null; this.src='assets/diagrams/placeholder.svg';">
+      <div class="diagram-stage" id="muscleGuide" style="display:none">
+        <img src="assets/diagrams/${exId}-1.png" alt="${exName} muscles" onerror="this.onerror=null; this.src='assets/diagrams/placeholder.svg';">
+        <div class="muscle-legend">
+          <span><i class="legend-dot" style="background:var(--accent)"></i>Primary</span>
+          <span><i class="legend-dot" style="background:var(--accent2)"></i>Secondary</span>
+        </div>
+      </div>
+      <div class="upload-row">
+        <button class="ex-toggle" style="background:var(--accent); color:#111; border:none;" onclick="triggerDiagramUpload('${exId}')">Upload My Photo</button>
+        <button class="ex-toggle" style="background:var(--bg3);" onclick="removeCustomDiagram('${exId}', '${day}', ${idx})">Use Default</button>
+        ${customImg ? `<button class="ex-toggle" style="background:var(--bg3);" onclick="removeCustomDiagram('${exId}', '${day}', ${idx})">Remove</button>` : ''}
+      </div>
     </div>
     <div class="detail-card">
-      <h3>How to do this</h3>
-      <div class="ex-info-content" style="margin-top:0">${how}</div>
+      <h3>Last Session ${isPR && topWeight ? `<span class="pr-badge">PR</span>` : ''}</h3>
+      <div class="history-grid">
+        <div class="history-kpi"><b>Date</b><span style="font-size:1rem">${lastSessionKey || '--'}</span></div>
+        <div class="history-kpi"><b>Top Weight</b><span>${topWeight || '--'}</span></div>
+        <div class="history-kpi"><b>Sets x Reps</b><span>${lastSession.length || 0} x ${(lastSession[0] && lastSession[0].reps) || '--'}</span></div>
+        <div class="history-kpi"><b>Total Volume</b><span>${totalVolume ? Math.round(totalVolume) : '--'}</span></div>
+      </div>
     </div>
     <div class="detail-card">
-      <h3>Personal History</h3>
-      ${historyHtml}
+      <h3>Set Log (Last Session)</h3>
+      <table class="mini-table">
+        <thead><tr><th>Set</th><th>Weight</th><th>Reps</th><th>Effort</th></tr></thead>
+        <tbody>${sessionRows}</tbody>
+      </table>
+    </div>
+    <div class="detail-card">
+      <h3>6-Week Progression</h3>
+      <div class="mini-chart">${barChartHtml}</div>
+    </div>
+    <div class="detail-card">
+      <h3>Instructions</h3>
+      <div class="instruction-steps">${steps || `<div class="instruction-step">No instructions yet.</div>`}</div>
     </div>`;
   detail.classList.add('active');
   detail.setAttribute('aria-hidden', 'false');
@@ -1604,6 +1795,19 @@ function closeExerciseDetail() {
   detail.classList.remove('active');
   detail.setAttribute('aria-hidden', 'true');
   document.body.classList.remove('detail-open');
+}
+
+function toggleDetailGuide(mode) {
+  const movement = document.getElementById('movementGuide');
+  const muscle = document.getElementById('muscleGuide');
+  const movementTab = document.getElementById('movementTab');
+  const musclesTab = document.getElementById('musclesTab');
+  if (!movement || !muscle || !movementTab || !musclesTab) return;
+  const movementOn = mode === 'movement';
+  movement.style.display = movementOn ? 'block' : 'none';
+  muscle.style.display = movementOn ? 'none' : 'block';
+  movementTab.classList.toggle('active', movementOn);
+  musclesTab.classList.toggle('active', !movementOn);
 }
 
 function renderDay(day) {
@@ -1667,55 +1871,33 @@ function renderDay(day) {
         const doneClass = s.done ? ' done' : '';
         const checkedClass = s.done ? ' checked' : '';
         const collapsedClass = s.collapsed ? ' collapsed' : '';
-        const toggleOpenClass = s.collapsed ? '' : ' open';
-      out += `<div class="ex-card${doneClass}${collapsedClass}${s.swapped ? ' swapped-ui' : ''}" id="card-${ex._idx}" data-idx="${ex._idx}">
+      out += `<div class="ex-card${doneClass}${collapsedClass}${s.swapped ? ' swapped-ui' : ''}${currentSetLogger && currentSetLogger.day===day && currentSetLogger.idx===ex._idx ? ' active-card' : ''}" id="card-${ex._idx}" data-idx="${ex._idx}" onclick="openSetLogger('${day}',${ex._idx})">
           <div class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx}); event.stopPropagation();" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</div>
           <div class="ex-body">
             <div class="ex-header">
-            <div class="ex-name">
-              ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alternative</div>' : (getAlternative(ex.notes) ? '<div class="ex-swap-indicator" style="color:var(--text3);">&#9733; Sub Available</div>' : '')}
-              <div class="ex-name-row">
-                <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
-                ${(() => {
-                  const nameToFind = s.swapped ? getAlternative(ex.notes) : ex.exercise;
-                  const last = getLatestHistoryEntry(nameToFind);
-                  if (!last) return '';
-                  const d = new Date(last.ts);
-                  const dateStr = `${formatDateOrdinal(d)}, ${d.getFullYear()}`;
-                  const w = last.weight ? `${last.weight} lbs` : '- lbs';
-                  const r = last.reps ? `${last.reps} reps` : '- reps';
-                  return `<span class="ex-name-preview">- ${dateStr}, ${w} x ${r}</span>`;
-                })()}
-              </div>
-            </div>
-              <button class="ex-toggle${toggleOpenClass}" id="toggle-${ex._idx}" onclick="toggleExerciseCollapse('${day}',${ex._idx}); event.stopPropagation();"><span class="arrow">&#9654;</span> ${s.collapsed ? 'Expand' : 'Collapse'}</button>
-            </div>
-            <div class="ex-details">
-              <div class="ex-meta">
-                <span class="ex-tag sets">${ex.sets} &times; ${ex.reps}</span>
-                ${ex.rest > 0 ? `<span class="ex-tag rest" onclick="timerSet(${ex.rest}); event.stopPropagation();" style="cursor:pointer">${ex.rest}s rest</span>` : ''}
-                <span class="ex-tag tempo">${ex.tempo}</span>
-              </div>
-              <div class="ex-notes">${ex.notes}</div>
-              <div class="ex-equip">${ex.equipment}</div>
-              ${shouldHideLoadInputs(ex.category) ? '' : `<div class="weight-row">
-                <span class="weight-label">Weight:</span>
-                <input class="weight-input" type="text" placeholder="lbs" value="${s.weight || ''}" onchange="setWeight('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)" onclick="event.stopPropagation()">
-                <span class="weight-label">Reps:</span>
-                <select class="reps-select" onchange="setReps('${day}',${ex._idx},'${ex.exercise.replace(/'/g, '&#39;')}',this.value)" onclick="event.stopPropagation()">
-                  ${renderRepsOptions(ex._repsVal)}
-                </select>
-              </div>`}
-              ${EX_DESC[ex.exercise] ? `
-                <span class="ex-info-toggle" onclick="toggleInfo(this); event.stopPropagation();"><span class="arrow">&#9654;</span> How to do this</span>
-                <div class="ex-info-box">
-                  <div class="ex-info-content">
-                    <div style="margin-bottom:0.5rem">${EX_DESC[ex.exercise]}</div>
-                    <button class="ex-toggle" style="background:var(--accent); color:#fff; border:none; padding:0.25rem 0.6rem; font-size:0.65rem;" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">View Visual Guide</button>
-                  </div>
+              <div class="ex-name">
+                ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alternative</div>' : (getAlternative(ex.notes) ? '<div class="ex-swap-indicator" style="color:var(--text3);">&#9733; Sub Available</div>' : '')}
+                <div class="ex-name-row">
+                  <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
                 </div>
-              ` : ''}
+                <div class="ex-target">${ex.sets} x ${ex.reps}</div>
+              </div>
             </div>
+            ${(() => {
+              const nameToFind = s.swapped ? getAlternative(ex.notes) : ex.exercise;
+              const last = getLatestHistoryEntry(nameToFind);
+              const lastText = last ? `${last.weight || '-'} x ${last.reps || '-'} · ${new Date(last.ts).toLocaleDateString()}` : 'No previous data';
+              const targetText = `${s.weight || '--'} lbs x ${s.reps || ex._defaultReps} reps`;
+              const totalSets = Math.max(parseInt(ex.sets, 10) || 1, 1);
+              const doneSets = s.done ? totalSets : 0;
+              let dots = '';
+              for (let dot = 0; dot < totalSets; dot++) dots += `<span class="ex-dot${dot < doneSets ? ' done' : ''}"></span>`;
+              return `<div class="ex-info-grid">
+                <div class="ex-info-cell"><b>Last Time</b><span>${lastText}</span></div>
+                <div class="ex-info-cell"><b>Today's Target</b><span>${targetText}</span></div>
+              </div>
+              <div class="ex-dot-row">${dots}</div>`;
+            })()}
           </div>
         </div>`;
       });
@@ -1967,6 +2149,111 @@ function setReps(day, idx, name, val) {
   save(); // Sync cloud
 }
 
+let currentSetLogger = null;
+
+function parseDefaultRepValue(repText) {
+  const match = String(repText || '').match(/\d+/);
+  return match ? parseInt(match[0], 10) : 10;
+}
+
+function buildSetPills(sets, selected) {
+  let pills = '';
+  for (let i = 1; i <= sets; i++) {
+    pills += `<button class="set-pill${selected === i ? ' active' : ''}" onclick="selectSetPill(${i});event.stopPropagation();">S${i}</button>`;
+  }
+  return pills;
+}
+
+function openSetLogger(day, idx) {
+  const ex = (WORKOUTS[day] || [])[idx];
+  if (!ex) return;
+  const s = getExState(day, idx);
+  const exName = s.swapped ? getAlternative(ex.notes) : ex.exercise;
+  const last = getLatestHistoryEntry(exName);
+  const sets = Math.max(parseInt(ex.sets, 10) || 1, 1);
+  currentSetLogger = {
+    day, idx, set: 1, effort: 'Moderate',
+    weight: parseFloat(s.weight || 0) || 0,
+    reps: parseInt(s.reps || parseDefaultRepValue(ex.reps), 10) || parseDefaultRepValue(ex.reps)
+  };
+  const reminder = last ? `${last.weight || '-'} lbs x ${last.reps || '-'} reps on ${new Date(last.ts).toLocaleDateString()}` : 'No previous entry';
+  document.getElementById('setSheetCard').innerHTML = `
+    <div class="sheet-head">
+      <div>
+        <div class="section-label">Log Set</div>
+        <div class="sheet-title">${exName}</div>
+        <div style="font-size:0.72rem;color:var(--text3);margin-top:0.2rem;">Previous lift: ${reminder}</div>
+      </div>
+      <div class="target-badge">${ex.sets} x ${ex.reps}</div>
+    </div>
+    <div class="set-pills" id="setPills">${buildSetPills(sets, currentSetLogger.set)}</div>
+    <div class="stepper-row">
+      <div class="stepper">
+        <h4>Weight</h4>
+        <div class="stepper-ctrl">
+          <button onclick="adjustSetField('weight',-5);event.stopPropagation();">-</button>
+          <span id="sheetWeight">${currentSetLogger.weight}</span>
+          <button onclick="adjustSetField('weight',5);event.stopPropagation();">+</button>
+        </div>
+      </div>
+      <div class="stepper">
+        <h4>Reps</h4>
+        <div class="stepper-ctrl">
+          <button onclick="adjustSetField('reps',-1);event.stopPropagation();">-</button>
+          <span id="sheetReps">${currentSetLogger.reps}</span>
+          <button onclick="adjustSetField('reps',1);event.stopPropagation();">+</button>
+        </div>
+      </div>
+    </div>
+    <div class="effort-row">
+      <button class="effort-btn" onclick="setEffort('Easy');event.stopPropagation();">Easy</button>
+      <button class="effort-btn active" onclick="setEffort('Moderate');event.stopPropagation();">Moderate</button>
+      <button class="effort-btn" onclick="setEffort('Hard');event.stopPropagation();">Hard</button>
+    </div>
+    <button class="sheet-log-btn" onclick="logSetEntry();event.stopPropagation();">Log Set</button>
+  `;
+  document.getElementById('setSheet').classList.add('active');
+  document.getElementById('setSheet').setAttribute('aria-hidden', 'false');
+  renderDay(day);
+}
+
+function closeSetLogger() {
+  document.getElementById('setSheet').classList.remove('active');
+  document.getElementById('setSheet').setAttribute('aria-hidden', 'true');
+  currentSetLogger = null;
+  renderDay(state.day);
+}
+
+function selectSetPill(num) {
+  if (!currentSetLogger) return;
+  currentSetLogger.set = num;
+  const ex = (WORKOUTS[currentSetLogger.day] || [])[currentSetLogger.idx];
+  if (ex) document.getElementById('setPills').innerHTML = buildSetPills(Math.max(parseInt(ex.sets, 10) || 1, 1), num);
+}
+
+function adjustSetField(field, delta) {
+  if (!currentSetLogger) return;
+  currentSetLogger[field] = Math.max(field === 'weight' ? 0 : 1, (currentSetLogger[field] || 0) + delta);
+  document.getElementById('sheetWeight').innerText = currentSetLogger.weight;
+  document.getElementById('sheetReps').innerText = currentSetLogger.reps;
+}
+
+function setEffort(level) {
+  if (!currentSetLogger) return;
+  currentSetLogger.effort = level;
+  document.querySelectorAll('.effort-btn').forEach(btn => btn.classList.toggle('active', btn.textContent.trim() === level));
+}
+
+function logSetEntry() {
+  if (!currentSetLogger) return;
+  const ex = (WORKOUTS[currentSetLogger.day] || [])[currentSetLogger.idx];
+  if (!ex) return;
+  setWeight(currentSetLogger.day, currentSetLogger.idx, ex.exercise, String(currentSetLogger.weight));
+  setReps(currentSetLogger.day, currentSetLogger.idx, ex.exercise, String(currentSetLogger.reps));
+  if (ex.rest > 0) timerSet(ex.rest);
+  closeSetLogger();
+}
+
 function toggleInfo(el) {
   el.classList.toggle('open');
   const box = el.nextElementSibling;
@@ -2044,12 +2331,13 @@ function toggleDark() { state.dark = !state.dark; document.body.classList.toggle
 function resetWeek() { const prefix = `w${state.week}_`; Object.keys(state.data).forEach(k => { if (k.startsWith(prefix)) delete state.data[k]; }); save(); renderTabs(); renderDay(state.day); updateWeekHeader(); }
 
 // ============ TIMER ============
-let timerSec = 0, timerRunning = false, timerInterval = null;
-function timerSet(s) { timerSec = s; timerRunning = false; clearInterval(timerInterval); updateTimerDisplay(); showTimer(); }
+let timerSec = 0, timerRunning = false, timerInterval = null, lastRestSec = 0;
+function timerSet(s) { timerSec = Math.max(0, parseInt(s, 10) || 0); if (timerSec > 0) lastRestSec = timerSec; timerRunning = false; clearInterval(timerInterval); updateTimerDisplay(); showTimer(true); }
 function timerStart() {
   if (timerRunning) { timerRunning = false; clearInterval(timerInterval); document.getElementById('timerStartBtn').innerText = 'Start'; return; }
   if (timerSec <= 0) timerSec = 60;
   timerRunning = true;
+  showTimer(true);
   document.getElementById('timerStartBtn').innerText = 'Pause';
   timerInterval = setInterval(() => {
     timerSec--;
@@ -2057,9 +2345,23 @@ function timerStart() {
     if (timerSec <= 0) { clearInterval(timerInterval); timerRunning = false; document.getElementById('timerStartBtn').innerText = 'Start'; try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch(e){} }
   }, 1000);
 }
-function timerReset() { clearInterval(timerInterval); timerSec = 0; timerRunning = false; updateTimerDisplay(); document.getElementById('timerStartBtn').innerText = 'Start'; }
-function updateTimerDisplay() { const m = Math.floor(timerSec / 60); const s = timerSec % 60; document.getElementById('timerDisplay').innerText = m + ':' + (s < 10 ? '0' : '') + s; }
-function showTimer() { document.getElementById('timerBar').classList.toggle('visible'); }
+function timerReset() { clearInterval(timerInterval); timerSec = 0; timerRunning = false; updateTimerDisplay(); document.getElementById('timerStartBtn').innerText = 'Start'; showTimer(false); }
+function timerSkip() { clearInterval(timerInterval); timerRunning = false; timerSec = 0; updateTimerDisplay(); document.getElementById('timerStartBtn').innerText = 'Start'; showTimer(false); }
+function formatTimer(seconds) { const m = Math.floor(seconds / 60); const s = seconds % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
+function updateTimerDisplay() {
+  const formatted = formatTimer(timerSec);
+  document.getElementById('timerDisplay').innerText = formatted;
+  const label = document.getElementById('timerLastLabel');
+  if (label) label.innerText = formatTimer(lastRestSec || timerSec);
+}
+function showTimer(forceOpen) {
+  const el = document.getElementById('timerBar');
+  if (typeof forceOpen === 'boolean') {
+    el.classList.toggle('visible', forceOpen);
+  } else {
+    el.classList.toggle('visible');
+  }
+}
 
 // ============ PROGRAM GUIDE HTML ============
 const GUIDE_HTML = `
@@ -2389,7 +2691,7 @@ function drawWeightChart(data) {
     const y = pad.top + (cH / gridLines) * i;
     ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
     const val = (maxW - (range / gridLines) * i).toFixed(0);
-    ctx.fillStyle = textColor; ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'right';
+    ctx.fillStyle = textColor; ctx.font = '10px DM Sans,sans-serif'; ctx.textAlign = 'right';
     ctx.fillText(val, pad.left - 6, y + 3);
   }
 
@@ -2399,7 +2701,7 @@ function drawWeightChart(data) {
     const y = pad.top + cH / 2;
     ctx.fillStyle = dotColor;
     ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = textColor; ctx.font = 'bold 11px Inter,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillStyle = textColor; ctx.font = 'bold 11px DM Sans,sans-serif'; ctx.textAlign = 'center';
     ctx.fillText(weights[0] + ' lbs', x, y - 10);
     return;
   }
@@ -2434,7 +2736,7 @@ function drawWeightChart(data) {
   // X-axis labels
   const labelCount = Math.min(data.length, 7);
   const step = Math.max(1, Math.floor(data.length / labelCount));
-  ctx.fillStyle = textColor; ctx.font = '9px Inter,sans-serif'; ctx.textAlign = 'center';
+  ctx.fillStyle = textColor; ctx.font = '9px DM Sans,sans-serif'; ctx.textAlign = 'center';
   for (let i = 0; i < data.length; i += step) {
     const d = new Date(data[i].ts);
     const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
