@@ -116,7 +116,7 @@ if ('serviceWorker' in navigator) {
     <option value="4">W4</option><option value="5">W5</option><option value="6">W6</option>
   </select>
   <button class="timer-btn" style="background:var(--bg3); color:var(--text); padding:0.35rem; border:1px solid var(--border); font-size:1rem; display:flex; align-items:center; justify-content:center; width:36px; height:36px;" onclick="pullFromCloud();" title="Force Cloud Pull">&#9729;</button>
-  <span id="syncIndicator" class="sync-status sync-off" style="font-size:0.6rem; cursor:pointer;" onclick="openAuth()">Offline</span>
+  <span id="syncIndicator" class="sync-status sync-off" style="font-size:0.6rem; cursor:pointer;" onclick="handleSyncIndicatorClick()">Offline</span>
   <button class="dark-toggle" id="darkToggle" onclick="toggleDark()" title="Toggle Dark Mode" style="width:32px; height:32px; font-size:0.9rem;">&#9790;</button>
 </div>
 </div>
@@ -439,11 +439,11 @@ body{padding-bottom:104px}
 .ex-name-row{align-items:flex-start}
 .ex-target{font-size:1.15rem;font-family:var(--font-display);letter-spacing:0.04em;color:var(--accent)}
 .ex-check{border-radius:10px;background:var(--bg3)}
-.ex-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.45rem;margin-top:0.6rem}
-.ex-info-cell{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:0.45rem 0.55rem}
-.ex-info-cell b{display:block;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-bottom:0.15rem}
+.ex-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.35rem;margin-top:0.3rem}
+.ex-info-cell{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:0.3rem 0.45rem}
+.ex-info-cell b{display:block;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-bottom:0.1rem}
 .ex-info-cell span{font-size:0.7rem;color:var(--text2)}
-.ex-dot-row{display:flex;gap:6px;align-items:center;margin-top:0.55rem}
+.ex-dot-row{display:flex;gap:6px;align-items:center;margin-top:0.3rem}
 .ex-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,0.15);border:1px solid var(--border)}
 .ex-dot.done{background:var(--accent);border-color:var(--accent)}
 .ex-details,.ex-notes,.ex-equip,.ex-info-toggle,.ex-visual,.weight-row{display:none!important}
@@ -513,6 +513,27 @@ body{padding-bottom:104px}
 @media(min-width:641px){
 .timer-toggle{display:flex}
 }
+
+/* Landing lift prompt */
+.landing-lift-prompt{margin-bottom:2rem;text-align:center}
+.lift-question{font-family:var(--font-display);font-size:2rem;letter-spacing:0.06em;color:var(--text);margin-bottom:1.25rem}
+.lift-btns{display:flex;gap:1rem;justify-content:center}
+.lift-btn{padding:0.8rem 2.5rem;border-radius:14px;border:2px solid var(--border);font-family:var(--font-display);font-size:1.4rem;letter-spacing:0.08em;cursor:pointer;transition:all 0.18s}
+.lift-yes{background:var(--accent);color:#10140d;border-color:var(--accent)}
+.lift-no{background:var(--bg3);color:var(--text2);border-color:var(--border)}
+.lift-btn:active{transform:scale(0.96)}
+
+/* Settings Panel */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 0;border-bottom:1px solid var(--border)}
+.setting-row:last-of-type{border-bottom:none}
+.setting-label{font-size:0.85rem;font-weight:600;color:var(--text)}
+.setting-toggle{width:44px;height:24px;-webkit-appearance:none;appearance:none;background:var(--bg3);border:1px solid var(--border);border-radius:999px;cursor:pointer;position:relative;transition:background 0.2s;flex-shrink:0}
+.setting-toggle:checked{background:var(--accent);border-color:var(--accent)}
+.setting-toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left 0.2s}
+.setting-toggle:checked::after{left:22px}
+
+/* Compact exercise card */
+.ex-target-inline{font-size:0.78rem;font-family:var(--font-display);letter-spacing:0.04em;color:var(--accent);opacity:0.85;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -527,15 +548,15 @@ body{padding-bottom:104px}
       </div>
     </div>
     
+    <div class="landing-lift-prompt">
+      <div class="lift-question">Do you even lift bro?</div>
+      <div class="lift-btns">
+        <button class="lift-btn lift-yes" onclick="handleLandingAction('workout')">Yes</button>
+        <button class="lift-btn lift-no" onclick="handleLandingAction('progress')">No</button>
+      </div>
+    </div>
+
     <div class="landing-actions">
-      <button class="landing-btn primary" onclick="handleLandingAction('workout')">
-        <span class="icon">&#127947;</span>
-        <div class="btn-text">
-          <strong>Continue Workout</strong>
-          <span>Jump into today's session</span>
-        </div>
-      </button>
-      
       <button class="landing-btn" onclick="handleLandingAction('progress')">
         <span class="icon">&#128200;</span>
         <div class="btn-text">
@@ -543,7 +564,7 @@ body{padding-bottom:104px}
           <span>Check your weight and stats</span>
         </div>
       </button>
-      
+
       <button class="landing-btn" onclick="handleLandingAction('program')">
         <span class="icon">&#128197;</span>
         <div class="btn-text">
@@ -1497,7 +1518,8 @@ function getViewDateISO(day) {
 
     document.getElementById('weekSelect').value = state.week;
     if (state.dark) document.body.classList.add('dark');
-    
+    applySettings();
+
     // Always start on Landing Page
     showLandingPage();
     
@@ -1656,9 +1678,18 @@ async function openExerciseDetail(day, idx) {
       <div class="mini-bar-label">${w.label}</div>
     </div>`).join('');
   const steps = how.split('. ').filter(Boolean).slice(0, 6).map((step, i) => `<div class="instruction-step"><strong>${i + 1}.</strong> ${step.replace(/\.$/, '')}.</div>`).join('');
-  const sessionRows = lastSession.length ? lastSession.map((entry, i) => `
-    <tr><td>S${i + 1}</td><td>${entry.weight || '-'}</td><td>${entry.reps || '-'}</td><td>${i === 0 ? 'Moderate' : i % 2 ? 'Easy' : 'Hard'}</td></tr>
-  `).join('') : '<tr><td colspan="4">No recent set logs.</td></tr>';
+  const sortedSessionKeys = Object.keys(groupedByDate).sort();
+  const historyRows = sortedSessionKeys.slice(-10).reverse().map(dateKey => {
+    const entries = groupedByDate[dateKey];
+    const ws = entries.map(e => parseFloat(e.weight) || 0).filter(Boolean);
+    const rs = entries.map(e => parseFloat(e.reps) || 0).filter(Boolean);
+    const avgW = ws.length ? (ws.reduce((a,b)=>a+b,0)/ws.length).toFixed(1) : '-';
+    const avgR = rs.length ? Math.round(rs.reduce((a,b)=>a+b,0)/rs.length) : '-';
+    const effort = (entries.find(e => e.effort) || {}).effort || '-';
+    const d = new Date(entries[0].ts);
+    const dateStr = `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+    return `<tr><td>${dateStr}</td><td>${avgW !== '-' ? avgW + ' lbs' : '-'}</td><td>${avgR}</td><td>${effort}</td></tr>`;
+  }).join('');
   const animatedSvg = `
     <svg viewBox="0 0 360 220" role="img" aria-label="Movement animation">
       <defs>
@@ -1723,10 +1754,10 @@ async function openExerciseDetail(day, idx) {
       </div>
     </div>
     <div class="detail-card">
-      <h3>Set Log (Last Session)</h3>
+      <h3>History</h3>
       <table class="mini-table">
-        <thead><tr><th>Set</th><th>Weight</th><th>Reps</th><th>Effort</th></tr></thead>
-        <tbody>${sessionRows}</tbody>
+        <thead><tr><th>Date</th><th>Avg Weight</th><th>Avg Reps</th><th>Effort</th></tr></thead>
+        <tbody>${historyRows || '<tr><td colspan="4" style="color:var(--text3)">No history yet.</td></tr>'}</tbody>
       </table>
     </div>
     <div class="detail-card">
@@ -1877,17 +1908,19 @@ function renderDay(day) {
             <div class="ex-header">
               <div class="ex-name">
                 ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alternative</div>' : (getAlternative(ex.notes) ? '<div class="ex-swap-indicator" style="color:var(--text3);">&#9733; Sub Available</div>' : '')}
-                <div class="ex-name-row">
+                <div class="ex-name-row" style="align-items:center;flex-wrap:wrap;gap:0.3rem;">
                   <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
+                  <span class="ex-target-inline"> - ${ex.sets} x ${ex.reps}</span>
                 </div>
-                <div class="ex-target">${ex.sets} x ${ex.reps}</div>
               </div>
             </div>
             ${(() => {
               const nameToFind = s.swapped ? getAlternative(ex.notes) : ex.exercise;
               const last = getLatestHistoryEntry(nameToFind);
               const lastText = last ? `${last.weight || '-'} x ${last.reps || '-'} · ${new Date(last.ts).toLocaleDateString()}` : 'No previous data';
-              const targetText = `${s.weight || '--'} lbs x ${s.reps || ex._defaultReps} reps`;
+              const highestWeight = getHighestHistoryWeight(nameToFind);
+              const targetWeight = s.weight || (highestWeight ? String(highestWeight) : '--');
+              const targetText = `${targetWeight} lbs x ${s.reps || ex._defaultReps} reps`;
               const totalSets = Math.max(parseInt(ex.sets, 10) || 1, 1);
               const doneSets = s.done ? totalSets : 0;
               let dots = '';
@@ -2210,6 +2243,10 @@ function openSetLogger(day, idx) {
       <button class="effort-btn active" onclick="setEffort('Moderate');event.stopPropagation();">Moderate</button>
       <button class="effort-btn" onclick="setEffort('Hard');event.stopPropagation();">Hard</button>
     </div>
+    <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.75rem;color:var(--text2);margin-bottom:0.55rem;cursor:pointer;">
+      <input type="checkbox" id="enterForAllCheck" checked style="accent-color:var(--accent);width:16px;height:16px;">
+      Enter for all sets
+    </label>
     <button class="sheet-log-btn" onclick="logSetEntry();event.stopPropagation();">Log Set</button>
   `;
   document.getElementById('setSheet').classList.add('active');
@@ -2248,10 +2285,34 @@ function logSetEntry() {
   if (!currentSetLogger) return;
   const ex = (WORKOUTS[currentSetLogger.day] || [])[currentSetLogger.idx];
   if (!ex) return;
+
   setWeight(currentSetLogger.day, currentSetLogger.idx, ex.exercise, String(currentSetLogger.weight));
   setReps(currentSetLogger.day, currentSetLogger.idx, ex.exercise, String(currentSetLogger.reps));
-  if (ex.rest > 0) timerSet(ex.rest);
-  closeSetLogger();
+
+  // Store effort on the most recent history entry
+  const hist = getWorkoutHistory();
+  if (hist.length > 0) {
+    hist[hist.length - 1].effort = currentSetLogger.effort || 'Moderate';
+    saveWorkoutHistory(hist);
+  }
+
+  const enterForAllEl = document.getElementById('enterForAllCheck');
+  const enterForAll = !enterForAllEl || enterForAllEl.checked;
+
+  if (enterForAll) {
+    if (ex.rest > 0) timerSet(ex.rest);
+    closeSetLogger();
+  } else {
+    const totalSets = Math.max(parseInt(ex.sets, 10) || 1, 1);
+    if (currentSetLogger.set >= totalSets) {
+      if (ex.rest > 0) timerSet(ex.rest);
+      closeSetLogger();
+    } else {
+      currentSetLogger.set++;
+      const pills = document.getElementById('setPills');
+      if (pills) pills.innerHTML = buildSetPills(totalSets, currentSetLogger.set);
+    }
+  }
 }
 
 function toggleInfo(el) {
@@ -2750,10 +2811,72 @@ function drawWeightChart(data) {
   }
 }
 
+// ============ SETTINGS ============
+let appSettings = JSON.parse(localStorage.getItem('wt_app_settings') || '{"timer":true}');
+
+function handleSyncIndicatorClick() {
+  if (currentSyncKey) openSettings();
+  else openAuth();
+}
+
+function openSettings() {
+  document.getElementById('settingTimer').checked = appSettings.timer !== false;
+  document.getElementById('settingDark').checked = !!state.dark;
+  document.getElementById('settingsModal').classList.add('active');
+}
+
+function closeSettings() {
+  document.getElementById('settingsModal').classList.remove('active');
+}
+
+function saveSettings() {
+  appSettings.timer = document.getElementById('settingTimer').checked;
+  localStorage.setItem('wt_app_settings', JSON.stringify(appSettings));
+  applySettings();
+}
+
+function saveDarkSetting() {
+  const darkOn = document.getElementById('settingDark').checked;
+  state.dark = darkOn;
+  document.body.classList.toggle('dark', darkOn);
+  save();
+  document.getElementById('darkToggle').innerHTML = darkOn ? '&#9728;' : '&#9790;';
+}
+
+function applySettings() {
+  const timerOn = appSettings.timer !== false;
+  const timerToggle = document.getElementById('timerToggle');
+  const timerBar = document.getElementById('timerBar');
+  if (timerToggle) timerToggle.style.display = timerOn ? '' : 'none';
+  if (!timerOn && timerBar) timerBar.classList.remove('visible');
+}
+
+function getHighestHistoryWeight(exerciseName) {
+  const list = getWorkoutHistory().filter(h => h.exercise === exerciseName);
+  if (list.length === 0) return null;
+  const weights = list.map(h => parseFloat(h.weight) || 0).filter(Boolean);
+  return weights.length ? Math.max(...weights) : null;
+}
+
 // ============ START ============
 init();
 if (state.dark) document.getElementById('darkToggle').innerHTML = '&#9728;';
 </script>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="auth-card">
+    <h2 style="margin-bottom:1rem;">Settings</h2>
+    <div class="setting-row">
+      <span class="setting-label">Timer Button</span>
+      <input type="checkbox" class="setting-toggle" id="settingTimer" onchange="saveSettings()">
+    </div>
+    <div class="setting-row">
+      <span class="setting-label">Dark Mode</span>
+      <input type="checkbox" class="setting-toggle" id="settingDark" onchange="saveDarkSetting()">
+    </div>
+    <button class="reset-btn" style="margin-top:1rem;width:100%;text-align:center;" onclick="closeSettings()">Close</button>
+  </div>
+</div>
 </body>
 </html>
 
