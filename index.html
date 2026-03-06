@@ -73,8 +73,8 @@ if ('serviceWorker' in navigator) {
 .app-shell.active { display: block; }
 
 /* Auth Modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem}
-.modal-overlay.active{display:flex}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem;pointer-events:none}
+.modal-overlay.active{display:flex;pointer-events:auto}
 .auth-card{background:var(--bg2);padding:1.5rem;border-radius:var(--radius);width:100%;max-width:360px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1)}
 .auth-card h2{margin-bottom:1rem;font-size:1.2rem;font-weight:800}
 .auth-input{width:100%;padding:0.6rem;margin-bottom:0.75rem;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit}
@@ -517,8 +517,8 @@ body{padding-bottom:104px}
 /* Landing lift prompt */
 .landing-lift-prompt{margin-bottom:2rem;text-align:center}
 .lift-question{font-family:var(--font-display);font-size:2rem;letter-spacing:0.06em;color:var(--text);margin-bottom:1.25rem}
-.lift-btns{display:flex;gap:1rem;justify-content:center}
-.lift-btn{padding:0.8rem 2.5rem;border-radius:14px;border:2px solid var(--border);font-family:var(--font-display);font-size:1.4rem;letter-spacing:0.08em;cursor:pointer;transition:all 0.18s}
+.lift-btns{display:flex;flex-direction:column;gap:0.75rem;align-items:center}
+.lift-btn{padding:0.8rem 0;width:220px;border-radius:14px;border:2px solid var(--border);font-family:var(--font-display);font-size:1.4rem;letter-spacing:0.08em;cursor:pointer;transition:all 0.18s}
 .lift-yes{background:var(--accent);color:#10140d;border-color:var(--accent)}
 .lift-no{background:var(--bg3);color:var(--text2);border-color:var(--border)}
 .lift-btn:active{transform:scale(0.96)}
