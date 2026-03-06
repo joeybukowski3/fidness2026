@@ -548,12 +548,10 @@ body{padding-bottom:104px}
       </div>
     </div>
     
-    <div class="landing-lift-prompt">
-      <div class="lift-question">Do you even lift bro?</div>
-      <div class="lift-btns">
-        <button class="lift-btn lift-yes" onclick="handleLandingAction('workout')">Yes. bro</button>
-        <button class="lift-btn lift-no" onclick="handleNoLift()">No</button>
-      </div>
+    <div style="margin-bottom:2rem;text-align:center;">
+      <div style="font-family:var(--font-display);font-size:2rem;letter-spacing:0.06em;color:var(--text);margin-bottom:1.5rem;">Do you even lift bro?</div>
+      <button type="button" onclick="event.stopPropagation();handleLandingAction('workout');" style="display:block;width:220px;margin:0 auto 0.75rem;padding:0.8rem 0;border-radius:14px;border:2px solid var(--accent);background:var(--accent);color:#10140d;font-family:var(--font-display);font-size:1.4rem;letter-spacing:0.08em;cursor:pointer;">Yes. bro</button>
+      <button type="button" onclick="event.stopPropagation();handleNoLift();" style="display:block;width:220px;margin:0 auto;padding:0.8rem 0;border-radius:14px;border:2px solid var(--border);background:var(--bg3);color:var(--text2);font-family:var(--font-display);font-size:1.4rem;letter-spacing:0.08em;cursor:pointer;">No</button>
     </div>
 
     <div class="landing-actions">
