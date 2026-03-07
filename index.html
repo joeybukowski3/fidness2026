@@ -29,13 +29,14 @@ if ('serviceWorker' in navigator) {
 .landing-view {
   position: fixed; inset: 0; background: var(--bg); z-index: 500;
   display: none; align-items: center; justify-content: center; padding: 1.5rem;
+  overflow-y: auto;
 }
 .landing-view.active { display: flex; }
 .landing-content {
   width: 100%; max-width: 480px; text-align: center;
 }
 .landing-logo {
-  flex-direction: column; gap: 1rem; margin-bottom: 3rem;
+  flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;
 }
 .landing-mark {
   width: 80px; height: 80px; font-size: 2rem; border-radius: 20px;
@@ -552,24 +553,6 @@ body{padding-bottom:104px}
       <div style="font-family:var(--font-display);font-size:2rem;letter-spacing:0.06em;color:var(--text);margin-bottom:1.5rem;">Do you even lift bro?</div>
       <button type="button" onclick="event.stopPropagation();handleLandingAction('workout');" style="display:block;width:220px;margin:0 auto 0.75rem;padding:0.8rem 0;border-radius:14px;border:2px solid var(--accent);background:var(--accent);color:#10140d;font-family:var(--font-display);font-size:1.4rem;letter-spacing:0.08em;cursor:pointer;">Yes. bro</button>
       <button type="button" onclick="event.stopPropagation();handleNoLift();" style="display:block;width:220px;margin:0 auto;padding:0.8rem 0;border-radius:14px;border:2px solid var(--border);background:var(--bg3);color:var(--text2);font-family:var(--font-display);font-size:1.4rem;letter-spacing:0.08em;cursor:pointer;">No</button>
-    </div>
-
-    <div class="landing-actions">
-      <button class="landing-btn" onclick="handleLandingAction('progress')">
-        <span class="icon">&#128200;</span>
-        <div class="btn-text">
-          <strong>View Progress</strong>
-          <span>Check your weight and stats</span>
-        </div>
-      </button>
-
-      <button class="landing-btn" onclick="handleLandingAction('program')">
-        <span class="icon">&#128197;</span>
-        <div class="btn-text">
-          <strong>Change Programs</strong>
-          <span>Adjust your 6-week cycle</span>
-        </div>
-      </button>
     </div>
 
     <div class="landing-footer">
