@@ -116,7 +116,7 @@ if ('serviceWorker' in navigator) {
     <option value="1">W1</option><option value="2">W2</option><option value="3">W3</option>
     <option value="4">W4</option><option value="5">W5</option><option value="6">W6</option>
   </select>
-  <button class="timer-btn" style="background:var(--bg3); color:var(--text); padding:0.35rem; border:1px solid var(--border); font-size:1rem; display:flex; align-items:center; justify-content:center; width:36px; height:36px;" onclick="pullFromCloud();" title="Force Cloud Pull">&#9729;</button>
+  <button style="background:var(--bg3); color:var(--text); padding:0.35rem; border:1px solid var(--border); font-size:1rem; display:flex; align-items:center; justify-content:center; width:36px; height:36px;" onclick="pullFromCloud();" title="Force Cloud Pull">&#9729;</button>
   <span id="syncIndicator" class="sync-status sync-off" style="font-size:0.6rem; cursor:pointer;" onclick="handleSyncIndicatorClick()">Offline</span>
   <button class="dark-toggle" id="darkToggle" onclick="toggleDark()" title="Toggle Dark Mode" style="width:32px; height:32px; font-size:0.9rem;">&#9790;</button>
 </div>
@@ -277,20 +277,6 @@ body{overflow-x:hidden; width:100%; position:relative;}
 .weight-label{font-size:0.68rem;color:var(--text3)}
 .reps-select{padding:0.25rem 0.4rem;border:1px solid var(--border);border-radius:6px;font-size:0.78rem;font-family:inherit;background:var(--bg3);color:var(--text);text-align:center}
 
-/* Rest Timer */
-.timer-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:0.6rem 1rem;z-index:99;box-shadow:0 -2px 8px rgba(0,0,0,0.1);transform:translateY(100%);transition:transform 0.3s}
-.timer-bar.visible{transform:translateY(0)}
-.timer-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;gap:0.75rem}
-.timer-display{font-size:1.5rem;font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums;min-width:60px}
-.timer-btns{display:flex;gap:0.35rem}
-.timer-btn{padding:0.4rem 0.8rem;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:0.75rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s}
-.timer-btn:hover{border-color:var(--accent)}
-.timer-btn.go{background:var(--accent);color:#fff;border-color:var(--accent)}
-.timer-presets{display:flex;gap:0.25rem;margin-left:auto}
-.timer-preset{padding:0.3rem 0.5rem;border-radius:6px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:0.65rem;font-weight:600;cursor:pointer;font-family:inherit}
-.timer-preset:hover{border-color:var(--accent)}
-.timer-toggle{position:fixed;bottom:1rem;right:1rem;width:50px;height:50px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 12px rgba(22,163,74,0.3);z-index:98;display:flex;align-items:center;justify-content:center}
-
 /* Sunday */
 .sunday-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:0.75rem}
 .sunday-card h3{font-size:0.85rem;font-weight:700;margin-bottom:0.3rem;display:flex;align-items:center;gap:0.4rem}
@@ -411,7 +397,7 @@ body{overflow-x:hidden; width:100%; position:relative;}
 /* 2026 Visual Overhaul */
 html,body{background:var(--bg);color:var(--text);font-family:var(--font-body)}
 body{padding-bottom:104px}
-.logo-title,.landing-title,.detail-title,.wlog-stat .val,.timer-display,.progress-text,.tab,.week-select,.num-font{font-family:var(--font-display);letter-spacing:0.03em}
+.logo-title,.landing-title,.detail-title,.wlog-stat .val,.progress-text,.tab,.week-select,.num-font{font-family:var(--font-display);letter-spacing:0.03em}
 .logo-tag,.phase-header,.weight-header,.wlog-table th,.section-label{text-transform:uppercase;letter-spacing:0.18em;font-size:10px;color:var(--text3)}
 .header,.top-tabs,.tabs-wrap,.progress-bar-wrap,.program-card,.guide-content,.sunday-card,.weight-panel,.wlog-chart,.wlog-table,.wlog-stat,.detail-card,.ex-card,.landing-btn,.auth-card{border-radius:18px;border:1px solid var(--border);box-shadow:none}
 .header,.tabs-wrap,.progress-bar-wrap,.top-tabs{background:var(--bg)}
@@ -448,18 +434,6 @@ body{padding-bottom:104px}
 .ex-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,0.15);border:1px solid var(--border)}
 .ex-dot.done{background:var(--accent);border-color:var(--accent)}
 .ex-details,.ex-notes,.ex-equip,.ex-info-toggle,.ex-visual,.weight-row{display:none!important}
-
-.timer-toggle{position:fixed;bottom:88px;right:16px;width:58px;height:58px;border-radius:999px;background:linear-gradient(140deg,var(--accent),#93c241);color:#121607;border:none;box-shadow:0 10px 24px rgba(200,245,90,0.26);z-index:120;display:flex;align-items:center;justify-content:center;font-size:1.25rem}
-.timer-toggle small{position:absolute;top:62px;font-size:11px;color:var(--text3);font-family:var(--font-display);letter-spacing:0.06em}
-.timer-bar{position:fixed;left:auto;right:16px;bottom:152px;width:min(300px,calc(100vw - 32px));padding:0.65rem;border-radius:16px;border:1px solid var(--border);background:rgba(26,26,37,0.94);backdrop-filter:blur(10px);box-shadow:var(--shadow);transform:translateY(8px) scale(0.96);opacity:0;pointer-events:none}
-.timer-bar.visible{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
-.timer-inner{max-width:none;display:grid;gap:0.55rem}
-.timer-display{font-size:2rem;color:var(--accent);text-align:center;line-height:1}
-.timer-btns{display:grid;grid-template-columns:1fr 1fr;gap:0.45rem}
-.timer-btn{padding:0.5rem;font-size:0.72rem;border-radius:10px;background:var(--bg3)}
-.timer-btn.go{background:var(--accent);color:#11150c}
-.timer-presets{margin:0;display:grid;grid-template-columns:1fr 1fr;gap:0.45rem}
-.timer-preset{padding:0.45rem;font-size:0.72rem;border-radius:10px}
 
 .set-sheet{position:fixed;inset:0;display:flex;align-items:flex-end;z-index:220;background:rgba(5,5,8,0);pointer-events:none;transition:background 0.2s ease}
 .set-sheet.active{background:rgba(5,5,8,0.45);pointer-events:auto}
@@ -511,10 +485,6 @@ body{padding-bottom:104px}
 .ex-card{padding:0.65rem}
 .stepper-ctrl span{font-size:1.25rem}
 }
-@media(min-width:641px){
-.timer-toggle{display:flex}
-}
-
 /* Landing lift prompt */
 .landing-lift-prompt{margin-bottom:2rem;text-align:center}
 .lift-question{font-family:var(--font-display);font-size:2rem;letter-spacing:0.06em;color:var(--text);margin-bottom:1.25rem}
@@ -592,21 +562,6 @@ body{padding-bottom:104px}
 
 <div class="set-sheet" id="setSheet" aria-hidden="true">
   <div class="set-sheet-card" id="setSheetCard"></div>
-</div>
-
-<button class="timer-toggle home-only" id="timerToggle" onclick="showTimer()">&#9201;<small id="timerLastLabel">00:00</small></button>
-<div class="timer-bar home-only" id="timerBar">
-<div class="timer-inner">
-<div class="timer-display" id="timerDisplay">0:00</div>
-<div class="timer-btns">
-<button class="timer-btn go" id="timerStartBtn" onclick="timerStart()">Start</button>
-<button class="timer-btn" onclick="timerSet(timerSec + 30)">+30s</button>
-</div>
-<div class="timer-presets">
-<button class="timer-preset" onclick="timerReset()">Done</button>
-<button class="timer-preset" onclick="timerSkip()">Skip</button>
-</div>
-</div>
 </div>
 
 <script>
@@ -1213,8 +1168,18 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     updateSyncUI();
   }
   function getKey(day, idx) { return `w${state.week}_${day}_${idx}`; }
-  function getExState(day, idx) { return state.data[getKey(day, idx)] || { done: false, weight: '', reps: '', collapsed: false, exercise: '', swapped: false }; }
-  function setExState(day, idx, val) { state.data[getKey(day, idx)] = val; save(); }
+  function isCurrentWorkoutDay(day) {
+    return day === getTodayWeekdayName();
+  }
+  function getExState(day, idx) {
+    if (!isCurrentWorkoutDay(day)) return { done: false, weight: '', reps: '', collapsed: false, exercise: '', swapped: false };
+    return state.data[getKey(day, idx)] || { done: false, weight: '', reps: '', collapsed: false, exercise: '', swapped: false };
+  }
+  function setExState(day, idx, val) {
+    if (!isCurrentWorkoutDay(day)) return;
+    state.data[getKey(day, idx)] = val;
+    save();
+  }
 
   function getAlternative(notes) {
     if (!notes) return null;
@@ -1241,6 +1206,7 @@ let hideCompleted = JSON.parse(localStorage.getItem(HIDE_COMPLETED_KEY) || 'fals
 let showCompletedOverride = false;
 let activeWorkoutTab = state.activeWorkoutTab;
 let workoutHistory = getWorkoutHistory();
+let dailyResetTimeout = null;
 
 function setActiveTab(tab) {
   uiActiveTab = ['home', 'program', 'history'].includes(tab) ? tab : 'home';
@@ -1431,6 +1397,58 @@ function parseLocalISO(iso) {
   const [y, m, d] = iso.split('-').map(Number);
   return new Date(y, m - 1, d);
 }
+function getTodayWeekdayName() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long' });
+}
+function resetDailyWorkoutState(nowISO = formatLocalISO(new Date())) {
+  console.log('New day detected. Resetting daily workout data.');
+  state.data = {};
+  state.ui.phaseCollapsed = {};
+  state.activeWorkoutTab = 'pre';
+  activeWorkoutTab = 'pre';
+  showCompletedOverride = false;
+  state.lastAccessedDate = nowISO;
+  const todayName = getTodayWeekdayName();
+  if (WEEK_DAYS.includes(todayName)) {
+    state.day = todayName;
+  }
+  save();
+}
+function pruneWorkoutStateToCurrentDay() {
+  const todayName = getTodayWeekdayName();
+  Object.keys(state.data).forEach(key => {
+    const match = key.match(/^w\d+_(.+)_\d+$/);
+    if (!match) return;
+    if (match[1] !== todayName) delete state.data[key];
+  });
+}
+function ensureDailyWorkoutState() {
+  const nowISO = formatLocalISO(new Date());
+  if (state.lastAccessedDate === nowISO) return false;
+  resetDailyWorkoutState(nowISO);
+  return true;
+}
+function refreshActiveView() {
+  renderTabs();
+  if (uiActiveTab === 'program') {
+    renderProgram();
+  } else if (uiActiveTab === 'history') {
+    renderHistory();
+  } else {
+    renderDay(state.day);
+  }
+  updateWeekHeader();
+}
+function scheduleDailyReset() {
+  if (dailyResetTimeout) clearTimeout(dailyResetTimeout);
+  const now = new Date();
+  const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  const delay = Math.max(nextMidnight.getTime() - now.getTime(), 1000);
+  dailyResetTimeout = setTimeout(() => {
+    if (ensureDailyWorkoutState()) refreshActiveView();
+    scheduleDailyReset();
+  }, delay);
+}
 function getViewDateISO(day) {
   const dayIndex = WEEK_DAYS.indexOf(day);
   if (dayIndex < 0) return formatLocalISO(new Date());
@@ -1468,29 +1486,15 @@ function getViewDateISO(day) {
   // ============ INIT ============
   function init() {
     initSupabase();
-    const nowISO = formatLocalISO(new Date());
-    const dateChanged = state.lastAccessedDate !== nowISO;
-    
-    if (dateChanged) {
-      // MIDNIGHT RESET: Clear workout logs for a fresh day
-      console.log("New day detected! Resetting daily workout data...");
-      state.data = {}; 
-      
-      state.activeWorkoutTab = 'pre';
-      activeWorkoutTab = 'pre';
-      state.lastAccessedDate = nowISO;
-      const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
-      if (WEEK_DAYS.includes(todayName)) {
-        state.day = todayName;
-      }
-      save(); // Save fresh state
-    }
+    const resetToday = ensureDailyWorkoutState();
+    pruneWorkoutStateToCurrentDay();
+    if (!resetToday) save();
 
     const progress = getProgramProgress();
     if (progress.started && !progress.finished) {
       state.week = progress.week;
     } else {
-      const todayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+      const todayName = getTodayWeekdayName();
       if (WEEK_DAYS.includes(todayName) && !state.day) {
         state.day = todayName;
       }
@@ -1499,8 +1503,6 @@ function getViewDateISO(day) {
 
     document.getElementById('weekSelect').value = state.week;
     if (state.dark) document.body.classList.add('dark');
-    applySettings();
-
     // Always start on Landing Page
     showLandingPage();
     
@@ -1508,7 +1510,6 @@ function getViewDateISO(day) {
     renderDay(state.day);
     renderProgram();
     updateWeekHeader();
-    updateTimerDisplay();
     setActiveTab(uiActiveTab);
     const sheet = document.getElementById('setSheet');
     if (sheet) {
@@ -1516,9 +1517,21 @@ function getViewDateISO(day) {
         if (e.target.id === 'setSheet') closeSetLogger();
       });
     }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        if (ensureDailyWorkoutState()) refreshActiveView();
+        scheduleDailyReset();
+      }
+    });
+    window.addEventListener('focus', () => {
+      if (ensureDailyWorkoutState()) refreshActiveView();
+      scheduleDailyReset();
+    });
+    scheduleDailyReset();
   }
   
   function renderTabs() {
+    ensureDailyWorkoutState();
     const t = document.getElementById('tabs');
     t.innerHTML = DAYS.map(d => {
       let label = d === 'Weight Log' ? '&#9878; Weight' : d.slice(0, 3);
@@ -1823,6 +1836,7 @@ function toggleDetailGuide(mode) {
 }
 
 function renderDay(day) {
+  if (ensureDailyWorkoutState()) day = state.day;
   const c = document.getElementById('content');
   if (day === 'Weight Log') { renderWeightLog(c); updateProgress(day); return; }
 
@@ -2281,12 +2295,10 @@ function logSetEntry() {
   const enterForAll = !enterForAllEl || enterForAllEl.checked;
 
   if (enterForAll) {
-    if (ex.rest > 0) timerSet(ex.rest);
     closeSetLogger();
   } else {
     const totalSets = Math.max(parseInt(ex.sets, 10) || 1, 1);
     if (currentSetLogger.set >= totalSets) {
-      if (ex.rest > 0) timerSet(ex.rest);
       closeSetLogger();
     } else {
       currentSetLogger.set++;
@@ -2371,39 +2383,6 @@ function updateWeekHeader() {
 function setWeek(w) { state.week = parseInt(w); showCompletedOverride = false; save(); renderTabs(); renderDay(state.day); updateWeekHeader(); }
 function toggleDark() { state.dark = !state.dark; document.body.classList.toggle('dark'); save(); document.getElementById('darkToggle').innerHTML = state.dark ? '&#9728;' : '&#9790;'; }
 function resetWeek() { const prefix = `w${state.week}_`; Object.keys(state.data).forEach(k => { if (k.startsWith(prefix)) delete state.data[k]; }); save(); renderTabs(); renderDay(state.day); updateWeekHeader(); }
-
-// ============ TIMER ============
-let timerSec = 0, timerRunning = false, timerInterval = null, lastRestSec = 0;
-function timerSet(s) { timerSec = Math.max(0, parseInt(s, 10) || 0); if (timerSec > 0) lastRestSec = timerSec; timerRunning = false; clearInterval(timerInterval); updateTimerDisplay(); showTimer(true); }
-function timerStart() {
-  if (timerRunning) { timerRunning = false; clearInterval(timerInterval); document.getElementById('timerStartBtn').innerText = 'Start'; return; }
-  if (timerSec <= 0) timerSec = 60;
-  timerRunning = true;
-  showTimer(true);
-  document.getElementById('timerStartBtn').innerText = 'Pause';
-  timerInterval = setInterval(() => {
-    timerSec--;
-    updateTimerDisplay();
-    if (timerSec <= 0) { clearInterval(timerInterval); timerRunning = false; document.getElementById('timerStartBtn').innerText = 'Start'; try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch(e){} }
-  }, 1000);
-}
-function timerReset() { clearInterval(timerInterval); timerSec = 0; timerRunning = false; updateTimerDisplay(); document.getElementById('timerStartBtn').innerText = 'Start'; showTimer(false); }
-function timerSkip() { clearInterval(timerInterval); timerRunning = false; timerSec = 0; updateTimerDisplay(); document.getElementById('timerStartBtn').innerText = 'Start'; showTimer(false); }
-function formatTimer(seconds) { const m = Math.floor(seconds / 60); const s = seconds % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
-function updateTimerDisplay() {
-  const formatted = formatTimer(timerSec);
-  document.getElementById('timerDisplay').innerText = formatted;
-  const label = document.getElementById('timerLastLabel');
-  if (label) label.innerText = formatTimer(lastRestSec || timerSec);
-}
-function showTimer(forceOpen) {
-  const el = document.getElementById('timerBar');
-  if (typeof forceOpen === 'boolean') {
-    el.classList.toggle('visible', forceOpen);
-  } else {
-    el.classList.toggle('visible');
-  }
-}
 
 // ============ PROGRAM GUIDE HTML ============
 const GUIDE_HTML = `
@@ -2793,8 +2772,6 @@ function drawWeightChart(data) {
 }
 
 // ============ SETTINGS ============
-let appSettings = JSON.parse(localStorage.getItem('wt_app_settings') || '{"timer":true}');
-
 function handleNoLift() {
   document.getElementById('clutchScreen').classList.add('active');
 }
@@ -2809,7 +2786,6 @@ function handleSyncIndicatorClick() {
 }
 
 function openSettings() {
-  document.getElementById('settingTimer').checked = appSettings.timer !== false;
   document.getElementById('settingDark').checked = !!state.dark;
   document.getElementById('settingsModal').classList.add('active');
 }
@@ -2818,26 +2794,12 @@ function closeSettings() {
   document.getElementById('settingsModal').classList.remove('active');
 }
 
-function saveSettings() {
-  appSettings.timer = document.getElementById('settingTimer').checked;
-  localStorage.setItem('wt_app_settings', JSON.stringify(appSettings));
-  applySettings();
-}
-
 function saveDarkSetting() {
   const darkOn = document.getElementById('settingDark').checked;
   state.dark = darkOn;
   document.body.classList.toggle('dark', darkOn);
   save();
   document.getElementById('darkToggle').innerHTML = darkOn ? '&#9728;' : '&#9790;';
-}
-
-function applySettings() {
-  const timerOn = appSettings.timer !== false;
-  const timerToggle = document.getElementById('timerToggle');
-  const timerBar = document.getElementById('timerBar');
-  if (timerToggle) timerToggle.style.display = timerOn ? '' : 'none';
-  if (!timerOn && timerBar) timerBar.classList.remove('visible');
 }
 
 function getHighestHistoryWeight(exerciseName) {
@@ -2862,10 +2824,6 @@ if (state.dark) document.getElementById('darkToggle').innerHTML = '&#9728;';
 <div class="modal-overlay" id="settingsModal">
   <div class="auth-card">
     <h2 style="margin-bottom:1rem;">Settings</h2>
-    <div class="setting-row">
-      <span class="setting-label">Timer Button</span>
-      <input type="checkbox" class="setting-toggle" id="settingTimer" onchange="saveSettings()">
-    </div>
     <div class="setting-row">
       <span class="setting-label">Dark Mode</span>
       <input type="checkbox" class="setting-toggle" id="settingDark" onchange="saveDarkSetting()">
