@@ -76,6 +76,17 @@ if ('serviceWorker' in navigator) {
 /* Auth Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem;pointer-events:none}
 .modal-overlay.active{display:flex;pointer-events:auto}
+.celebration-overlay{z-index:1200;overflow:hidden}
+.celebration-card{position:relative;z-index:2;text-align:center;padding:2rem 1.5rem;max-width:420px;width:min(100%,420px)}
+.celebration-title{font-family:var(--font-display);font-size:1.6rem;letter-spacing:0.05em;color:var(--text);line-height:1.25}
+.celebration-sub{margin-top:0.75rem;color:var(--text2);font-size:0.82rem}
+.confetti-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.confetti-piece{position:absolute;top:-12vh;left:50%;width:12px;height:18px;border-radius:3px;opacity:0.95;transform:translate3d(0,0,0) rotate(0deg);animation:confetti-burst 1700ms cubic-bezier(.12,.8,.22,1) forwards}
+@keyframes confetti-burst{
+  0%{transform:translate3d(0,0,0) rotate(0deg) scale(0.8);opacity:0}
+  8%{opacity:1}
+  100%{transform:translate3d(var(--tx),115vh,0) rotate(var(--rot)) scale(1);opacity:0}
+}
 .auth-card{background:var(--bg2);padding:1.5rem;border-radius:var(--radius);width:100%;max-width:360px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1)}
 .auth-card h2{margin-bottom:1rem;font-size:1.2rem;font-weight:800}
 .auth-input{width:100%;padding:0.6rem;margin-bottom:0.75rem;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit}
@@ -831,6 +842,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   if (!state.ui) state.ui = {};
   if (!state.ui.phaseCollapsed) state.ui.phaseCollapsed = {};
   if (!state.ui.bwCollapsedDate) state.ui.bwCollapsedDate = '';
+  if (!state.ui.completedCelebrations) state.ui.completedCelebrations = {};
   if (!state.activeWorkoutTab) state.activeWorkoutTab = 'pre';
   if (!state.lastAccessedDate) state.lastAccessedDate = '';
   const WEEK_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
@@ -1181,6 +1193,14 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     save();
   }
 
+  function markExerciseCompleteFromLog(day, idx, exerciseState) {
+    const s = exerciseState || getExState(day, idx);
+    if (s.done) return s;
+    s.done = true;
+    s.collapsed = true;
+    return s;
+  }
+
   function getAlternative(notes) {
     if (!notes) return null;
     const match = notes.match(/SUB:\s*([^.]+)/i);
@@ -1404,6 +1424,7 @@ function resetDailyWorkoutState(nowISO = formatLocalISO(new Date())) {
   console.log('New day detected. Resetting daily workout data.');
   state.data = {};
   state.ui.phaseCollapsed = {};
+  state.ui.completedCelebrations = {};
   state.activeWorkoutTab = 'pre';
   activeWorkoutTab = 'pre';
   showCompletedOverride = false;
@@ -2162,6 +2183,7 @@ function setWeight(day, idx, name, val) {
   s.weight = val;
   s.exercise = name || s.exercise;
   s.lastUpdated = new Date().toISOString();
+  if (String(val || '').trim()) markExerciseCompleteFromLog(day, idx, s);
   setExState(day, idx, s);
   logWorkoutHistory(s.exercise, s.weight, s.reps);
   save(); // Sync cloud
@@ -2172,6 +2194,7 @@ function setReps(day, idx, name, val) {
   s.reps = val;
   s.exercise = name || s.exercise;
   s.lastUpdated = new Date().toISOString();
+  if (String(val || '').trim()) markExerciseCompleteFromLog(day, idx, s);
   setExState(day, idx, s);
   logWorkoutHistory(s.exercise, s.weight, s.reps);
   save(); // Sync cloud
@@ -2308,6 +2331,58 @@ function logSetEntry() {
   }
 }
 
+function getWorkoutCelebrationKey(day) {
+  return `${formatLocalISO(new Date())}|w${state.week}|${day}`;
+}
+
+function hasShownWorkoutCelebration(day) {
+  return !!state.ui.completedCelebrations[getWorkoutCelebrationKey(day)];
+}
+
+function setWorkoutCelebrationShown(day) {
+  state.ui.completedCelebrations[getWorkoutCelebrationKey(day)] = true;
+  save();
+}
+
+function closeCelebrationModal() {
+  const modal = document.getElementById('completionCelebration');
+  if (modal) modal.classList.remove('active');
+}
+
+function fireConfettiBurst() {
+  const layer = document.getElementById('confettiLayer');
+  if (!layer) return;
+  layer.innerHTML = '';
+  const colors = ['#c8f55a','#5af5c8','#facc15','#fb7185','#60a5fa','#ffffff'];
+  for (let i = 0; i < 140; i++) {
+    const piece = document.createElement('span');
+    piece.className = 'confetti-piece';
+    const tx = `${Math.round((Math.random() - 0.5) * 120)}vw`;
+    const rot = `${Math.round((Math.random() - 0.5) * 1080)}deg`;
+    piece.style.setProperty('--tx', tx);
+    piece.style.setProperty('--rot', rot);
+    piece.style.left = `${20 + Math.random() * 60}%`;
+    piece.style.animationDelay = `${Math.random() * 180}ms`;
+    piece.style.animationDuration = `${1400 + Math.random() * 900}ms`;
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.width = `${8 + Math.random() * 8}px`;
+    piece.style.height = `${12 + Math.random() * 12}px`;
+    layer.appendChild(piece);
+  }
+  setTimeout(() => {
+    if (layer) layer.innerHTML = '';
+  }, 2800);
+}
+
+function showWorkoutCompletionCelebration(day) {
+  if (!isCurrentWorkoutDay(day) || hasShownWorkoutCelebration(day)) return;
+  setWorkoutCelebrationShown(day);
+  const modal = document.getElementById('completionCelebration');
+  if (!modal) return;
+  fireConfettiBurst();
+  modal.classList.add('active');
+}
+
 function toggleInfo(el) {
   el.classList.toggle('open');
   const box = el.nextElementSibling;
@@ -2327,6 +2402,7 @@ function updateProgress(day) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressText').innerText = `${done}/${total} exercises`;
+  if (total > 0 && done === total) showWorkoutCompletionCelebration(day);
 }
 
 function getWeekStartDate() {
@@ -2818,6 +2894,15 @@ if (state.dark) document.getElementById('darkToggle').innerHTML = '&#9728;';
   <div class="auth-card" style="text-align:center;padding:2rem 1.5rem;">
     <div style="font-family:var(--font-display);font-size:1.6rem;letter-spacing:0.05em;color:var(--text);margin-bottom:1.5rem;line-height:1.3;">Wow clutch up then, innit?</div>
     <button class="auth-btn" style="margin-bottom:0;" onclick="closeClutchScreen()">OK</button>
+  </div>
+</div>
+
+<div class="modal-overlay celebration-overlay" id="completionCelebration">
+  <div class="confetti-layer" id="confettiLayer"></div>
+  <div class="auth-card celebration-card">
+    <div class="celebration-title">Watch out, Swoll Boys coming through</div>
+    <div class="celebration-sub">Main workout complete for today.</div>
+    <button class="auth-btn" style="margin-top:1.25rem;margin-bottom:0;" onclick="closeCelebrationModal()">Let&apos;s go</button>
   </div>
 </div>
 
