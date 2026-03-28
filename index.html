@@ -72,6 +72,13 @@ if ('serviceWorker' in navigator) {
 }
 .app-shell { display: none; }
 .app-shell.active { display: block; }
+.version-badge{
+  position:fixed;bottom:10px;left:50%;transform:translateX(-50%);
+  z-index:2500;padding:0.35rem 0.7rem;border-radius:999px;
+  background:rgba(10,10,15,0.88);border:1px solid var(--border);
+  color:var(--text3);font-size:0.68rem;font-weight:700;letter-spacing:0.08em;
+  backdrop-filter:blur(8px);pointer-events:none;
+}
 
 /* Auth Modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem;pointer-events:none}
@@ -577,6 +584,7 @@ body{padding-bottom:104px}
 </div>
 
 <script>
+const APP_VERSION = 'v2026.03.28-1';
 // ============ WORKOUT DATA ============
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','Weight Log'];
 const WORKOUTS = {
@@ -1505,8 +1513,14 @@ function getViewDateISO(day) {
     }
   }
 
+  function renderVersionBadge() {
+    const badge = document.getElementById('appVersionBadge');
+    if (badge) badge.textContent = `Version ${APP_VERSION}`;
+  }
+
   // ============ INIT ============
   function init() {
+    renderVersionBadge();
     initSupabase();
     const resetToday = ensureDailyWorkoutState();
     pruneWorkoutStateToCurrentDay();
@@ -2897,6 +2911,8 @@ if (state.dark) document.getElementById('darkToggle').innerHTML = '&#9728;';
     <button class="auth-btn" style="margin-bottom:0;" onclick="closeClutchScreen()">OK</button>
   </div>
 </div>
+
+<div class="version-badge" id="appVersionBadge">Version</div>
 
 <div class="modal-overlay celebration-overlay" id="completionCelebration">
   <div class="confetti-layer" id="confettiLayer"></div>
