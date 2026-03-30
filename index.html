@@ -470,6 +470,7 @@ body{padding-bottom:104px}
 .stepper-ctrl{display:flex;align-items:center;justify-content:space-between;gap:0.35rem}
 .stepper-ctrl button{width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:#0f0f18;color:var(--text);font-size:1.05rem}
 .stepper-ctrl span{font-size:1.4rem;font-family:var(--font-display)}
+.stepper-select{width:100%;height:42px;border-radius:10px;border:1px solid var(--border);background:#0f0f18;color:var(--text);font-size:1rem;font-family:var(--font-display);padding:0 0.75rem}
 .effort-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0.4rem;margin-bottom:0.75rem}
 .effort-btn{border:1px solid var(--border);background:var(--bg3);color:var(--text2);padding:0.45rem;border-radius:12px;font-size:0.7rem}
 .effort-btn.active{border-color:var(--accent2);color:var(--accent2)}
@@ -1949,8 +1950,8 @@ function renderDay(day) {
               const nameToFind = s.swapped ? getAlternative(ex.notes) : ex.exercise;
               const last = getLatestHistoryEntry(nameToFind);
               const lastText = last ? `${last.weight || '-'} x ${last.reps || '-'} · ${new Date(last.ts).toLocaleDateString()}` : 'No previous data';
-              const highestWeight = getHighestHistoryWeight(nameToFind);
-              const targetWeight = s.weight || (highestWeight ? String(highestWeight) : '--');
+              const previousWeight = getPreviousExerciseWeight(nameToFind);
+              const targetWeight = s.weight || (previousWeight !== null ? formatWeightOption(previousWeight) : '--');
               const targetText = `${targetWeight} lbs x ${s.reps || ex._defaultReps} reps`;
               const totalSets = Math.max(parseInt(ex.sets, 10) || 1, 1);
               const doneSets = s.done ? totalSets : 0;
@@ -2222,6 +2223,46 @@ function parseDefaultRepValue(repText) {
   return match ? parseInt(match[0], 10) : 10;
 }
 
+function formatWeightOption(weight) {
+  return Number.isInteger(weight) ? String(weight) : weight.toFixed(1).replace(/\.0$/, '');
+}
+
+function getPreviousExerciseWeight(exerciseName) {
+  if (!exerciseName) return null;
+  const list = getWorkoutHistory();
+  for (let i = list.length - 1; i >= 0; i--) {
+    const entry = list[i];
+    if (entry.exercise !== exerciseName) continue;
+    const weight = parseFloat(entry.weight);
+    if (Number.isFinite(weight) && weight >= 0) return weight;
+  }
+  return null;
+}
+
+function buildWeightOptionsHtml(selectedWeight) {
+  const seen = new Set();
+  const options = [];
+  const addWeight = weight => {
+    const normalized = Math.round(weight * 10) / 10;
+    if (normalized < 0 || seen.has(normalized)) return;
+    seen.add(normalized);
+    options.push(normalized);
+  };
+
+  for (let weight = 0; weight <= 200; weight += 5) addWeight(weight);
+  for (let weight = 205; weight <= 500; weight += 10) addWeight(weight);
+  for (let weight = 520; weight <= 1000; weight += 20) addWeight(weight);
+
+  if (Number.isFinite(selectedWeight)) addWeight(selectedWeight);
+
+  options.sort((a, b) => a - b);
+
+  return options.map(weight => {
+    const value = formatWeightOption(weight);
+    return `<option value="${value}"${weight === selectedWeight ? ' selected' : ''}>${value} lbs</option>`;
+  }).join('');
+}
+
 function buildSetPills(sets, selected) {
   let pills = '';
   for (let i = 1; i <= sets; i++) {
@@ -2236,10 +2277,12 @@ function openSetLogger(day, idx) {
   const s = getExState(day, idx);
   const exName = s.swapped ? getAlternative(ex.notes) : ex.exercise;
   const last = getLatestHistoryEntry(exName);
+  const previousWeight = getPreviousExerciseWeight(exName);
   const sets = Math.max(parseInt(ex.sets, 10) || 1, 1);
+  const initialWeight = previousWeight ?? (parseFloat(s.weight || 0) || 0);
   currentSetLogger = {
     day, idx, set: 1, effort: 'Moderate',
-    weight: parseFloat(s.weight || 0) || 0,
+    weight: initialWeight,
     reps: parseInt(s.reps || parseDefaultRepValue(ex.reps), 10) || parseDefaultRepValue(ex.reps)
   };
   const reminder = last ? `${last.weight || '-'} lbs x ${last.reps || '-'} reps on ${new Date(last.ts).toLocaleDateString()}` : 'No previous entry';
@@ -2256,11 +2299,9 @@ function openSetLogger(day, idx) {
     <div class="stepper-row">
       <div class="stepper">
         <h4>Weight</h4>
-        <div class="stepper-ctrl">
-          <button onclick="adjustSetField('weight',-5);event.stopPropagation();">-</button>
-          <span id="sheetWeight">${currentSetLogger.weight}</span>
-          <button onclick="adjustSetField('weight',5);event.stopPropagation();">+</button>
-        </div>
+        <select id="sheetWeightSelect" class="stepper-select" onchange="setSheetWeight(this.value);event.stopPropagation();">
+          ${buildWeightOptionsHtml(currentSetLogger.weight)}
+        </select>
       </div>
       <div class="stepper">
         <h4>Reps</h4>
@@ -2304,8 +2345,18 @@ function selectSetPill(num) {
 function adjustSetField(field, delta) {
   if (!currentSetLogger) return;
   currentSetLogger[field] = Math.max(field === 'weight' ? 0 : 1, (currentSetLogger[field] || 0) + delta);
-  document.getElementById('sheetWeight').innerText = currentSetLogger.weight;
+  const weightSelect = document.getElementById('sheetWeightSelect');
+  if (weightSelect) {
+    weightSelect.innerHTML = buildWeightOptionsHtml(currentSetLogger.weight);
+    weightSelect.value = formatWeightOption(currentSetLogger.weight);
+  }
   document.getElementById('sheetReps').innerText = currentSetLogger.reps;
+}
+
+function setSheetWeight(val) {
+  if (!currentSetLogger) return;
+  const parsed = parseFloat(val);
+  currentSetLogger.weight = Number.isFinite(parsed) ? parsed : 0;
 }
 
 function setEffort(level) {
