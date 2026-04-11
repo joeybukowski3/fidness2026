@@ -16,10 +16,15 @@
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js?v=2').then(reg => {
-      console.log('SW Registered!', reg);
-    }).catch(err => {
-      console.log('SW Reg Failed:', err);
+    Promise.all([
+      navigator.serviceWorker.getRegistrations().then(regs => Promise.all(regs.map(reg => reg.unregister()))),
+      caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))))
+    ]).finally(() => {
+      navigator.serviceWorker.register('./sw.js?v=4').then(reg => {
+        console.log('SW Registered!', reg);
+      }).catch(err => {
+        console.log('SW Reg Failed:', err);
+      });
     });
   });
 }
@@ -584,8 +589,9 @@ body{padding-bottom:104px}
   <div class="set-sheet-card" id="setSheetCard"></div>
 </div>
 
+<script src="js/program-data.js?v=3"></script>
 <script>
-const APP_VERSION = 'v2026.03.28-1';
+const APP_VERSION = 'v2026.04.11-2';
 // ============ WORKOUT DATA ============
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','Weight Log'];
 const WORKOUTS = {
@@ -727,6 +733,70 @@ Sunday: [
 {phase:'Optional',activity:'Contrast Shower',duration:'5 min',notes:'Alternate hot (2 min) and cold (1 min) - end on cold'}
 ]
 };
+const { PROGRAMS, PROGRAM_GUIDES, PROGRAM_TEMPLATES } = buildProgramData(WORKOUTS);
+
+function getProgramTemplate(id = null) {
+  const programId = id || state.programId || PROGRAMS[0].id;
+  return PROGRAM_TEMPLATES[programId] || null;
+}
+
+function getProgramWeekData(programId = null, week = null) {
+  const activeProgramId = programId || state.programId || PROGRAMS[0].id;
+  const activeWeek = parseInt(week || state.week || 1, 10);
+  const template = getProgramTemplate(activeProgramId);
+  if (template && template.weeks && template.weeks[activeWeek]) return template.weeks[activeWeek];
+  return null;
+}
+
+function getWorkoutsForDay(day, programId = null, week = null) {
+  const weekData = getProgramWeekData(programId, week);
+  if (weekData && Object.prototype.hasOwnProperty.call(weekData, day)) return weekData[day];
+  return WORKOUTS[day] || [];
+}
+
+function getExerciseForDayIndex(day, idx, programId = null, week = null) {
+  return getWorkoutsForDay(day, programId, week)[idx];
+}
+
+function getAllProgramExercises(programId = null) {
+  const activeProgramId = programId || state.programId || PROGRAMS[0].id;
+  const template = getProgramTemplate(activeProgramId);
+  if (!template || !template.weeks) return [];
+  const seen = new Set();
+  const items = [];
+  Object.keys(template.weeks).forEach(weekKey => {
+    const weekData = template.weeks[weekKey] || {};
+    WEEK_DAYS.forEach(day => {
+      (weekData[day] || []).forEach((entry, idx) => {
+        if (!entry || !entry.exercise) return;
+        if (seen.has(entry.exercise)) return;
+        seen.add(entry.exercise);
+        items.push({ name: entry.exercise, day, idx, week: parseInt(weekKey, 10) });
+      });
+    });
+  });
+  return items;
+}
+
+function refreshWeekSelectOptions() {
+  const el = document.getElementById('weekSelect');
+  if (!el) return;
+  const activeProgram = PROGRAMS.find(p => p.id === (state.programId || PROGRAMS[0].id)) || PROGRAMS[0];
+  const maxWeeks = activeProgram.weeks || 1;
+  if (state.week > maxWeeks) state.week = maxWeeks;
+  if (state.week < 1) state.week = 1;
+  el.innerHTML = Array.from({ length: maxWeeks }, (_, idx) => {
+    const weekNumber = idx + 1;
+    return `<option value="${weekNumber}">W${weekNumber}</option>`;
+  }).join('');
+  el.value = String(state.week);
+}
+
+function isTrackableWorkoutExercise(ex) {
+  if (!ex || !ex.exercise) return false;
+  const phase = (ex.phase || '').toLowerCase();
+  return !phase.includes('stretch') && !phase.includes('bonus');
+}
 
 // ============ EXERCISE DESCRIPTIONS ============
 const EX_DESC = {
@@ -856,11 +926,10 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   if (!state.activeWorkoutTab) state.activeWorkoutTab = 'pre';
   if (!state.lastAccessedDate) state.lastAccessedDate = '';
   const WEEK_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const PROGRAMS = [
-    { id: 'golf-6week', name: 'Golf Training 6-Week Cycle', weeks: 6 },
-    { id: 'strength-4week', name: 'Strength & Mobility 4-Week', weeks: 4 }
-  ];
   if (!state.programId) state.programId = PROGRAMS[0].id;
+  if (!state.defaultProgramId) state.defaultProgramId = state.programId || PROGRAMS[0].id;
+  if (!PROGRAMS.find(p => p.id === state.defaultProgramId)) state.defaultProgramId = PROGRAMS[0].id;
+  state.programId = state.defaultProgramId;
   if (!state.programStarts) state.programStarts = {};
 
   // MIGRATION: Move old history/weight logs into state if they exist
@@ -1189,13 +1258,14 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     localStorage.removeItem('wt_sync_key');
     updateSyncUI();
   }
-  function getKey(day, idx) { return `w${state.week}_${day}_${idx}`; }
+  function getKey(day, idx, programId = getActiveProgramId()) { return `w${state.week}_${programId}_${day}_${idx}`; }
+  function getLegacyKey(day, idx) { return `w${state.week}_${day}_${idx}`; }
   function isCurrentWorkoutDay(day) {
     return day === getTodayWeekdayName();
   }
   function getExState(day, idx) {
     if (!isCurrentWorkoutDay(day)) return { done: false, weight: '', reps: '', collapsed: false, exercise: '', swapped: false };
-    return state.data[getKey(day, idx)] || { done: false, weight: '', reps: '', collapsed: false, exercise: '', swapped: false };
+    return state.data[getKey(day, idx)] || state.data[getLegacyKey(day, idx)] || { done: false, weight: '', reps: '', collapsed: false, exercise: '', swapped: false };
   }
   function setExState(day, idx, val) {
     if (!isCurrentWorkoutDay(day)) return;
@@ -1219,7 +1289,8 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
 
   function toggleSwap(day, idx) {
     const s = getExState(day, idx);
-    const ex = (WORKOUTS[day] || [])[idx];
+    const ex = getExerciseForDayIndex(day, idx);
+    if (!ex) return;
     if (!getAlternative(ex.notes)) return;
     s.swapped = !s.swapped;
     setExState(day, idx, s);
@@ -1304,7 +1375,7 @@ function fullReset() {
 function shareWorkout() {
   const day = state.day;
   if (day === 'Weight Log') { alert('Select a workout day to share.'); return; }
-  const exercises = WORKOUTS[day] || [];
+  const exercises = getWorkoutsForDay(day);
   let text = `My ${day} Workout (Week ${state.week}):\n\n`;
   exercises.forEach(ex => {
     const s = getExState(day, exercises.indexOf(ex));
@@ -1327,7 +1398,7 @@ function toggleShowCompleted() {
 }
 
 function getPhaseKey(day, phase) {
-  return `${state.week}|${day}|${phase}`;
+  return `${getActiveProgramId()}|${state.week}|${day}|${phase}`;
 }
 function isPhaseCollapsed(day, phase) {
   return !!state.ui.phaseCollapsed[getPhaseKey(day, phase)];
@@ -1407,7 +1478,7 @@ function getActiveProgram() {
   return PROGRAMS.find(p => p.id === state.programId) || PROGRAMS[0];
 }
 function getActiveProgramId() {
-  return state.programId || 'no-program';
+  return state.programId || PROGRAMS[0].id;
 }
 function getProgramStartISO(id = getActiveProgramId()) {
   return (state.programStarts && state.programStarts[id]) || '';
@@ -1448,9 +1519,14 @@ function resetDailyWorkoutState(nowISO = formatLocalISO(new Date())) {
 function pruneWorkoutStateToCurrentDay() {
   const todayName = getTodayWeekdayName();
   Object.keys(state.data).forEach(key => {
-    const match = key.match(/^w\d+_(.+)_\d+$/);
-    if (!match) return;
-    if (match[1] !== todayName) delete state.data[key];
+    const newMatch = key.match(/^w\d+_[^_]+_(.+)_\d+$/);
+    if (newMatch) {
+      if (newMatch[1] !== todayName) delete state.data[key];
+      return;
+    }
+    const legacyMatch = key.match(/^w\d+_(.+)_\d+$/);
+    if (!legacyMatch) return;
+    if (legacyMatch[1] !== todayName) delete state.data[key];
   });
 }
 function ensureDailyWorkoutState() {
@@ -1538,7 +1614,7 @@ function getViewDateISO(day) {
     }
     save();
 
-    document.getElementById('weekSelect').value = state.week;
+    refreshWeekSelectOptions();
     if (state.dark) document.body.classList.add('dark');
     // Always start on Landing Page
     showLandingPage();
@@ -1567,16 +1643,17 @@ function getViewDateISO(day) {
     scheduleDailyReset();
   }
   
-  function renderTabs() {
-    ensureDailyWorkoutState();
-    const t = document.getElementById('tabs');
-    t.innerHTML = DAYS.map(d => {
+function renderTabs() {
+  ensureDailyWorkoutState();
+  const t = document.getElementById('tabs');
+  t.innerHTML = DAYS.map(d => {
       let label = d === 'Weight Log' ? '&#9878; Weight' : d.slice(0, 3);
       const isActive = state.day === d ? ' active' : '';
       let check = '';
-      if (d !== 'Sunday' && d !== 'Weight Log' && WORKOUTS[d]) {
-        const total = WORKOUTS[d].filter(e => e.phase === 'Main Workout').length;
-        const done = WORKOUTS[d].filter((e, i) => e.phase === 'Main Workout' && getExState(d, i).done).length;
+      const dayWorkouts = getWorkoutsForDay(d);
+      if (d !== 'Sunday' && d !== 'Weight Log' && dayWorkouts.length > 0) {
+        const total = dayWorkouts.filter(isTrackableWorkoutExercise).length;
+        const done = dayWorkouts.filter((e, i) => isTrackableWorkoutExercise(e) && getExState(d, i).done).length;
         if (total > 0 && done === total) check = '<span class="tab-check">&#10003;</span>';
       }
     return `<button class="tab${isActive}" onclick="switchDay('${d}')">${label}${check}</button>`;
@@ -1645,8 +1722,8 @@ function getLatestHistoryEntry(exercise) {
   return list[list.length - 1];
 }
 
-async function openExerciseDetail(day, idx) {
-  const ex = (WORKOUTS[day] || [])[idx];
+async function openExerciseDetail(day, idx, week = state.week, programId = getActiveProgramId()) {
+  const ex = getExerciseForDayIndex(day, idx, programId, week);
   if (!ex) return;
   const s = getExState(day, idx);
   const exName = s.swapped ? getAlternative(ex.notes) : ex.exercise;
@@ -1827,7 +1904,7 @@ function triggerDiagramUpload(exId) {
         if (img) img.src = compressed;
         
         const day = state.day;
-        const exercises = WORKOUTS[day] || [];
+        const exercises = getWorkoutsForDay(day);
         const idx = exercises.findIndex(ex => getExerciseId(ex.exercise) === exId);
         if (idx !== -1) openExerciseDetail(day, idx);
       } catch (err) {
@@ -1886,7 +1963,7 @@ function renderDay(day) {
     return;
   }
 
-  const exercises = WORKOUTS[day] || [];
+  const exercises = getWorkoutsForDay(day);
   const enhanced = exercises.map((ex, i) => {
     const s = getExState(day, i);
     const category = getExerciseCategory(ex);
@@ -1988,7 +2065,7 @@ function attachSwipeListeners() {
   const cards = document.querySelectorAll('.ex-card');
   cards.forEach(card => {
     const idx = parseInt(card.dataset.idx);
-    const ex = (WORKOUTS[state.day] || [])[idx];
+    const ex = getExerciseForDayIndex(state.day, idx);
     if (!ex || !getAlternative(ex.notes)) return;
 
     let startX = 0, startY = 0, currentX = 0, currentY = 0, isSwiping = false;
@@ -2031,7 +2108,7 @@ function attachSwipeListeners() {
 }
 
 function renderSundayHtml() {
-  const items = WORKOUTS.Sunday;
+  const items = getWorkoutsForDay('Sunday');
   let html = '';
   let lastPhase = '';
   items.forEach(item => {
@@ -2065,6 +2142,7 @@ function getProgramProgress() {
 function renderProgram() {
   const c = document.getElementById('programArea');
   const program = getActiveProgram();
+  const defaultProgramId = state.defaultProgramId || PROGRAMS[0].id;
   const startISO = getProgramStartISO(program.id);
   const startLabel = startISO ? parseLocalISO(startISO).toLocaleDateString() : 'Not started';
   const progress = getProgramProgress();
@@ -2087,11 +2165,24 @@ function renderProgram() {
       <button class="program-btn" onclick="restartProgram()">Restart</button>
     </div>
     <div class="program-meta"><strong>Active:</strong> ${program.name}</div>
+    <div class="program-meta"><strong>Default on Open:</strong> ${(PROGRAMS.find(p => p.id === defaultProgramId) || PROGRAMS[0]).name}</div>
     <div class="program-meta"><strong>Start date:</strong> ${startLabel}</div>
     <div class="program-meta"><strong>Status:</strong> ${progressText}</div>
     <div style="margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
        <button class="auth-btn" style="margin-bottom:0" onclick="renderMasterExerciseList()">Browse All Exercises</button>
     </div>
+  </div>`;
+  html += `<div class="program-card" style="margin-top:0.75rem">
+    <h2>Program Defaults</h2>
+    ${PROGRAMS.map(p => `
+      <div class="program-row" style="justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+        <div>
+          <div style="font-weight:700;color:var(--text)">${p.name}</div>
+          <div class="program-meta" style="margin-top:0.2rem">${p.id === program.id ? 'Currently active' : `Switch to this program to train it`}${p.id === defaultProgramId ? ' • Default on app open' : ''}</div>
+        </div>
+        <button class="program-btn${p.id === defaultProgramId ? ' primary' : ''}" onclick="setDefaultProgram('${p.id}')">${p.id === defaultProgramId ? 'Default Program' : 'Set as Default'}</button>
+      </div>
+    `).join('')}
   </div>`;
   const guideHtml = PROGRAM_GUIDES[program.id];
   if (guideHtml) {
@@ -2116,22 +2207,14 @@ function renderMasterExerciseList() {
   </div>`;
 
   html += `<div id="masterExList">`;
-  const all = [];
-  WEEK_DAYS.forEach(day => {
-    (WORKOUTS[day] || []).forEach((ex, idx) => {
-      if (!ex.exercise) return;
-      if (!all.find(a => a.name === ex.exercise)) {
-        all.push({ name: ex.exercise, day, idx });
-      }
-    });
-  });
+  const all = getAllProgramExercises(program.id);
 
   all.sort((a,b) => a.name.localeCompare(b.name)).forEach(item => {
     html += `<div class="ex-card master-ex-item" data-name="${item.name.toLowerCase()}">
-      <div class="ex-body" onclick="openExerciseDetail('${item.day}', ${item.idx})">
+      <div class="ex-body" onclick="openExerciseDetail('${item.day}', ${item.idx}, ${item.week}, '${program.id}')">
         <div class="ex-header" style="border-bottom:none; margin-bottom:0;">
           <div class="ex-name" style="font-size:0.9rem; font-weight:700;">${item.name}</div>
-          <div style="font-size:0.65rem; color:var(--text3); font-weight:600;">Found on: ${item.day}</div>
+          <div style="font-size:0.65rem; color:var(--text3); font-weight:600;">Found on: ${item.day} · W${item.week}</div>
         </div>
       </div>
     </div>`;
@@ -2150,9 +2233,25 @@ function filterMasterList(query) {
 
 function changeProgram(id) {
   state.programId = id;
+  state.week = 1;
+  state.day = 'Monday';
+  state.activeWorkoutTab = 'pre';
+  activeWorkoutTab = 'pre';
+  showCompletedOverride = false;
   save();
+  refreshWeekSelectOptions();
+  renderTabs();
+  renderDay(state.day);
   renderProgram();
   updateWeekHeader();
+}
+
+function setDefaultProgram(id) {
+  const selected = PROGRAMS.find(p => p.id === id);
+  if (!selected) return;
+  state.defaultProgramId = id;
+  save();
+  renderProgram();
 }
 
 function startProgram() {
@@ -2170,7 +2269,10 @@ function restartProgram() {
   setProgramStartISO(programId, formatLocalISO(new Date()));
   state.week = 1;
   state.day = 'Monday';
+  state.activeWorkoutTab = 'pre';
+  activeWorkoutTab = 'pre';
   save();
+  refreshWeekSelectOptions();
   renderTabs();
   renderDay(state.day);
   renderProgram();
@@ -2272,7 +2374,7 @@ function buildSetPills(sets, selected) {
 }
 
 function openSetLogger(day, idx) {
-  const ex = (WORKOUTS[day] || [])[idx];
+  const ex = getExerciseForDayIndex(day, idx);
   if (!ex) return;
   const s = getExState(day, idx);
   const exName = s.swapped ? getAlternative(ex.notes) : ex.exercise;
@@ -2338,7 +2440,7 @@ function closeSetLogger() {
 function selectSetPill(num) {
   if (!currentSetLogger) return;
   currentSetLogger.set = num;
-  const ex = (WORKOUTS[currentSetLogger.day] || [])[currentSetLogger.idx];
+  const ex = getExerciseForDayIndex(currentSetLogger.day, currentSetLogger.idx);
   if (ex) document.getElementById('setPills').innerHTML = buildSetPills(Math.max(parseInt(ex.sets, 10) || 1, 1), num);
 }
 
@@ -2367,7 +2469,7 @@ function setEffort(level) {
 
 function logSetEntry() {
   if (!currentSetLogger) return;
-  const ex = (WORKOUTS[currentSetLogger.day] || [])[currentSetLogger.idx];
+  const ex = getExerciseForDayIndex(currentSetLogger.day, currentSetLogger.idx);
   if (!ex) return;
 
   setWeight(currentSetLogger.day, currentSetLogger.idx, ex.exercise, String(currentSetLogger.weight));
@@ -2398,7 +2500,7 @@ function logSetEntry() {
 }
 
 function getWorkoutCelebrationKey(day) {
-  return `${formatLocalISO(new Date())}|w${state.week}|${day}`;
+  return `${formatLocalISO(new Date())}|${getActiveProgramId()}|w${state.week}|${day}`;
 }
 
 function hasShownWorkoutCelebration(day) {
@@ -2461,10 +2563,10 @@ function updateProgress(day) {
     document.getElementById('progressText').innerText = day === 'Sunday' ? 'Rest Day' : 'Weight Tracker';
     return;
   }
-  const exercises = WORKOUTS[day] || [];
-  const mainExs = exercises.filter(e => e.phase === 'Main Workout');
+  const exercises = getWorkoutsForDay(day);
+  const mainExs = exercises.filter(isTrackableWorkoutExercise);
   const total = mainExs.length;
-  const done = exercises.filter((e, i) => e.phase === 'Main Workout' && getExState(day, i).done).length;
+  const done = exercises.filter((e, i) => isTrackableWorkoutExercise(e) && getExState(day, i).done).length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   document.getElementById('progressFill').style.width = pct + '%';
   document.getElementById('progressText').innerText = `${done}/${total} exercises`;
@@ -2489,9 +2591,9 @@ function getWeekCompletionPercent() {
   let done = 0;
   WEEK_DAYS.forEach(day => {
     if (day === 'Sunday') return;
-    const exs = WORKOUTS[day] || [];
+    const exs = getWorkoutsForDay(day);
     exs.forEach((ex, i) => {
-      if (ex.phase !== 'Main Workout') return;
+      if (!isTrackableWorkoutExercise(ex)) return;
       total += 1;
       if (getExState(day, i).done) done += 1;
     });
@@ -2500,6 +2602,7 @@ function getWeekCompletionPercent() {
 }
 
 function updateWeekHeader() {
+  refreshWeekSelectOptions();
   const el = document.getElementById('weekSelect');
   if (!el) return;
   const start = getWeekStartDate();
@@ -2522,137 +2625,29 @@ function updateWeekHeader() {
   else el.classList.add('status-none');
 }
 
-function setWeek(w) { state.week = parseInt(w); showCompletedOverride = false; save(); renderTabs(); renderDay(state.day); updateWeekHeader(); }
+function setWeek(w) {
+  const activeProgram = getActiveProgram();
+  const maxWeeks = activeProgram.weeks || 1;
+  state.week = Math.min(Math.max(parseInt(w, 10) || 1, 1), maxWeeks);
+  showCompletedOverride = false;
+  save();
+  renderTabs();
+  renderDay(state.day);
+  updateWeekHeader();
+}
 function toggleDark() { state.dark = !state.dark; document.body.classList.toggle('dark'); save(); document.getElementById('darkToggle').innerHTML = state.dark ? '&#9728;' : '&#9790;'; }
-function resetWeek() { const prefix = `w${state.week}_`; Object.keys(state.data).forEach(k => { if (k.startsWith(prefix)) delete state.data[k]; }); save(); renderTabs(); renderDay(state.day); updateWeekHeader(); }
-
-// ============ PROGRAM GUIDE HTML ============
-const GUIDE_HTML = `
-<h2>Program Overview</h2>
-<p><strong>Duration:</strong> 6-week rotating blocks | <strong>Target:</strong> 35-year-old male golfer, 195 lbs</p>
-<p><strong>Goals:</strong> Maintain weight, build lean muscle, rotational power, core strength, flexibility, visible abs</p>
-<p><strong>Location:</strong> Planet Fitness | <strong>Training Days:</strong> Mon-Fri (main), Sat (optional), Sun (rest)</p>
-
-<h2>Weekly Schedule</h2>
-<ul>
-<li><strong>Monday:</strong> Upper Body Push + Rotational Core (60 min + 15-30 min bonus)</li>
-<li><strong>Tuesday:</strong> Lower Body + Hip Mobility (60 min + 15-30 min bonus)</li>
-<li><strong>Wednesday:</strong> Upper Body Pull + Anti-Rotation Core (60 min + 15-30 min bonus)</li>
-<li><strong>Thursday:</strong> Full Body Power + Flexibility Focus (60 min + 15-30 min bonus)</li>
-<li><strong>Friday:</strong> Core/Rotational Power + Active Recovery (60 min + 15-30 min bonus)</li>
-<li><strong>Saturday:</strong> Optional Mobility &amp; Light Accessory (30-60 min)</li>
-<li><strong>Sunday:</strong> Complete Rest + Recovery Protocol</li>
-</ul>
-
-<h2>Pre-Workout Routine (Every Day)</h2>
-<p>15 min Incline Walk (3.0-3.5 mph, 5-8% incline) + general stretching, then complete day-specific 5-10 min stretch routine. Total warm-up: ~20-25 minutes.</p>
-
-<h2>Tempo Notation</h2>
-<p>Format: <strong>[Eccentric]-[Bottom Pause]-[Concentric]-[Top Pause]</strong></p>
-<p>Example: <strong>3010</strong> = 3 sec lowering, 0 sec pause, 1 sec lifting, 0 sec pause at top. "Explosive" = move fast with control.</p>
-
-<h2>6-Week Progression Protocol</h2>
-<h3>Weeks 1-2: Foundation</h3>
-<p>Moderate weight (2-3 more reps possible per set). Focus on form and tempo. Establish baseline.</p>
-<h3>Weeks 3-4: Build</h3>
-<p>Increase weight 5-10% OR add 1-2 reps. Push closer to failure (1-2 reps in reserve). Maintain strict form.</p>
-<h3>Week 5: Peak</h3>
-<p>Maximum weight maintaining form. Push to technical failure. May reduce reps to 6-8 on main lifts.</p>
-<h3>Week 6: Deload</h3>
-<p>Reduce weight 20-30%. Same reps/sets but lighter and faster. Focus on movement quality and mobility.</p>
-
-<h2>Exercise Rotation (After 6 Weeks)</h2>
-<ul>
-<li>Incline Press &rarr; Flat Press &rarr; Decline Press</li>
-<li>Lat Pulldown Wide &rarr; Neutral Grip &rarr; Underhand</li>
-<li>Leg Press &rarr; Smith Squat &rarr; Bulgarian Split Squat emphasis</li>
-<li>Keep core rotation exercises consistent (golf-specific)</li>
-</ul>
-
-<h2>Nutrition Guidelines</h2>
-<p><strong>Maintain 195 lbs + Build Muscle</strong></p>
-<ul>
-<li><strong>Calories:</strong> 2,800-3,000/day</li>
-<li><strong>Protein:</strong> 180-200g (0.9-1.0g/lb)</li>
-<li><strong>Carbs:</strong> 300-350g</li>
-<li><strong>Fats:</strong> 80-90g</li>
-<li><strong>Pre-workout:</strong> Carbs + protein 60-90 min before</li>
-<li><strong>Post-workout:</strong> 40g protein + 60g carbs within 60 min</li>
-<li><strong>Hydration:</strong> 100+ oz water daily, +16-20 oz per hour training</li>
-</ul>
-
-<h2>Knee Safety Modifications</h2>
-<p>ACL/meniscus history requires these protocols:</p>
-<ul>
-<li>Always warm up hips, ankles, and knees thoroughly</li>
-<li>Keep knees tracking over toes (avoid valgus collapse)</li>
-<li>Avoid deep knee flexion under heavy load (stay above 90&deg;)</li>
-<li>No jumping, box jumps, or high-impact plyometrics</li>
-<li>Stop immediately if knee pain occurs</li>
-<li>Prioritize single-leg work for stability</li>
-</ul>
-
-<h2>Visible Abs Strategy</h2>
-<ol>
-<li><strong>Direct Ab Work:</strong> Decline sit-ups, weighted crunches, hanging leg raises (4x/week)</li>
-<li><strong>Anti-Rotation Core:</strong> Pallof presses, bird dogs, plank variations</li>
-<li><strong>Rotational Power:</strong> Cable woodchops, medicine ball slams, Russian twists</li>
-<li><strong>Total Core Integration:</strong> Compound lifts, carries, loaded movements</li>
-</ol>
-<p><strong>Timeline:</strong> Weeks 1-2 strength gains &rarr; Weeks 3-4 upper ab definition &rarr; Weeks 5-8 visible upper abs &rarr; Weeks 9-12 full six-pack (with diet)</p>
-
-<h2>Flexibility Maintenance</h2>
-<p><strong>Daily Priority Stretches:</strong></p>
-<ol>
-<li>Hip Flexor Stretch (daily) - counteracts sitting, improves swing</li>
-<li>Thoracic Rotation (4x/week) - essential for golf rotation</li>
-<li>Hamstring Stretch (3x/week) - protects lower back</li>
-<li>Lat and Shoulder Stretch (3x/week) - maintains ROM</li>
-<li>Pigeon Pose (2x/week) - deep hip opener</li>
-</ol>
-
-<h2>Rotational Power Development</h2>
-<ul>
-<li>Cable Woodchop High-to-Low (downswing pattern)</li>
-<li>Cable Woodchop Low-to-High (backswing pattern)</li>
-<li>Pallof Press (resist rotation = stability)</li>
-<li>Medicine Ball Rotational Slams (explosive power)</li>
-<li>Landmine Rotations (loaded rotation)</li>
-</ul>
-<p><strong>Golf Transfer:</strong> +3-8 mph clubhead speed over 12 weeks, better weight transfer, reduced injury risk.</p>
-
-<h2>Recovery Protocols</h2>
-<ul>
-<li><strong>Daily:</strong> 8+ hours sleep, 100+ oz water, post-workout nutrition, evening stretching</li>
-<li><strong>Weekly:</strong> Sunday rest, Saturday optional, foam rolling 2-3x/week</li>
-<li><strong>Warning Signs:</strong> Sharp joint pain, decreased ROM, persistent soreness (>3 days), fatigue, strength regression</li>
-</ul>
-
-<h2>FAQ</h2>
-<ul>
-<li><strong>Cardio?</strong> Low-impact only: incline walking, elliptical, bike, swimming. No running/HIIT.</li>
-<li><strong>Missed workout?</strong> Continue next scheduled day. Don't "make up" workouts. After 2+ days off, reduce weight 10%.</li>
-<li><strong>Exercise hurts?</strong> Stop immediately. Use listed substitute. If that hurts too, skip and consult a professional.</li>
-<li><strong>Bonus work?</strong> Optional. Prioritize the main 60 min workout.</li>
-<li><strong>Results timeline?</strong> Strength: 2-3 weeks. Ab definition: 4-6 weeks. Golf performance: 3-4 weeks. Body composition: 6-8 weeks.</li>
-</ul>
-`;
-
-const PROGRAM_GUIDES = {
-  'golf-6week': GUIDE_HTML,
-  'strength-4week': `
-  <h2>Program Overview</h2>
-  <p><strong>Duration:</strong> 4-week block | <strong>Target:</strong> general strength and mobility</p>
-  <h2>Weekly Focus</h2>
-  <ul>
-    <li>2-3 strength sessions</li>
-    <li>2 mobility-focused sessions</li>
-    <li>1 optional conditioning day</li>
-  </ul>
-  <h2>Notes</h2>
-  <p>Build consistent movement patterns, prioritize recovery, and track your loads weekly.</p>
-  `
-};
+function resetWeek() {
+  const scopedPrefix = `w${state.week}_${getActiveProgramId()}_`;
+  const legacyPrefix = `w${state.week}_`;
+  Object.keys(state.data).forEach(k => {
+    if (k.startsWith(scopedPrefix)) delete state.data[k];
+    else if (getActiveProgramId() === 'golf-6week' && k.startsWith(legacyPrefix) && !k.startsWith(`w${state.week}_${getActiveProgramId()}_`)) delete state.data[k];
+  });
+  save();
+  renderTabs();
+  renderDay(state.day);
+  updateWeekHeader();
+}
 
 function getLastWeightLabel() {
   const log = getWeightLog();
