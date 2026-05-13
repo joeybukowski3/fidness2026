@@ -1267,7 +1267,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   function getKey(day, idx, programId = getActiveProgramId()) { return `w${state.week}_${programId}_${day}_${idx}`; }
   function getLegacyKey(day, idx) { return `w${state.week}_${day}_${idx}`; }
   function isCurrentWorkoutDay(day) {
-    return day === getTodayWeekdayName();
+    return day === getActiveEditableWorkoutDay();
   }
   function getExState(day, idx) {
     if (!isCurrentWorkoutDay(day)) return { done: false, weight: '', reps: '', collapsed: true, exercise: '', swapped: false };
@@ -1507,6 +1507,37 @@ function parseLocalISO(iso) {
 function getTodayWeekdayName() {
   return new Date().toLocaleDateString('en-US', { weekday: 'long' });
 }
+function getProgramProgressFor(programId = getActiveProgramId()) {
+  const program = PROGRAMS.find(p => p.id === programId) || PROGRAMS[0];
+  const startISO = getProgramStartISO(program.id);
+  if (!startISO) return { started: false };
+  const start = parseLocalISO(startISO);
+  const today = new Date();
+  const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const daysSinceStart = Math.floor((todayLocal - start) / 86400000);
+  const totalDays = (program.weeks || 0) * 7;
+  if (daysSinceStart < 0) return { started: true, startsIn: Math.abs(daysSinceStart), totalDays };
+  const capped = Math.min(daysSinceStart, Math.max(totalDays - 1, 0));
+  const week = Math.floor(capped / 7) + 1;
+  const dayIndex = capped % 7;
+  const completedDays = Math.min(Math.max(daysSinceStart, 0), totalDays);
+  return { started: true, week, dayName: WEEK_DAYS[dayIndex], dayNumber: dayIndex + 1, completedDays, totalDays, finished: daysSinceStart >= totalDays };
+}
+function getActiveEditableWorkoutDay() {
+  const progress = getProgramProgressFor();
+  return progress.started && progress.dayName ? progress.dayName : getTodayWeekdayName();
+}
+function syncStateToActiveProgramDay() {
+  const progress = getProgramProgressFor();
+  if (progress.started) {
+    state.week = progress.week;
+    state.day = progress.dayName;
+    return;
+  }
+  state.week = 1;
+  const todayName = getTodayWeekdayName();
+  if (WEEK_DAYS.includes(todayName)) state.day = todayName;
+}
 function resetDailyWorkoutState(nowISO = formatLocalISO(new Date())) {
   console.log('New day detected. Resetting daily workout data.');
   state.data = {};
@@ -1516,23 +1547,20 @@ function resetDailyWorkoutState(nowISO = formatLocalISO(new Date())) {
   activeWorkoutTab = 'pre';
   showCompletedOverride = false;
   state.lastAccessedDate = nowISO;
-  const todayName = getTodayWeekdayName();
-  if (WEEK_DAYS.includes(todayName)) {
-    state.day = todayName;
-  }
+  syncStateToActiveProgramDay();
   save();
 }
 function pruneWorkoutStateToCurrentDay() {
-  const todayName = getTodayWeekdayName();
+  const editableDay = getActiveEditableWorkoutDay();
   Object.keys(state.data).forEach(key => {
     const newMatch = key.match(/^w\d+_[^_]+_(.+)_\d+$/);
     if (newMatch) {
-      if (newMatch[1] !== todayName) delete state.data[key];
+      if (newMatch[1] !== editableDay) delete state.data[key];
       return;
     }
     const legacyMatch = key.match(/^w\d+_(.+)_\d+$/);
     if (!legacyMatch) return;
-    if (legacyMatch[1] !== todayName) delete state.data[key];
+    if (legacyMatch[1] !== editableDay) delete state.data[key];
   });
 }
 function ensureDailyWorkoutState() {
@@ -1609,15 +1637,7 @@ function getViewDateISO(day) {
     pruneWorkoutStateToCurrentDay();
     if (!resetToday) save();
 
-    const progress = getProgramProgress();
-    if (progress.started && !progress.finished) {
-      state.week = progress.week;
-    } else {
-      const todayName = getTodayWeekdayName();
-      if (WEEK_DAYS.includes(todayName) && !state.day) {
-        state.day = todayName;
-      }
-    }
+    syncStateToActiveProgramDay();
     save();
 
     refreshWeekSelectOptions();
@@ -2132,20 +2152,7 @@ function renderSundayHtml() {
 }
 
 function getProgramProgress() {
-  const program = getActiveProgram();
-  const startISO = getProgramStartISO(program.id);
-  if (!startISO) return { started: false };
-  const start = parseLocalISO(startISO);
-  const today = new Date();
-  const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const daysSinceStart = Math.floor((todayLocal - start) / 86400000);
-  const totalDays = (program.weeks || 0) * 7;
-  if (daysSinceStart < 0) return { started: true, startsIn: Math.abs(daysSinceStart), totalDays };
-  const capped = Math.min(daysSinceStart, Math.max(totalDays - 1, 0));
-  const week = Math.floor(capped / 7) + 1;
-  const dayIndex = capped % 7;
-  const completedDays = Math.min(Math.max(daysSinceStart, 0), totalDays);
-  return { started: true, week, dayName: WEEK_DAYS[dayIndex], dayNumber: dayIndex + 1, completedDays, totalDays, finished: daysSinceStart >= totalDays };
+  return getProgramProgressFor();
 }
 
 function renderProgram() {
@@ -2242,11 +2249,10 @@ function filterMasterList(query) {
 
 function changeProgram(id) {
   state.programId = id;
-  state.week = 1;
-  state.day = 'Monday';
   state.activeWorkoutTab = 'pre';
   activeWorkoutTab = 'pre';
   showCompletedOverride = false;
+  syncStateToActiveProgramDay();
   save();
   refreshWeekSelectOptions();
   renderTabs();
@@ -2268,6 +2274,10 @@ function startProgram() {
   if (!getProgramStartISO(programId)) {
     setProgramStartISO(programId, formatLocalISO(new Date()));
   }
+  syncStateToActiveProgramDay();
+  save();
+  renderTabs();
+  renderDay(state.day);
   renderProgram();
   updateWeekHeader();
 }
@@ -2276,10 +2286,9 @@ function restartProgram() {
   const programId = getActiveProgramId();
   if (!confirm('Restart this program from today?')) return;
   setProgramStartISO(programId, formatLocalISO(new Date()));
-  state.week = 1;
-  state.day = 'Monday';
   state.activeWorkoutTab = 'pre';
   activeWorkoutTab = 'pre';
+  syncStateToActiveProgramDay();
   save();
   refreshWeekSelectOptions();
   renderTabs();
