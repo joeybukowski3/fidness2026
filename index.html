@@ -78,7 +78,7 @@ if ('serviceWorker' in navigator) {
 .app-shell { display: none; }
 .app-shell.active { display: block; }
 .version-badge{
-  position:fixed;bottom:10px;left:50%;transform:translateX(-50%);
+  position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));left:auto;transform:none;
   z-index:2500;padding:0.35rem 0.7rem;border-radius:999px;
   background:rgba(10,10,15,0.88);border:1px solid var(--border);
   color:var(--text3);font-size:0.68rem;font-weight:700;letter-spacing:0.08em;
@@ -240,6 +240,9 @@ body{overflow-x:hidden; width:100%; position:relative;}
 .workout-tab.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--accent-bg)}
 .workout-section{display:none}
 .workout-section.active{display:block}
+.workout-section[data-section="main"] .ex-swap-indicator,
+.workout-section[data-section="main"] .ex-target-inline,
+.workout-section[data-section="main"] .ex-details{display:none}
 
 /* Home Controls */
 .home-controls{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;margin-bottom:0.5rem}
@@ -271,6 +274,9 @@ body{overflow-x:hidden; width:100%; position:relative;}
 .ex-card.completed{opacity:0.6}
 .ex-card.completed .ex-name{text-decoration:line-through}
 .ex-card.collapsed .ex-details{display:none}
+.ex-details{margin-top:0.3rem}
+.ex-log-btn{margin-top:0.4rem;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:0.68rem;font-weight:700;border-radius:999px;padding:0.25rem 0.6rem;cursor:pointer;font-family:inherit}
+.ex-log-btn:hover{border-color:var(--accent);color:var(--accent)}
 .ex-header{display:flex;align-items:center;justify-content:space-between;gap:0.5rem}
 .ex-toggle{border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-size:0.65rem;font-weight:700;border-radius:999px;padding:0.15rem 0.5rem;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:0.25rem}
 .ex-toggle:hover{border-color:var(--accent)}
@@ -1264,8 +1270,8 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     return day === getTodayWeekdayName();
   }
   function getExState(day, idx) {
-    if (!isCurrentWorkoutDay(day)) return { done: false, weight: '', reps: '', collapsed: false, exercise: '', swapped: false };
-    return state.data[getKey(day, idx)] || state.data[getLegacyKey(day, idx)] || { done: false, weight: '', reps: '', collapsed: false, exercise: '', swapped: false };
+    if (!isCurrentWorkoutDay(day)) return { done: false, weight: '', reps: '', collapsed: true, exercise: '', swapped: false };
+    return state.data[getKey(day, idx)] || state.data[getLegacyKey(day, idx)] || { done: false, weight: '', reps: '', collapsed: true, exercise: '', swapped: false };
   }
   function setExState(day, idx, val) {
     if (!isCurrentWorkoutDay(day)) return;
@@ -2011,7 +2017,7 @@ function renderDay(day) {
         const doneClass = s.done ? ' done' : '';
         const checkedClass = s.done ? ' checked' : '';
         const collapsedClass = s.collapsed ? ' collapsed' : '';
-      out += `<div class="ex-card${doneClass}${collapsedClass}${s.swapped ? ' swapped-ui' : ''}${currentSetLogger && currentSetLogger.day===day && currentSetLogger.idx===ex._idx ? ' active-card' : ''}" id="card-${ex._idx}" data-idx="${ex._idx}" onclick="openSetLogger('${day}',${ex._idx})">
+      out += `<div class="ex-card${doneClass}${collapsedClass}${s.swapped ? ' swapped-ui' : ''}${currentSetLogger && currentSetLogger.day===day && currentSetLogger.idx===ex._idx ? ' active-card' : ''}" id="card-${ex._idx}" data-idx="${ex._idx}" onclick="toggleExerciseCollapse('${day}',${ex._idx})">
           <div class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx}); event.stopPropagation();" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</div>
           <div class="ex-body">
             <div class="ex-header">
@@ -2034,11 +2040,14 @@ function renderDay(day) {
               const doneSets = s.done ? totalSets : 0;
               let dots = '';
               for (let dot = 0; dot < totalSets; dot++) dots += `<span class="ex-dot${dot < doneSets ? ' done' : ''}"></span>`;
-              return `<div class="ex-info-grid">
+              return `<div class="ex-details">
+              <div class="ex-info-grid">
                 <div class="ex-info-cell"><b>Last Time</b><span>${lastText}</span></div>
                 <div class="ex-info-cell"><b>Today's Target</b><span>${targetText}</span></div>
               </div>
-              <div class="ex-dot-row">${dots}</div>`;
+              <div class="ex-dot-row">${dots}</div>
+              <button class="ex-log-btn" type="button" onclick="openSetLogger('${day}',${ex._idx}); event.stopPropagation();">Log Set</button>
+              </div>`;
             })()}
           </div>
         </div>`;

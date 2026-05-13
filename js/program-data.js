@@ -2,7 +2,8 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   const PROGRAMS = [
     { id: 'golf-6week', name: 'Golf Training 6-Week Cycle', weeks: 6 },
     { id: 'strength-4week', name: 'Strength & Mobility 4-Week', weeks: 4 },
-    { id: 'joey-4wk-baseline', name: "Joey's 4-Week Baseline", weeks: 4 }
+    { id: 'joey-4wk-baseline', name: "Joey's 4-Week Baseline", weeks: 4 },
+    { id: 'joey-upper-lower-split', name: "Joey X", weeks: 4 }
   ];
 
   const GUIDE_HTML = `
@@ -140,7 +141,35 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
       <li>Week 3: Control + mobility (tempo + key Tuesday)</li>
       <li>Week 4: Deload — lighter volume for recovery</li>
     </ul>
-  `
+  `,
+    'joey-upper-lower-split': `
+  <h2>Program Overview</h2>
+  <p><strong>Duration:</strong> 4 weeks | <strong>Target:</strong> Upper body toning (chest, arms, core) + Lower body flexibility and strength</p>
+  <h2>Weekly Schedule</h2>
+  <ul>
+    <li><strong>Monday:</strong> Chest Focus — Upper Body</li>
+    <li><strong>Tuesday:</strong> Lower Body Strength + Flexibility</li>
+    <li><strong>Wednesday:</strong> Arms & Shoulders Focus — Upper Body</li>
+    <li><strong>Thursday:</strong> Lower Body Flexibility + Mobility</li>
+    <li><strong>Friday:</strong> Core + Full Upper Body</li>
+    <li><strong>Saturday:</strong> Night Stretch (recovery)</li>
+    <li><strong>Sunday:</strong> Rest</li>
+  </ul>
+  <h2>Knee Safety Notes</h2>
+  <ul>
+    <li>No free squats or quick lateral movements</li>
+    <li>Keep knee tracking over toes at all times</li>
+    <li>Stop immediately if knee pain occurs</li>
+    <li>Prioritize hip mobility — hips are a known tight area</li>
+  </ul>
+  <h2>Progression</h2>
+  <ul>
+    <li>Week 1: Baseline — establish form and weights</li>
+    <li>Week 2: Build — increase weight or reps slightly</li>
+    <li>Week 3: Push — work closer to max with clean form</li>
+    <li>Week 4: Deload — reduce weight 20-30%, focus on recovery</li>
+  </ul>
+`
   };
 
   const cloneList = list => list.map(item => ({ ...item }));
@@ -314,6 +343,247 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
     ex('Mobility', 'Foam Rolling', '1', '5-10 min', 'Optional easy tissue work', 0, 'Slow', 'Foam Roller')
   ]);
 
+  // Joey Upper/Lower Split — Monday (Chest Focus)
+  const ulsWeek1Monday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 10% incline', 0, 'Steady', 'Treadmill'),
+    ex('Chest', 'Dumbbell Chest Press', '3', '8', 'Baseline weight — 60 lbs. Controlled reps.', 60, 'Controlled', 'Dumbbells'),
+    ex('Chest', 'Chest Fly + Close Grip Bench Superset', '3', '12 each', '15 lb dumbbells. No rest between superset exercises.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Shoulders', 'Lateral Raises', '3', '15', '15 lbs. Controlled raise and slow lower.', 45, 'Controlled', 'Dumbbells'),
+    ex('Back/Chest', 'Lat Pullover', '3', '10', 'Moderate weight. Full stretch at bottom.', 60, 'Controlled', 'Dumbbells'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '4', '15 each', 'No rest between superset. Control the twist.', 60, 'Controlled', 'Decline Bench')
+  ]);
+
+  const ulsWeek2Monday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 10% incline', 0, 'Steady', 'Treadmill'),
+    ex('Chest', 'Dumbbell Chest Press', '3', '8', 'Add 5 lbs if form was clean in Week 1.', 60, 'Controlled', 'Dumbbells'),
+    ex('Chest', 'Chest Fly + Close Grip Bench Superset', '3', '12 each', 'Try 17.5 or 20 lbs if 15 felt easy.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Shoulders', 'Lateral Raises', '3', '15', 'Add 2.5-5 lbs if form stays clean.', 45, 'Controlled', 'Dumbbells'),
+    ex('Back/Chest', 'Lat Pullover', '3', '10', 'Slight weight increase from Week 1.', 60, 'Controlled', 'Dumbbells'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '4', '15 each', 'Add light plate if bodyweight feels easy.', 60, 'Controlled', 'Decline Bench')
+  ]);
+
+  const ulsWeek3Monday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 10% incline', 0, 'Steady', 'Treadmill'),
+    ex('Chest', 'Dumbbell Chest Press', '3', '8', 'Push to near max weight with clean form.', 60, 'Controlled', 'Dumbbells'),
+    ex('Chest', 'Chest Fly + Close Grip Bench Superset', '3', '12 each', 'Peak effort. Maintain form throughout.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Shoulders', 'Lateral Raises', '3', '15', 'Peak weight. Slow and controlled on the lower.', 45, 'Controlled', 'Dumbbells'),
+    ex('Back/Chest', 'Lat Pullover', '3', '10', 'Peak effort with full range of motion.', 60, 'Controlled', 'Dumbbells'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '4', '15 each', 'Add plate to both exercises if able.', 60, 'Controlled', 'Decline Bench')
+  ]);
+
+  const ulsWeek4Monday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 8% incline — slightly easier this week.', 0, 'Steady', 'Treadmill'),
+    ex('Chest', 'Dumbbell Chest Press', '3', '10', 'Drop weight 20-30%. Focus on squeeze and form.', 60, 'Controlled', 'Dumbbells'),
+    ex('Chest', 'Chest Fly + Close Grip Bench Superset', '3', '12 each', 'Lighter weight. Stretch and feel the muscle.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Shoulders', 'Lateral Raises', '3', '15', 'Light and smooth. Recovery week.', 45, 'Controlled', 'Dumbbells'),
+    ex('Back/Chest', 'Lat Pullover', '3', '10', 'Light weight and full range.', 60, 'Controlled', 'Dumbbells'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '3', '12 each', 'Reduce sets and keep it light.', 60, 'Controlled', 'Decline Bench')
+  ]);
+
+  // Joey Upper/Lower Split — Tuesday (Lower Body Strength + Flexibility)
+  const ulsWeek1Tuesday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 5% incline — easier incline for leg days', 0, 'Steady', 'Treadmill'),
+    ex('Legs', 'Leg Press', '3', '12', 'Moderate weight. Controlled and knee-safe range.', 60, 'Controlled', 'Machine'),
+    ex('Legs', 'Seated Leg Curl', '3', '12', 'Controlled curl. No jerking.', 60, 'Controlled', 'Machine'),
+    ex('Hips', 'Hip Abductor Machine', '3', '15', 'Glute focus. No swinging.', 45, 'Controlled', 'Machine'),
+    ex('Legs', 'Standing Cable Kickbacks', '3', '12', '12 reps each leg. Controlled extension.', 60, 'Controlled', 'Cable'),
+    ex('Legs', 'Seated Calf Raises', '3', '15', 'Full range. Slow lower.', 45, 'Controlled', 'Machine'),
+    ex('Flexibility', 'Pigeon Pose', '1', '60 sec/side', 'Deep hip opener. Breathe through it.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Seated Hamstring Stretch', '1', '60 sec/side', 'Keep leg straight. No bouncing.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Lying Figure-4 Stretch', '1', '60 sec/side', 'Glutes and hips. Pull gently.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Kneeling Hip Flexor Stretch', '1', '60 sec/side', 'Stay upright and squeeze glute.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Supine Knee-to-Chest Pull', '1', '60 sec/side', 'Gentle pull. Relax the hip.', 0, 'Hold', 'Bodyweight'),
+    ex('Recovery', 'Foam Roller — IT Band, Quads, Hamstrings', '1', '2 min each', 'Slow rolls. Pause on tight spots.', 0, 'Slow', 'Foam Roller'),
+    ex('Flexibility', 'Seated Butterfly Stretch', '1', '90 sec', 'Inner thigh and hip opener. Breathe deep.', 0, 'Hold', 'Bodyweight')
+  ]);
+
+  const ulsWeek2Tuesday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 5% incline', 0, 'Steady', 'Treadmill'),
+    ex('Legs', 'Leg Press', '3', '12', 'Add weight if Week 1 felt comfortable.', 60, 'Controlled', 'Machine'),
+    ex('Legs', 'Seated Leg Curl', '3', '12', 'Slight progression from Week 1.', 60, 'Controlled', 'Machine'),
+    ex('Hips', 'Hip Abductor Machine', '3', '15', 'Add weight if no compensation.', 45, 'Controlled', 'Machine'),
+    ex('Legs', 'Standing Cable Kickbacks', '3', '12', 'Add light resistance if Week 1 felt easy.', 60, 'Controlled', 'Cable'),
+    ex('Legs', 'Seated Calf Raises', '3', '15', 'Add weight. Control the lower.', 45, 'Controlled', 'Machine'),
+    ex('Flexibility', 'Pigeon Pose', '1', '60 sec/side', 'Try to sink a little deeper than Week 1.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Seated Hamstring Stretch', '1', '60 sec/side', 'Hold steady. Notice any improvement.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Lying Figure-4 Stretch', '1', '60 sec/side', 'Relax further into the stretch.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Kneeling Hip Flexor Stretch', '1', '60 sec/side', 'Push hips forward slightly more.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Supine Knee-to-Chest Pull', '1', '60 sec/side', 'Gentle pull and breathe.', 0, 'Hold', 'Bodyweight'),
+    ex('Recovery', 'Foam Roller — IT Band, Quads, Hamstrings', '1', '2 min each', 'Slow and deliberate.', 0, 'Slow', 'Foam Roller'),
+    ex('Flexibility', 'Seated Butterfly Stretch', '1', '90 sec', 'Lean forward slightly if comfortable.', 0, 'Hold', 'Bodyweight')
+  ]);
+
+  const ulsWeek3Tuesday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 5% incline', 0, 'Steady', 'Treadmill'),
+    ex('Legs', 'Leg Press', '3', '10', 'Peak effort. Heavier weight, fewer reps.', 60, '3010', 'Machine'),
+    ex('Legs', 'Seated Leg Curl', '3', '10', 'Peak weight. Pause at top of each rep.', 60, 'Controlled', 'Machine'),
+    ex('Hips', 'Hip Abductor Machine', '3', '15', 'Peak weight with strict control.', 45, 'Controlled', 'Machine'),
+    ex('Legs', 'Standing Cable Kickbacks', '3', '12', 'Peak resistance. Full extension each rep.', 60, 'Controlled', 'Cable'),
+    ex('Legs', 'Seated Calf Raises', '3', '15', 'Peak weight. Full range.', 45, 'Controlled', 'Machine'),
+    ex('Flexibility', 'Pigeon Pose', '1', '75 sec/side', 'Extend hold time this week.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Seated Hamstring Stretch', '1', '75 sec/side', 'Extend hold.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Lying Figure-4 Stretch', '1', '75 sec/side', 'Deeper pull if comfortable.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Kneeling Hip Flexor Stretch', '1', '75 sec/side', 'Max depth with upright torso.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Supine Knee-to-Chest Pull', '1', '75 sec/side', 'Full relaxation into the stretch.', 0, 'Hold', 'Bodyweight'),
+    ex('Recovery', 'Foam Roller — IT Band, Quads, Hamstrings', '1', '2 min each', 'Thorough tissue work.', 0, 'Slow', 'Foam Roller'),
+    ex('Flexibility', 'Seated Butterfly Stretch', '1', '90 sec', 'Lean forward and breathe deep.', 0, 'Hold', 'Bodyweight')
+  ]);
+
+  const ulsWeek4Tuesday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 3% incline — easy deload walk', 0, 'Steady', 'Treadmill'),
+    ex('Legs', 'Leg Press', '2', '15', 'Drop weight 20-30%. Light and smooth.', 60, 'Controlled', 'Machine'),
+    ex('Legs', 'Seated Leg Curl', '2', '15', 'Light and controlled. Recovery week.', 60, 'Controlled', 'Machine'),
+    ex('Hips', 'Hip Abductor Machine', '2', '15', 'Light effort. Focus on range.', 45, 'Controlled', 'Machine'),
+    ex('Legs', 'Standing Cable Kickbacks', '2', '12', 'Light resistance. Easy movement.', 60, 'Controlled', 'Cable'),
+    ex('Legs', 'Seated Calf Raises', '2', '15', 'Light weight. Focus on full range.', 45, 'Controlled', 'Machine'),
+    ex('Flexibility', 'Pigeon Pose', '1', '90 sec/side', 'Deload week — prioritize flexibility today.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Seated Hamstring Stretch', '1', '90 sec/side', 'Long hold. Full recovery focus.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Lying Figure-4 Stretch', '1', '90 sec/side', 'Deepest hold of the 4 weeks.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Kneeling Hip Flexor Stretch', '1', '90 sec/side', 'Relax completely into it.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Supine Knee-to-Chest Pull', '1', '90 sec/side', 'Full release and breathe.', 0, 'Hold', 'Bodyweight'),
+    ex('Recovery', 'Foam Roller — IT Band, Quads, Hamstrings', '1', '3 min each', 'Extra thorough this week.', 0, 'Slow', 'Foam Roller'),
+    ex('Flexibility', 'Seated Butterfly Stretch', '1', '2 min', 'Longest hold of the cycle.', 0, 'Hold', 'Bodyweight')
+  ]);
+
+  // Joey Upper/Lower Split — Wednesday (Arms & Shoulders Focus)
+  const ulsWeek1Wednesday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 10% incline', 0, 'Steady', 'Treadmill'),
+    ex('Triceps', 'Skull Crusher + Hammer Curl Superset', '3', '10 each', 'Baseline weight. Control the skull crusher descent.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Shoulders', 'Lateral Raises', '3', '15', '15 lbs. Baseline.', 45, 'Controlled', 'Dumbbells'),
+    ex('Shoulders', 'Overhead Dumbbell Press', '3', '10', 'Moderate weight. Seated or standing.', 60, 'Controlled', 'Dumbbells'),
+    ex('Biceps', 'DB Curls', '3', '12', 'Control both the lift and lower.', 60, 'Controlled', 'Dumbbells'),
+    ex('Triceps', 'Cable Tricep Pushdown', '3', '12', 'Keep elbows pinned at sides.', 45, 'Controlled', 'Cable'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '3', '15 each', 'Same as Monday but one fewer set.', 60, 'Controlled', 'Decline Bench')
+  ]);
+
+  const ulsWeek2Wednesday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 10% incline', 0, 'Steady', 'Treadmill'),
+    ex('Triceps', 'Skull Crusher + Hammer Curl Superset', '3', '10 each', 'Add small amount of weight if Week 1 felt manageable.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Shoulders', 'Lateral Raises', '3', '15', 'Add 2.5-5 lbs if form stays clean.', 45, 'Controlled', 'Dumbbells'),
+    ex('Shoulders', 'Overhead Dumbbell Press', '3', '10', 'Build slightly from Week 1.', 60, 'Controlled', 'Dumbbells'),
+    ex('Biceps', 'DB Curls', '3', '12', 'Increase weight slightly if last set felt easy.', 60, 'Controlled', 'Dumbbells'),
+    ex('Triceps', 'Cable Tricep Pushdown', '3', '12', 'Add weight while keeping strict elbow position.', 45, 'Controlled', 'Cable'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '3', '15 each', 'Add light weight if bodyweight felt easy.', 60, 'Controlled', 'Decline Bench')
+  ]);
+
+  const ulsWeek3Wednesday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 10% incline', 0, 'Steady', 'Treadmill'),
+    ex('Triceps', 'Skull Crusher + Hammer Curl Superset', '3', '10 each', 'Peak effort. Push weight while keeping form.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Shoulders', 'Lateral Raises', '3', '15', 'Peak weight with full control.', 45, 'Controlled', 'Dumbbells'),
+    ex('Shoulders', 'Overhead Dumbbell Press', '3', '10', 'Push to near max with strict form.', 60, 'Controlled', 'Dumbbells'),
+    ex('Biceps', 'DB Curls', '3', '12', 'Peak effort. No swinging.', 60, 'Controlled', 'Dumbbells'),
+    ex('Triceps', 'Cable Tricep Pushdown', '3', '12', 'Max weight with elbows locked in.', 45, 'Controlled', 'Cable'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '3', '15 each', 'Add plate if able.', 60, 'Controlled', 'Decline Bench')
+  ]);
+
+  const ulsWeek4Wednesday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 8% incline', 0, 'Steady', 'Treadmill'),
+    ex('Triceps', 'Skull Crusher + Hammer Curl Superset', '3', '12 each', 'Drop weight 20-30%. Smooth and controlled.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Shoulders', 'Lateral Raises', '3', '15', 'Light weight. Focus on form.', 45, 'Controlled', 'Dumbbells'),
+    ex('Shoulders', 'Overhead Dumbbell Press', '3', '12', 'Lighter weight. Full range of motion.', 60, 'Controlled', 'Dumbbells'),
+    ex('Biceps', 'DB Curls', '2', '12', 'Easy effort. Recovery week.', 60, 'Controlled', 'Dumbbells'),
+    ex('Triceps', 'Cable Tricep Pushdown', '2', '15', 'Light and smooth.', 45, 'Controlled', 'Cable'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '2', '12 each', 'Reduce sets. Light and easy.', 60, 'Controlled', 'Decline Bench')
+  ]);
+
+  // Joey Upper/Lower Split — Thursday (Lower Body Flexibility + Mobility)
+  const ulsWeek1Thursday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 5% incline', 0, 'Steady', 'Treadmill'),
+    ex('Activation', 'Glute Bridges', '3', '15', 'Squeeze at top. Activate before stretching.', 30, 'Controlled', 'Bodyweight'),
+    ex('Hips', 'Hip Abductor Machine', '2', '15', 'Lighter than Tuesday. Movement focus.', 45, 'Controlled', 'Machine'),
+    ex('Legs', 'Standing Cable Kickbacks', '2', '12', 'Light and controlled. Each leg.', 45, 'Controlled', 'Cable'),
+    ex('Mobility', 'Hip CARs (Controlled Articular Rotations)', '2', '6/side', 'Slow full circle rotation of the hip joint.', 30, 'Slow', 'Bodyweight'),
+    ex('Flexibility', 'Pigeon Pose', '1', '60 sec/side', 'Hip opener. Breathe and relax.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Lying Figure-4 Stretch', '1', '60 sec/side', 'Glute and hip release.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Kneeling Hip Flexor Stretch', '1', '60 sec/side', 'Stay upright and squeeze glute.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Standing Quad Stretch', '1', '45 sec/side', 'Pull heel to glute. Balance on one leg.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Seated Hamstring Stretch', '1', '60 sec/side', 'Leg straight. Hinge at the hip.', 0, 'Hold', 'Bodyweight'),
+    ex('Recovery', 'Foam Roller — Full Legs', '1', '2 min each area', 'Quads, hamstrings, IT band, calves.', 0, 'Slow', 'Foam Roller'),
+    ex('Flexibility', 'Seated Butterfly Stretch', '1', '90 sec', 'Inner thigh and hip. Lean forward gently.', 0, 'Hold', 'Bodyweight')
+  ]);
+
+  const ulsWeek2Thursday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 5% incline', 0, 'Steady', 'Treadmill'),
+    ex('Activation', 'Glute Bridges', '3', '15', 'Add slight weight or band if bodyweight is easy.', 30, 'Controlled', 'Bodyweight'),
+    ex('Hips', 'Hip Abductor Machine', '2', '15', 'Slight weight increase from Week 1.', 45, 'Controlled', 'Machine'),
+    ex('Legs', 'Standing Cable Kickbacks', '2', '12', 'Small resistance increase.', 45, 'Controlled', 'Cable'),
+    ex('Mobility', 'Hip CARs', '2', '6/side', 'Focus on full range — feel every degree.', 30, 'Slow', 'Bodyweight'),
+    ex('Flexibility', 'Pigeon Pose', '1', '60 sec/side', 'Sink a little deeper than Week 1.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Lying Figure-4 Stretch', '1', '60 sec/side', 'Pull slightly more.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Kneeling Hip Flexor Stretch', '1', '60 sec/side', 'Push hips forward slightly more.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Standing Quad Stretch', '1', '45 sec/side', 'Balance improving — hold steady.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Seated Hamstring Stretch', '1', '60 sec/side', 'Reach forward a little further.', 0, 'Hold', 'Bodyweight'),
+    ex('Recovery', 'Foam Roller — Full Legs', '1', '2 min each area', 'Slow and deliberate.', 0, 'Slow', 'Foam Roller'),
+    ex('Flexibility', 'Seated Butterfly Stretch', '1', '90 sec', 'Lean forward slightly if comfortable.', 0, 'Hold', 'Bodyweight')
+  ]);
+
+  const ulsWeek3Thursday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 5% incline', 0, 'Steady', 'Treadmill'),
+    ex('Activation', 'Glute Bridges', '3', '20', 'More reps this week. Squeeze hard.', 30, 'Controlled', 'Bodyweight'),
+    ex('Hips', 'Hip Abductor Machine', '3', '15', 'Add a set this week. Peak effort.', 45, 'Controlled', 'Machine'),
+    ex('Legs', 'Standing Cable Kickbacks', '3', '12', 'Add a set. Full extension each rep.', 45, 'Controlled', 'Cable'),
+    ex('Mobility', 'Hip CARs', '3', '6/side', 'Three sets — really own the full range.', 30, 'Slow', 'Bodyweight'),
+    ex('Flexibility', 'Pigeon Pose', '1', '75 sec/side', 'Extended hold this week.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Lying Figure-4 Stretch', '1', '75 sec/side', 'Extended hold.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Kneeling Hip Flexor Stretch', '1', '75 sec/side', 'Max depth.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Standing Quad Stretch', '1', '60 sec/side', 'Longer hold this week.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Seated Hamstring Stretch', '1', '75 sec/side', 'Extended hold. Reach further.', 0, 'Hold', 'Bodyweight'),
+    ex('Recovery', 'Foam Roller — Full Legs', '1', '2 min each area', 'Thorough tissue work.', 0, 'Slow', 'Foam Roller'),
+    ex('Flexibility', 'Seated Butterfly Stretch', '1', '90 sec', 'Lean forward and hold.', 0, 'Hold', 'Bodyweight')
+  ]);
+
+  const ulsWeek4Thursday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 3% incline — easy deload', 0, 'Steady', 'Treadmill'),
+    ex('Activation', 'Glute Bridges', '2', '15', 'Easy effort. Recovery week.', 30, 'Controlled', 'Bodyweight'),
+    ex('Hips', 'Hip Abductor Machine', '2', '15', 'Light weight. Movement focus.', 45, 'Controlled', 'Machine'),
+    ex('Legs', 'Standing Cable Kickbacks', '2', '12', 'Light resistance. Easy movement.', 45, 'Controlled', 'Cable'),
+    ex('Mobility', 'Hip CARs', '2', '8/side', 'Deload week — more reps but very slow and easy.', 30, 'Slow', 'Bodyweight'),
+    ex('Flexibility', 'Pigeon Pose', '1', '90 sec/side', 'Longest hold of the cycle. Full recovery.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Lying Figure-4 Stretch', '1', '90 sec/side', 'Full release.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Kneeling Hip Flexor Stretch', '1', '90 sec/side', 'Deepest hold of the cycle.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Standing Quad Stretch', '1', '60 sec/side', 'Easy and relaxed.', 0, 'Hold', 'Bodyweight'),
+    ex('Flexibility', 'Seated Hamstring Stretch', '1', '90 sec/side', 'Full relaxation.', 0, 'Hold', 'Bodyweight'),
+    ex('Recovery', 'Foam Roller — Full Legs', '1', '3 min each area', 'Extra thorough deload week.', 0, 'Slow', 'Foam Roller'),
+    ex('Flexibility', 'Seated Butterfly Stretch', '1', '2 min', 'Longest hold of the full cycle.', 0, 'Hold', 'Bodyweight')
+  ]);
+
+  // Joey Upper/Lower Split — Friday (Core + Full Upper Body)
+  const ulsWeek1Friday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 10% incline', 0, 'Steady', 'Treadmill'),
+    ex('Chest', 'Dumbbell Chest Press', '2', '10', 'Lighter than Monday. Controlled reps.', 60, 'Controlled', 'Dumbbells'),
+    ex('Back/Chest', 'Lat Pullover', '3', '10', 'Full stretch at bottom. Moderate weight.', 60, 'Controlled', 'Dumbbells'),
+    ex('Triceps', 'Skull Crusher + Hammer Curl Superset', '2', '10 each', 'Lighter than Wednesday. Smooth reps.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '4', '15 each', 'Core is the main focus today. Full effort.', 60, 'Controlled', 'Decline Bench'),
+    ex('Core', 'Plank', '3', '45 sec', 'Brace hard. Keep ribs down.', 45, 'Hold', 'Bodyweight')
+  ]);
+
+  const ulsWeek2Friday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 10% incline', 0, 'Steady', 'Treadmill'),
+    ex('Chest', 'Dumbbell Chest Press', '2', '10', 'Slightly more weight than Week 1 Friday.', 60, 'Controlled', 'Dumbbells'),
+    ex('Back/Chest', 'Lat Pullover', '3', '10', 'Build slightly from Week 1.', 60, 'Controlled', 'Dumbbells'),
+    ex('Triceps', 'Skull Crusher + Hammer Curl Superset', '2', '10 each', 'Build from Week 1 Friday.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '4', '15 each', 'Add light weight if bodyweight felt easy.', 60, 'Controlled', 'Decline Bench'),
+    ex('Core', 'Plank', '3', '60 sec', 'Extend hold from Week 1.', 45, 'Hold', 'Bodyweight')
+  ]);
+
+  const ulsWeek3Friday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 10% incline', 0, 'Steady', 'Treadmill'),
+    ex('Chest', 'Dumbbell Chest Press', '3', '8', 'Push closer to max today. Add a set.', 60, 'Controlled', 'Dumbbells'),
+    ex('Back/Chest', 'Lat Pullover', '3', '10', 'Peak weight with full range.', 60, 'Controlled', 'Dumbbells'),
+    ex('Triceps', 'Skull Crusher + Hammer Curl Superset', '3', '10 each', 'Add a set from previous Fridays.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '4', '15 each', 'Peak effort. Add plate if able.', 60, 'Controlled', 'Decline Bench'),
+    ex('Core', 'Plank', '3', '60 sec', 'Steady and strong.', 45, 'Hold', 'Bodyweight')
+  ]);
+
+  const ulsWeek4Friday = withPre([
+    ex('Warm-Up', 'Incline Treadmill Walk', '1', '15 min', '3 mph, 8% incline', 0, 'Steady', 'Treadmill'),
+    ex('Chest', 'Dumbbell Chest Press', '2', '12', 'Light weight. Recovery focus.', 60, 'Controlled', 'Dumbbells'),
+    ex('Back/Chest', 'Lat Pullover', '2', '12', 'Light and full range.', 60, 'Controlled', 'Dumbbells'),
+    ex('Triceps', 'Skull Crusher + Hammer Curl Superset', '2', '12 each', 'Easy weight and smooth movement.', 60, 'Controlled', 'Dumbbells/Barbell'),
+    ex('Core', 'Decline Russian Twist + Weighted Decline Crunch Superset', '3', '12 each', 'Reduce sets. Light and easy.', 60, 'Controlled', 'Decline Bench'),
+    ex('Core', 'Plank', '2', '45 sec', 'Easy hold. Recovery week.', 45, 'Hold', 'Bodyweight')
+  ]);
+
   const PROGRAM_TEMPLATES = {
     'golf-6week': {
       weeks: {
@@ -363,6 +633,46 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
           Wednesday: cloneList(JOEY_NIGHT_STRETCH),
           Thursday: joeyWeek4Thursday,
           Friday: joeyWeek4Friday,
+          Saturday: cloneList(JOEY_NIGHT_STRETCH),
+          Sunday: cloneList(JOEY_REST_DAY)
+        }
+      }
+    },
+    'joey-upper-lower-split': {
+      weeks: {
+        1: {
+          Monday: ulsWeek1Monday,
+          Tuesday: ulsWeek1Tuesday,
+          Wednesday: ulsWeek1Wednesday,
+          Thursday: ulsWeek1Thursday,
+          Friday: ulsWeek1Friday,
+          Saturday: cloneList(JOEY_NIGHT_STRETCH),
+          Sunday: cloneList(JOEY_REST_DAY)
+        },
+        2: {
+          Monday: ulsWeek2Monday,
+          Tuesday: ulsWeek2Tuesday,
+          Wednesday: ulsWeek2Wednesday,
+          Thursday: ulsWeek2Thursday,
+          Friday: ulsWeek2Friday,
+          Saturday: cloneList(JOEY_NIGHT_STRETCH),
+          Sunday: cloneList(JOEY_REST_DAY)
+        },
+        3: {
+          Monday: ulsWeek3Monday,
+          Tuesday: ulsWeek3Tuesday,
+          Wednesday: ulsWeek3Wednesday,
+          Thursday: ulsWeek3Thursday,
+          Friday: ulsWeek3Friday,
+          Saturday: cloneList(JOEY_NIGHT_STRETCH),
+          Sunday: cloneList(JOEY_REST_DAY)
+        },
+        4: {
+          Monday: ulsWeek4Monday,
+          Tuesday: ulsWeek4Tuesday,
+          Wednesday: ulsWeek4Wednesday,
+          Thursday: ulsWeek4Thursday,
+          Friday: ulsWeek4Friday,
           Saturday: cloneList(JOEY_NIGHT_STRETCH),
           Sunday: cloneList(JOEY_REST_DAY)
         }
