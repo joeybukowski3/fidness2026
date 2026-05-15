@@ -454,7 +454,7 @@ body{padding-bottom:104px}
 .ex-name{font-size:1rem;margin:0}
 .ex-name-row{align-items:flex-start}
 .ex-target{font-size:1.15rem;font-family:var(--font-display);letter-spacing:0.04em;color:var(--accent)}
-.ex-check{border-radius:10px;background:var(--bg3)}
+.ex-check{border-radius:10px;background:var(--bg3);padding:0;outline:none;}
 .ex-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.35rem;margin-top:0.3rem}
 .ex-info-cell{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:0.3rem 0.45rem}
 .ex-info-cell b{display:block;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-bottom:0.1rem}
@@ -1269,11 +1269,9 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     return day === getActiveEditableWorkoutDay();
   }
   function getExState(day, idx) {
-    if (!isCurrentWorkoutDay(day)) return { done: false, weight: '', reps: '', collapsed: true, exercise: '', swapped: false };
     return state.data[getKey(day, idx)] || state.data[getLegacyKey(day, idx)] || { done: false, weight: '', reps: '', collapsed: true, exercise: '', swapped: false };
   }
   function setExState(day, idx, val) {
-    if (!isCurrentWorkoutDay(day)) return;
     state.data[getKey(day, idx)] = val;
     save();
   }
@@ -1308,7 +1306,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   const HIDE_COMPLETED_KEY = 'hideCompleted';
 let uiActiveTab = (localStorage.getItem(UI_TAB_KEY) || 'home').toLowerCase();
 if (!['home', 'program', 'history'].includes(uiActiveTab)) uiActiveTab = 'home';
-let hideCompleted = JSON.parse(localStorage.getItem(HIDE_COMPLETED_KEY) || 'false');
+let hideCompleted = JSON.parse(localStorage.getItem(HIDE_COMPLETED_KEY) || 'true');
 let showCompletedOverride = false;
 let activeWorkoutTab = state.activeWorkoutTab;
 let workoutHistory = getWorkoutHistory();
@@ -1550,17 +1548,8 @@ function resetDailyWorkoutState(nowISO = formatLocalISO(new Date())) {
   save();
 }
 function pruneWorkoutStateToCurrentDay() {
-  const editableDay = getActiveEditableWorkoutDay();
-  Object.keys(state.data).forEach(key => {
-    const newMatch = key.match(/^w\d+_[^_]+_(.+)_\d+$/);
-    if (newMatch) {
-      if (newMatch[1] !== editableDay) delete state.data[key];
-      return;
-    }
-    const legacyMatch = key.match(/^w\d+_(.+)_\d+$/);
-    if (!legacyMatch) return;
-    if (legacyMatch[1] !== editableDay) delete state.data[key];
-  });
+  // Pruning disabled to allow multi-day logging and history preservation
+  return;
 }
 function ensureDailyWorkoutState() {
   const nowISO = formatLocalISO(new Date());
@@ -2037,7 +2026,7 @@ function renderDay(day) {
         const checkedClass = s.done ? ' checked' : '';
         const collapsedClass = s.collapsed ? ' collapsed' : '';
       out += `<div class="ex-card${doneClass}${collapsedClass}${s.swapped ? ' swapped-ui' : ''}${currentSetLogger && currentSetLogger.day===day && currentSetLogger.idx===ex._idx ? ' active-card' : ''}" id="card-${ex._idx}" data-idx="${ex._idx}" onclick="toggleExerciseCollapse('${day}',${ex._idx})">
-          <div class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx}); event.stopPropagation();" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</div>
+          <button type="button" class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx}); event.stopPropagation();" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</button>
           <div class="ex-body">
             <div class="ex-header">
               <div class="ex-name">
