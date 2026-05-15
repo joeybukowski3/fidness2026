@@ -1470,10 +1470,23 @@ function getExerciseId(name) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 }
+function isBodyweightOnly(exName) {
+  const n = (exName || '').toLowerCase();
+  return n.includes('plank') || n.includes('crunch') || n.includes('sit-up') || n.includes('bird dog') || n.includes('dead bug') || n.includes('bridge') || n.includes('march') || n.includes('scorpion') || n.includes('yoga') || n.includes('stretch');
+}
+
+function isTimeBased(exName) {
+  const n = (exName || '').toLowerCase();
+  return n.includes('plank') || n.includes('hold') || n.includes('hang') || n.includes('rest') || n.includes('activity');
+}
+
 function renderRepsOptions(selected) {
   const opts = [];
-  for (let i = 1; i <= 20; i++) opts.push(i);
-  [25, 30].forEach(v => opts.push(v));
+  for (let i = 1; i <= 30; i++) opts.push(i);
+  [35, 40, 45, 50, 60, 75, 90, 120].forEach(v => opts.push(v));
+  const selInt = parseInt(selected, 10);
+  if (selInt && !opts.includes(selInt)) opts.push(selInt);
+  opts.sort((a, b) => a - b);
   return opts.map(v => `<option value="${v}" ${String(selected) === String(v) ? 'selected' : ''}>${v}</option>`).join('');
 }
 
@@ -2053,17 +2066,22 @@ function renderDay(day) {
             
             ${isTrackableWorkoutExercise(ex) ? `
               <div class="weight-row" style="display:flex!important; gap:0.5rem; align-items:center; margin-top:0.6rem;">
+                 ${!isBodyweightOnly(nameToFind) ? `
                  <div style="flex:1;">
                    <span style="font-size:10px; text-transform:uppercase; color:var(--text3); display:block; margin-bottom:2px;">Weight (lbs)</span>
-                   <input class="weight-input" type="number" step="0.5" value="${s.weight || ''}" placeholder="--" 
+                   <select class="weight-input" 
                      onchange="setWeight('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();"
-                     onclick="event.stopPropagation();" style="width:100% !important; text-align:left; padding-left:8px;">
-                 </div>
+                     onclick="event.stopPropagation();" style="width:100% !important; text-align:left; padding-left:8px; height:36px; border-radius:8px; border:1px solid var(--border); background:var(--bg3); color:var(--text);">
+                     ${buildWeightOptionsHtml(parseFloat(s.weight) || 0)}
+                   </select>
+                 </div>` : ''}
                  <div style="flex:1;">
-                   <span style="font-size:10px; text-transform:uppercase; color:var(--text3); display:block; margin-bottom:2px;">Reps</span>
-                   <input class="weight-input" type="number" value="${s.reps || ''}" placeholder="--" 
+                   <span style="font-size:10px; text-transform:uppercase; color:var(--text3); display:block; margin-bottom:2px;">${isTimeBased(nameToFind) ? 'Seconds' : 'Reps'}</span>
+                   <select class="weight-input" 
                      onchange="setReps('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();"
-                     onclick="event.stopPropagation();" style="width:100% !important; text-align:left; padding-left:8px;">
+                     onclick="event.stopPropagation();" style="width:100% !important; text-align:left; padding-left:8px; height:36px; border-radius:8px; border:1px solid var(--border); background:var(--bg3); color:var(--text);">
+                     ${renderRepsOptions(s.reps || ex._defaultReps)}
+                   </select>
                  </div>
               </div>` : ''}
 
@@ -2430,12 +2448,10 @@ function openSetLogger(day, idx) {
         </select>
       </div>
       <div class="stepper">
-        <h4>Reps</h4>
-        <div class="stepper-ctrl">
-          <button onclick="adjustSetField('reps',-1);event.stopPropagation();">-</button>
-          <span id="sheetReps">${currentSetLogger.reps}</span>
-          <button onclick="adjustSetField('reps',1);event.stopPropagation();">+</button>
-        </div>
+        <h4>${isTimeBased(exName) ? 'Seconds' : 'Reps'}</h4>
+        <select id="sheetRepsSelect" class="stepper-select" onchange="setSheetReps(this.value);event.stopPropagation();">
+          ${renderRepsOptions(currentSetLogger.reps)}
+        </select>
       </div>
     </div>
     <div class="effort-row">
@@ -2483,6 +2499,12 @@ function setSheetWeight(val) {
   if (!currentSetLogger) return;
   const parsed = parseFloat(val);
   currentSetLogger.weight = Number.isFinite(parsed) ? parsed : 0;
+}
+
+function setSheetReps(val) {
+  if (!currentSetLogger) return;
+  const parsed = parseInt(val, 10);
+  currentSetLogger.reps = Number.isFinite(parsed) ? parsed : 10;
 }
 
 function setEffort(level) {
