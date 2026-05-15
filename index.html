@@ -462,7 +462,7 @@ body{padding-bottom:104px}
 .ex-dot-row{display:flex;gap:6px;align-items:center;margin-top:0.3rem}
 .ex-dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,0.15);border:1px solid var(--border)}
 .ex-dot.done{background:var(--accent);border-color:var(--accent)}
-.ex-details,.ex-notes,.ex-equip,.ex-info-toggle,.ex-visual,.weight-row{display:none!important}
+.ex-notes,.ex-equip,.ex-info-toggle,.ex-visual{display:none!important}
 
 .set-sheet{position:fixed;inset:0;display:flex;align-items:flex-end;z-index:220;background:rgba(5,5,8,0);pointer-events:none;transition:background 0.2s ease}
 .set-sheet.active{background:rgba(5,5,8,0.45);pointer-events:auto}
@@ -800,7 +800,7 @@ function refreshWeekSelectOptions() {
 function isTrackableWorkoutExercise(ex) {
   if (!ex || !ex.exercise) return false;
   const phase = (ex.phase || '').toLowerCase();
-  return !phase.includes('stretch') && !phase.includes('bonus');
+  return !phase.includes('stretch');
 }
 
 // ============ EXERCISE DESCRIPTIONS ============
@@ -1279,12 +1279,12 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   }
 
   function markExerciseCompleteFromLog(day, idx, exerciseState) {
-    const s = exerciseState || getExState(day, idx);
-    if (s.done) return s;
-    s.done = true;
-    s.collapsed = true;
-    return s;
-  }
+  const s = exerciseState || getExState(day, idx);
+  if (s.done) return s;
+  s.done = true;
+  if (s.weight && s.reps) s.collapsed = true;
+  return s;
+}
 
   function getAlternative(notes) {
     if (!notes) return null;
@@ -2064,8 +2064,25 @@ function renderDay(day) {
                 <div class="ex-info-cell"><b>Last Time</b><span>${lastText}</span></div>
                 <div class="ex-info-cell"><b>Today's Target</b><span>${targetText}</span></div>
               </div>
+              
+              ${isTrackableWorkoutExercise(ex) ? `
+              <div class="weight-row" style="display:flex!important; gap:0.5rem; align-items:center; margin-top:0.6rem;">
+                 <div style="flex:1;">
+                   <span style="font-size:10px; text-transform:uppercase; color:var(--text3); display:block; margin-bottom:2px;">Weight (lbs)</span>
+                   <input class="weight-input" type="number" step="0.5" value="${s.weight || ''}" placeholder="--" 
+                     onchange="setWeight('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();"
+                     onclick="event.stopPropagation();" style="width:100% !important; text-align:left; padding-left:8px;">
+                 </div>
+                 <div style="flex:1;">
+                   <span style="font-size:10px; text-transform:uppercase; color:var(--text3); display:block; margin-bottom:2px;">Reps</span>
+                   <input class="weight-input" type="number" value="${s.reps || ''}" placeholder="--" 
+                     onchange="setReps('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();"
+                     onclick="event.stopPropagation();" style="width:100% !important; text-align:left; padding-left:8px;">
+                 </div>
+              </div>` : ''}
+
               <div class="ex-dot-row">${dots}</div>
-              <button class="ex-log-btn" type="button" onclick="openSetLogger('${day}',${ex._idx}); event.stopPropagation();">Log Set</button>
+              <button class="ex-log-btn" type="button" onclick="openSetLogger('${day}',${ex._idx}); event.stopPropagation();">${isTrackableWorkoutExercise(ex) ? 'Set Logger' : 'Log Stretch'}</button>
               </div>`;
             })()}
           </div>
