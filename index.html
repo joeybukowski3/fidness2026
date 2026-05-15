@@ -2025,6 +2025,18 @@ function renderDay(day) {
         const doneClass = s.done ? ' done' : '';
         const checkedClass = s.done ? ' checked' : '';
         const collapsedClass = s.collapsed ? ' collapsed' : '';
+        
+        const nameToFind = s.swapped ? getAlternative(ex.notes) : ex.exercise;
+        const last = getLatestHistoryEntry(nameToFind);
+        const lastText = last ? `${last.weight || '-'} x ${last.reps || '-'} · ${new Date(last.ts).toLocaleDateString()}` : 'No previous data';
+        const previousWeight = getPreviousExerciseWeight(nameToFind);
+        const targetWeight = s.weight || (previousWeight !== null ? formatWeightOption(previousWeight) : '--');
+        const targetText = `${targetWeight} lbs x ${s.reps || ex._defaultReps} reps`;
+        const totalSets = Math.max(parseInt(ex.sets, 10) || 1, 1);
+        const doneSets = s.done ? totalSets : 0;
+        let dots = '';
+        for (let dot = 0; dot < totalSets; dot++) dots += `<span class="ex-dot${dot < doneSets ? ' done' : ''}"></span>`;
+
       out += `<div class="ex-card${doneClass}${collapsedClass}${s.swapped ? ' swapped-ui' : ''}${currentSetLogger && currentSetLogger.day===day && currentSetLogger.idx===ex._idx ? ' active-card' : ''}" id="card-${ex._idx}" data-idx="${ex._idx}" onclick="toggleExerciseCollapse('${day}',${ex._idx})">
           <button type="button" class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx}); event.stopPropagation();" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</button>
           <div class="ex-body">
@@ -2035,26 +2047,11 @@ function renderDay(day) {
                   <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
                   <span class="ex-target-inline"> - ${ex.sets} x ${ex.reps}</span>
                 </div>
+                <div style="font-size:0.65rem; color:var(--text3); margin-top:0.1rem;">Prev: ${lastText}</div>
               </div>
             </div>
-            ${(() => {
-              const nameToFind = s.swapped ? getAlternative(ex.notes) : ex.exercise;
-              const last = getLatestHistoryEntry(nameToFind);
-              const lastText = last ? `${last.weight || '-'} x ${last.reps || '-'} · ${new Date(last.ts).toLocaleDateString()}` : 'No previous data';
-              const previousWeight = getPreviousExerciseWeight(nameToFind);
-              const targetWeight = s.weight || (previousWeight !== null ? formatWeightOption(previousWeight) : '--');
-              const targetText = `${targetWeight} lbs x ${s.reps || ex._defaultReps} reps`;
-              const totalSets = Math.max(parseInt(ex.sets, 10) || 1, 1);
-              const doneSets = s.done ? totalSets : 0;
-              let dots = '';
-              for (let dot = 0; dot < totalSets; dot++) dots += `<span class="ex-dot${dot < doneSets ? ' done' : ''}"></span>`;
-              return `<div class="ex-details">
-              <div class="ex-info-grid">
-                <div class="ex-info-cell"><b>Last Time</b><span>${lastText}</span></div>
-                <div class="ex-info-cell"><b>Today's Target</b><span>${targetText}</span></div>
-              </div>
-              
-              ${isTrackableWorkoutExercise(ex) ? `
+            
+            ${isTrackableWorkoutExercise(ex) ? `
               <div class="weight-row" style="display:flex!important; gap:0.5rem; align-items:center; margin-top:0.6rem;">
                  <div style="flex:1;">
                    <span style="font-size:10px; text-transform:uppercase; color:var(--text3); display:block; margin-bottom:2px;">Weight (lbs)</span>
@@ -2070,10 +2067,14 @@ function renderDay(day) {
                  </div>
               </div>` : ''}
 
+            <div class="ex-details">
+              <div class="ex-info-grid">
+                <div class="ex-info-cell"><b>Last Time</b><span>${lastText}</span></div>
+                <div class="ex-info-cell"><b>Today's Target</b><span>${targetText}</span></div>
+              </div>
               <div class="ex-dot-row">${dots}</div>
               <button class="ex-log-btn" type="button" onclick="openSetLogger('${day}',${ex._idx}); event.stopPropagation();">${isTrackableWorkoutExercise(ex) ? 'Set Logger' : 'Log Stretch'}</button>
-              </div>`;
-            })()}
+            </div>
           </div>
         </div>`;
       });
