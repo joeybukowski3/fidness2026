@@ -535,6 +535,50 @@ body{padding-bottom:104px}
 
 /* Compact exercise card */
 .ex-target-inline{font-size:0.78rem;font-family:var(--font-display);letter-spacing:0.04em;color:var(--accent);opacity:0.85;white-space:nowrap}
+
+/* Spreadsheet workout layout */
+.workout-sheet-note{font-size:0.68rem;color:var(--text3);margin:-0.1rem 0 0.45rem}
+.phase{margin-bottom:0.65rem}
+.phase-header{border-radius:6px 6px 0 0;padding:0.38rem 0.55rem}
+.phase-header.stretch,.phase-header.main,.phase-header.bonus{background:var(--bg3);color:var(--text2)}
+.phase-body{border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;overflow:hidden;background:var(--bg2)}
+.ex-card{display:grid;grid-template-columns:76px minmax(0,1fr) 250px;gap:0;border:0;border-bottom:1px solid var(--border);border-radius:0;padding:0;background:var(--bg2);align-items:stretch;min-height:68px}
+.ex-card:last-child{border-radius:0;border-bottom:none}
+.ex-card.done,.ex-card.completed{opacity:0.62}
+.ex-card.active-card{border-color:var(--border);box-shadow:none;background:var(--bg2)}
+.ex-complete-cell{border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0.45rem}
+.ex-check{width:auto;height:auto;min-width:54px;border:1px solid var(--border);border-radius:5px;background:var(--bg3);color:var(--text3);padding:0.28rem 0.35rem;font-size:0.62rem;font-weight:800;text-transform:uppercase;line-height:1.05;flex-direction:column;gap:0.12rem}
+.ex-check::after{content:'Complete';display:block}
+.ex-check.checked{background:var(--accent);border-color:var(--accent);color:#10140c}
+.ex-main-cell{min-width:0;padding:0.5rem 0.65rem;display:flex;flex-direction:column;justify-content:center}
+.ex-name{font-size:0.86rem;margin:0;color:var(--text)}
+.ex-name-row{justify-content:flex-start}
+.ex-link-btn{font-weight:800;line-height:1.15}
+.ex-target-inline{font-size:0.72rem;color:var(--text3);font-family:var(--font-body);letter-spacing:0}
+.ex-last-result{font-size:0.68rem;color:var(--text3);line-height:1.25;margin-top:0.18rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-swap-indicator{font-size:0.56rem;margin-bottom:0.12rem}
+.ex-log-cell{border-left:1px solid var(--border);padding:0.38rem 0.45rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:0.32rem;align-content:center}
+.log-field{min-width:0}
+.log-field span{font-size:0.56rem;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:0.12rem;font-weight:800;letter-spacing:0.08em}
+.log-field select,.log-field input{width:100%;height:28px;border:1px solid var(--border);border-radius:5px;background:var(--bg3);color:var(--text);font:inherit;font-size:0.72rem;padding:0.2rem 0.3rem}
+.log-field select:focus,.log-field input:focus{outline:none;border-color:var(--accent)}
+.ex-details{grid-column:2 / 4;border-top:1px solid var(--border);padding:0.45rem 0.65rem;margin:0;background:rgba(255,255,255,0.02)}
+.ex-card.collapsed .ex-details{display:none}
+.ex-log-btn{margin-top:0.35rem;border-radius:5px}
+@media(max-width:640px){
+  .content{padding:0.5rem}
+  .workout-tabs{margin-top:0.35rem}
+  .workout-tab{font-size:0.66rem;padding:0.48rem 0.35rem}
+  .home-controls{margin-bottom:0.35rem}
+  .phase-header{padding:0.34rem 0.45rem}
+  .ex-card{grid-template-columns:1fr;min-height:0}
+  .ex-complete-cell{border-right:none;border-bottom:1px solid var(--border);justify-content:flex-start;padding:0.38rem 0.5rem}
+  .ex-check{min-width:0;flex-direction:row;padding:0.24rem 0.45rem}
+  .ex-main-cell{padding:0.45rem 0.5rem 0.35rem}
+  .ex-last-result{white-space:normal}
+  .ex-log-cell{border-left:none;border-top:1px solid var(--border);grid-template-columns:repeat(3,minmax(0,1fr));padding:0.38rem 0.5rem}
+  .ex-details{grid-column:auto;padding:0.42rem 0.5rem}
+}
 </style>
 </head>
 <body>
@@ -1749,6 +1793,30 @@ function getLatestHistoryEntry(exercise) {
   return list[list.length - 1];
 }
 
+function formatLastResult(entry, fallbackSets) {
+  if (!entry) return 'Last: No previous data';
+  const date = new Date(entry.ts).toLocaleDateString();
+  const weight = String(entry.weight || '').trim();
+  const reps = String(entry.reps || '').trim();
+  const sets = entry.sets || fallbackSets || '';
+  if (weight && reps) return `Last: ${date} - ${weight} lbs x ${reps}${sets ? ` x ${sets}` : ''}`;
+  if (reps) return `Last: ${date} - ${reps}`;
+  return `Last: ${date}`;
+}
+
+function renderSetOptions(selected, defaultSets) {
+  const opts = [];
+  const current = parseInt(selected || defaultSets, 10) || 1;
+  for (let i = 1; i <= 8; i++) opts.push(i);
+  if (!opts.includes(current)) opts.push(current);
+  opts.sort((a, b) => a - b);
+  return opts.map(v => `<option value="${v}" ${String(current) === String(v) ? 'selected' : ''}>${v}</option>`).join('');
+}
+
+function isCardioExercise(ex) {
+  return (getExerciseCategory(ex) || '').toLowerCase() === 'cardio';
+}
+
 async function openExerciseDetail(day, idx, week = state.week, programId = getActiveProgramId()) {
   const ex = getExerciseForDayIndex(day, idx, programId, week);
   if (!ex) return;
@@ -1981,10 +2049,11 @@ function renderDay(day) {
   const c = document.getElementById('content');
   if (day === 'Weight Log') { renderWeightLog(c); updateProgress(day); return; }
 
-  let html = renderTodayWeightPanel();
+  let html = '';
 
   if (day === 'Sunday') {
     html += renderSundayHtml();
+    html += renderTodayWeightPanel();
     c.innerHTML = html;
     updateProgress(day);
     return;
@@ -2025,11 +2094,10 @@ function renderDay(day) {
     for (const [phase, exs] of Object.entries(phases)) {
       if (!phaseFilter(phase)) continue;
       const cls = phase.includes('Stretch') ? 'stretch' : phase.includes('Bonus') ? 'bonus' : 'main';
-      const icon = cls === 'stretch' ? '&#127939;' : cls === 'main' ? '&#128170;' : '&#11088;';
       const collapsed = isPhaseCollapsed(day, phase) ? ' collapsed' : '';
       out += `<div class="phase${collapsed}">
         <div class="phase-header ${cls}" onclick="togglePhaseCollapse('${day}','${phase.replace(/'/g, '&#39;')}')">
-          <span class="phase-title">${icon} ${phase}</span>
+          <span class="phase-title">${phase}</span>
           <span class="phase-toggle"><span class="arrow">&#9654;</span> ${isPhaseCollapsed(day, phase) ? 'Expand' : 'Collapse'}</span>
         </div>
         <div class="phase-body">`;
@@ -2041,49 +2109,74 @@ function renderDay(day) {
         
         const nameToFind = s.swapped ? getAlternative(ex.notes) : ex.exercise;
         const last = getLatestHistoryEntry(nameToFind);
-        const lastText = last ? `${last.weight || '-'} x ${last.reps || '-'} · ${new Date(last.ts).toLocaleDateString()}` : 'No previous data';
+        const lastText = formatLastResult(last, s.sets || ex.sets);
         const previousWeight = getPreviousExerciseWeight(nameToFind);
         const targetWeight = s.weight || (previousWeight !== null ? formatWeightOption(previousWeight) : '--');
-        const targetText = `${targetWeight} lbs x ${s.reps || ex._defaultReps} reps`;
+        const targetSets = s.sets || ex.sets;
+        const targetText = `${targetWeight} lbs x ${s.reps || ex._defaultReps} x ${targetSets}`;
         const totalSets = Math.max(parseInt(ex.sets, 10) || 1, 1);
         const doneSets = s.done ? totalSets : 0;
         let dots = '';
         for (let dot = 0; dot < totalSets; dot++) dots += `<span class="ex-dot${dot < doneSets ? ' done' : ''}"></span>`;
 
       out += `<div class="ex-card${doneClass}${collapsedClass}${s.swapped ? ' swapped-ui' : ''}${currentSetLogger && currentSetLogger.day===day && currentSetLogger.idx===ex._idx ? ' active-card' : ''}" id="card-${ex._idx}" data-idx="${ex._idx}" onclick="toggleExerciseCollapse('${day}',${ex._idx})">
-          <button type="button" class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx}); event.stopPropagation();" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</button>
-          <div class="ex-body">
-            <div class="ex-header">
-              <div class="ex-name">
-                ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alternative</div>' : (getAlternative(ex.notes) ? '<div class="ex-swap-indicator" style="color:var(--text3);">&#9733; Sub Available</div>' : '')}
-                <div class="ex-name-row" style="align-items:center;flex-wrap:wrap;gap:0.3rem;">
+          <div class="ex-complete-cell">
+            <button type="button" class="ex-check${checkedClass}" onclick="toggleEx('${day}',${ex._idx}); event.stopPropagation();" id="check-${ex._idx}">${s.done ? '&#10003;' : ''}</button>
+          </div>
+          <div class="ex-main-cell">
+            <div class="ex-name">
+              ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alternative</div>' : (getAlternative(ex.notes) ? '<div class="ex-swap-indicator" style="color:var(--text3);">&#9733; Sub Available</div>' : '')}
+              <div class="ex-name-row">
                   <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
                   <span class="ex-target-inline"> - ${ex.sets} x ${ex.reps}</span>
-                </div>
-                <div style="font-size:0.65rem; color:var(--text3); margin-top:0.1rem;">Prev: ${lastText}</div>
               </div>
+              <div class="ex-last-result">${lastText}</div>
             </div>
-            
-            ${isTrackableWorkoutExercise(ex) ? `
-              <div class="weight-row" style="display:flex!important; gap:0.5rem; align-items:center; margin-top:0.6rem;">
+          </div>
+          <div class="ex-log-cell">
+            ${isCardioExercise(ex) ? `
+              <div class="log-field">
+                <span>Speed</span>
+                <input type="number" step="0.1" value="${s.speed || ''}" placeholder="mph" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'speed',this.value); event.stopPropagation();">
+              </div>
+              <div class="log-field">
+                <span>Incline</span>
+                <input type="number" step="0.5" value="${s.incline || ''}" placeholder="%" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'incline',this.value); event.stopPropagation();">
+              </div>
+              <div class="log-field">
+                <span>Distance</span>
+                <input type="number" step="0.1" value="${s.distance || ''}" placeholder="mi" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'distance',this.value); event.stopPropagation();">
+              </div>
+              <div class="log-field">
+                <span>Time</span>
+                <input type="text" value="${s.time || ''}" placeholder="min" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'time',this.value); event.stopPropagation();">
+              </div>` : isTrackableWorkoutExercise(ex) ? `
                  ${!isBodyweightOnly(nameToFind) ? `
-                 <div style="flex:1;">
-                   <span style="font-size:10px; text-transform:uppercase; color:var(--text3); display:block; margin-bottom:2px;">Weight (lbs)</span>
-                   <select class="weight-input" 
+                 <div class="log-field">
+                   <span>Weight</span>
+                   <select 
                      onchange="setWeight('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();"
-                     onclick="event.stopPropagation();" style="width:100% !important; text-align:left; padding-left:8px; height:36px; border-radius:8px; border:1px solid var(--border); background:var(--bg3); color:var(--text);">
+                     onclick="event.stopPropagation();">
                      ${buildWeightOptionsHtml(parseFloat(s.weight) || 0)}
                    </select>
                  </div>` : ''}
-                 <div style="flex:1;">
-                   <span style="font-size:10px; text-transform:uppercase; color:var(--text3); display:block; margin-bottom:2px;">${isTimeBased(nameToFind) ? 'Seconds' : 'Reps'}</span>
-                   <select class="weight-input" 
+                 <div class="log-field">
+                   <span>${isTimeBased(nameToFind) ? 'Seconds' : 'Reps'}</span>
+                   <select 
                      onchange="setReps('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();"
-                     onclick="event.stopPropagation();" style="width:100% !important; text-align:left; padding-left:8px; height:36px; border-radius:8px; border:1px solid var(--border); background:var(--bg3); color:var(--text);">
+                     onclick="event.stopPropagation();">
                      ${renderRepsOptions(s.reps || ex._defaultReps)}
                    </select>
                  </div>
-              </div>` : ''}
+                 <div class="log-field">
+                   <span>Sets</span>
+                   <select
+                     onchange="setSets('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();"
+                     onclick="event.stopPropagation();">
+                     ${renderSetOptions(s.sets, ex.sets)}
+                   </select>
+                 </div>` : '<div class="log-field"><span>Sets</span><select onclick="event.stopPropagation();" onchange="setSets(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();">' + renderSetOptions(s.sets, ex.sets) + '</select></div><div class="log-field"><span>Time</span><input type="text" value="' + (s.reps || '') + '" placeholder="' + ex.reps + '" onclick="event.stopPropagation();" onchange="setReps(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();"></div>'}
+          </div>
 
             <div class="ex-details">
               <div class="ex-info-grid">
@@ -2093,7 +2186,6 @@ function renderDay(day) {
               <div class="ex-dot-row">${dots}</div>
               <button class="ex-log-btn" type="button" onclick="openSetLogger('${day}',${ex._idx}); event.stopPropagation();">${isTrackableWorkoutExercise(ex) ? 'Set Logger' : 'Log Stretch'}</button>
             </div>
-          </div>
         </div>`;
       });
       out += '</div></div>';
@@ -2108,6 +2200,7 @@ function renderDay(day) {
   html += `<div class="workout-section${activeWorkoutTab === 'pre' ? ' active' : ''}" id="preWorkoutSection" data-section="pre">${preHtml}</div>`;
   html += `<div class="workout-section${activeWorkoutTab === 'main' ? ' active' : ''}" id="mainWorkoutSection" data-section="main">${mainHtml}</div>`;
   html += `<div class="workout-section${activeWorkoutTab === 'bonus' ? ' active' : ''}" id="bonusWorkoutSection" data-section="bonus">${bonusHtml}</div>`;
+  html += renderTodayWeightPanel();
   c.innerHTML = html;
   setWorkoutTab(activeWorkoutTab);
   updateProgress(day);
@@ -2343,7 +2436,6 @@ function setWeight(day, idx, name, val) {
   s.weight = val;
   s.exercise = name || s.exercise;
   s.lastUpdated = new Date().toISOString();
-  if (String(val || '').trim()) markExerciseCompleteFromLog(day, idx, s);
   setExState(day, idx, s);
   logWorkoutHistory(s.exercise, s.weight, s.reps);
   save(); // Sync cloud
@@ -2354,10 +2446,28 @@ function setReps(day, idx, name, val) {
   s.reps = val;
   s.exercise = name || s.exercise;
   s.lastUpdated = new Date().toISOString();
-  if (String(val || '').trim()) markExerciseCompleteFromLog(day, idx, s);
   setExState(day, idx, s);
   logWorkoutHistory(s.exercise, s.weight, s.reps);
   save(); // Sync cloud
+}
+
+function setSets(day, idx, name, val) {
+  const s = getExState(day, idx);
+  s.sets = val;
+  s.exercise = name || s.exercise;
+  s.lastUpdated = new Date().toISOString();
+  setExState(day, idx, s);
+  save();
+}
+
+function setCardioField(day, idx, field, val) {
+  const allowed = new Set(['speed', 'incline', 'distance', 'time']);
+  if (!allowed.has(field)) return;
+  const s = getExState(day, idx);
+  s[field] = val;
+  s.lastUpdated = new Date().toISOString();
+  setExState(day, idx, s);
+  save();
 }
 
 let currentSetLogger = null;
@@ -2520,11 +2630,16 @@ function logSetEntry() {
 
   setWeight(currentSetLogger.day, currentSetLogger.idx, ex.exercise, String(currentSetLogger.weight));
   setReps(currentSetLogger.day, currentSetLogger.idx, ex.exercise, String(currentSetLogger.reps));
+  const loggedState = getExState(currentSetLogger.day, currentSetLogger.idx);
+  loggedState.sets = String(Math.max(parseInt(ex.sets, 10) || 1, 1));
+  markExerciseCompleteFromLog(currentSetLogger.day, currentSetLogger.idx, loggedState);
+  setExState(currentSetLogger.day, currentSetLogger.idx, loggedState);
 
   // Store effort on the most recent history entry
   const hist = getWorkoutHistory();
   if (hist.length > 0) {
     hist[hist.length - 1].effort = currentSetLogger.effort || 'Moderate';
+    hist[hist.length - 1].sets = loggedState.sets;
     saveWorkoutHistory(hist);
   }
 
