@@ -49,27 +49,27 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
 
   // ===== WEEK 1 (FOUNDATION) =====
   const w1Mon = [...warmup15,
-    ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', 'Baseline: moderate weight, smooth reps', 'Machine'),
+    ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', 'Start 130 lbs. This is your current working weight — focus on form and full ROM.', 'Machine'),
     ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Light weight, balance chest', 'Cable'),
-    ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '20 lbs each arm baseline', 'Dumbbells'),
-    ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '15 lbs each baseline', 'Dumbbells'),
+    ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', 'Start 30 lbs each. This is your proven working weight.', 'Dumbbells'),
+    ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', 'Start 25 lbs. Control the descent on each rep.', 'Dumbbells'),
     ...coreMid, ...cooldown5
   ];
 
   const w1Tue = [...warmup15,
-    ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '135 lbs × 3 × 10 baseline', 'Barbell'),
-    ex('Chest', 'Incline Dumbbell Press', '3', '10', 75, 'Controlled', '45 lbs each baseline', 'Dumbbells'),
-    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', 'Moderate weight, feel stretch', 'Machine'),
-    ex('Biceps', 'Barbell or EZ Curl', '3', '10', 60, 'Controlled', '65 lbs baseline', 'Barbell'),
-    ex('Biceps', 'Hammer Curl', '3', '12', 45, 'Controlled', '25 lbs each baseline', 'Dumbbells'),
-    ex('Back', 'Lat Pulldown (Wide)', '3', '12', 60, 'Controlled', 'Moderate, full range', 'Machine'),
+    ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', 'Start 115 lbs (incline barbell). This is your established incline baseline.', 'Barbell'),
+    ex('Chest', 'Incline Dumbbell Press', '3', '10', 75, 'Controlled', 'Start 60-65 lbs each. Your proven DB press weight.', 'Dumbbells'),
+    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', 'Start 140 lbs. Your current pec deck working weight — full stretch at open.', 'Machine'),
+    ex('Biceps', 'Barbell or EZ Curl', '3', '10', 60, 'Controlled', 'Start 70 lbs. Your DB curl is 30 lbs so barbell/EZ should be ~70 lbs.', 'Barbell'),
+    ex('Biceps', 'Hammer Curl', '3', '12', 45, 'Controlled', '25 lbs each — your confirmed working weight. Neutral grip, no sway.', 'Dumbbells'),
+    ex('Back', 'Lat Pulldown (Wide)', '3', '12', 60, 'Controlled', 'Start 130 lbs. Your proven lat pulldown working weight.', 'Machine'),
     ex('Back', 'Cable Face Pull', '3', '15', 45, 'Controlled', 'Light, rear delt + rotator', 'Cable'),
     ...coreFull, ...cooldown5
   ];
 
   const w1Wed = [...warmup15,
-    ex('Lower', 'Leg Press (Shallow Depth)', '3', '12', 75, 'Controlled', 'Feet high, 60-70° bend only', 'Machine'),
-    ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Moderate weight, hamstring focus', 'Machine'),
+    ex('Lower', 'Leg Press (Shallow Depth)', '3', '12', 75, 'Controlled', 'Start 200 lbs. Your knee-safe working weight — feet high, 60-70° bend max.', 'Machine'),
+    ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Start 80 lbs. Your confirmed hamstring curl working weight.', 'Machine'),
     ex('Lower', 'Hip Abduction Machine', '3', '15', 45, 'Controlled', 'Knee stabilizer priority', 'Machine'),
     ex('Lower', 'Standing Hip Extension (Cable)', '3', '12 each leg', 45, 'Controlled', 'Glute + hip stability', 'Cable'),
     ex('Lower', 'Glute Bridge (Bodyweight)', '3', '15', 45, 'Controlled', 'Squeeze at top, activation week', 'Bodyweight'),
@@ -77,18 +77,18 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   ];
 
   const w1Thu = [...warmup15,
-    ex('Back', 'Seated Cable Row', '3', '10', 75, 'Controlled', 'Moderate, full squeeze', 'Cable'),
+    ex('Back', 'Seated Cable Row', '3', '10', 75, 'Controlled', 'Start 110 lbs. Your confirmed seated row working weight.', 'Cable'),
     ex('Back', 'Lat Pulldown (Underhand)', '3', '12', 60, 'Controlled', 'Different grip angle', 'Machine'),
-    ex('Back', 'Single-Arm Dumbbell Row', '3', '10 each', 60, 'Controlled', '50 lbs each baseline', 'Dumbbells'),
-    ex('Shoulders', 'Dumbbell Shoulder Press (Seated)', '3', '10', 75, 'Controlled', '35 lbs each baseline', 'Dumbbells'),
-    ex('Shoulders', 'Dumbbell Lateral Raise', '3', '12', 45, 'Controlled', '12 lbs each baseline, strict form', 'Dumbbells'),
-    ex('Triceps', 'Cable Pushdown (Rope)', '3', '12', 45, 'Controlled', 'Moderate, elbows pinned', 'Cable'),
+    ex('Back', 'Single-Arm Dumbbell Row', '3', '10 each', 60, 'Controlled', 'Start 55-60 lbs each. Strong single-arm rows — use a bench for support.', 'Dumbbells'),
+    ex('Shoulders', 'Dumbbell Shoulder Press (Seated)', '3', '10', 75, 'Controlled', 'Start 35 lbs each. Your confirmed overhead DB press weight.', 'Dumbbells'),
+    ex('Shoulders', 'Dumbbell Lateral Raise', '3', '12', 45, 'Controlled', 'Start 15 lbs. Your confirmed lateral raise weight — strict form, no swing.', 'Dumbbells'),
+    ex('Triceps', 'Cable Pushdown (Rope)', '3', '12', 45, 'Controlled', 'Start 75 lbs rope pushdown. Your confirmed tricep working weight.', 'Cable'),
     ex('Back', 'Cable Face Pull', '3', '15', 45, 'Controlled', 'Light, rotator cuff', 'Cable'),
     ...coreFull, ...cooldown5
   ];
 
   const w1Fri = [...warmup15,
-    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', 'Maintain form, no pain', 'Machine'),
+    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '200 lbs leg press. Maintain W1 — prioritize form and knee tracking.', 'Machine'),
     ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Stabilizer every lower day', 'Machine'),
     ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Hamstring focus', 'Machine'),
     ex('Lower', 'Standing Calf Raise (Machine)', '3', '20', 30, 'Controlled', 'Ankle-knee chain strength', 'Machine'),
@@ -98,46 +98,46 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
 
   // ===== WEEK 2 (FOUNDATION - SAME WEIGHT, FOCUS FORM) =====
   const w2Mon = [...warmup15,
-    ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', 'W1 weight, deeper range', 'Machine'),
+    ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', '130 lbs — same as W1. Focus on deeper ROM and slower descent.', 'Machine'),
     ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Same weight, balance work', 'Cable'),
-    ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '20 lbs, control reps', 'Dumbbells'),
+    ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '30 lbs — W1 weight. Full control on the negative.', 'Dumbbells'),
     ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '15 lbs, full range', 'Dumbbells'),
     ...coreMid, ...cooldown5
   ];
 
   const w2Tue = [...warmup15,
-    ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '135 lbs, aim for clean reps', 'Barbell'),
+    ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '115 lbs incline barbell. Hit all 10 clean reps before considering +5.', 'Barbell'),
     ex('Chest', 'Incline Dumbbell Press', '3', '10', 75, 'Controlled', '45 lbs, controlled descent', 'Dumbbells'),
-    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', 'Increase 10 lbs this week (now 50)', 'Machine'),
-    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '65 lbs or +5 if ready', 'Barbell'),
-    ex('Biceps', 'Hammer Curl', '3', '12', 45, 'Controlled', '25 lbs or +2.5', 'Dumbbells'),
-    ex('Back', 'Lat Pulldown (Wide)', '3', '12', 60, 'Controlled', 'Build slightly', 'Machine'),
+    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '145 lbs pec deck. Small progression from 140.', 'Machine'),
+    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '70 lbs — maintain baseline or +5 if reps felt easy.', 'Barbell'),
+    ex('Biceps', 'Hammer Curl', '3', '12', 45, 'Controlled', '25 lbs — maintain. Add 2.5 only if W1 felt very easy.', 'Dumbbells'),
+    ex('Back', 'Lat Pulldown (Wide)', '3', '12', 60, 'Controlled', '135 lbs lat pulldown. +5 from W1 only if all reps were clean.', 'Machine'),
     ex('Back', 'Cable Face Pull', '3', '15', 45, 'Controlled', 'Maintain light', 'Cable'),
     ...coreFull, ...cooldown5
   ];
 
   const w2Wed = [...warmup15,
     ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', 'Maintain form, no pain', 'Machine'),
-    ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Slight progression OK', 'Machine'),
-    ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Add weight if no compensation', 'Machine'),
-    ex('Lower', 'Standing Hip Extension (Cable)', '3', '12 each', 45, 'Controlled', 'Build slight resistance', 'Cable'),
+    ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', '80 lbs — maintain W1 weight.', 'Machine'),
+    ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', '120 lbs hip abduction — your confirmed working weight.', 'Machine'),
+    ex('Lower', 'Standing Hip Extension (Cable)', '3', '12 each', 45, 'Controlled', 'Moderate cable weight, controlled hip extension.', 'Cable'),
     ex('Lower', 'Glute Bridge (Bodyweight)', '3', '15', 45, 'Controlled', 'Squeeze at top', 'Bodyweight'),
     ...kneeStretch, ...walkCooldown
   ];
 
   const w2Thu = [...warmup15,
-    ex('Back', 'Seated Cable Row', '3', '10', 75, 'Controlled', 'Slight increase OK', 'Cable'),
-    ex('Back', 'Lat Pulldown (Underhand)', '3', '12', 60, 'Controlled', 'Build weight', 'Machine'),
-    ex('Back', 'Single-Arm Row', '3', '10 each', 60, 'Controlled', '50 lbs or +5', 'Dumbbells'),
-    ex('Shoulders', 'Dumbbell Shoulder Press', '3', '10', 75, 'Controlled', '35 lbs or +5 each', 'Dumbbells'),
-    ex('Shoulders', 'Dumbbell Lateral Raise', '3', '12', 45, 'Controlled', '12 lbs or +2.5', 'Dumbbells'),
-    ex('Triceps', 'Cable Pushdown (Rope)', '3', '12', 45, 'Controlled', 'Add weight while keeping form', 'Cable'),
+    ex('Back', 'Seated Cable Row', '3', '10', 75, 'Controlled', '110 lbs seated row — maintain W1.', 'Cable'),
+    ex('Back', 'Lat Pulldown (Underhand)', '3', '12', 60, 'Controlled', '135 lbs lat pulldown — maintain or +5.', 'Machine'),
+    ex('Back', 'Single-Arm Row', '3', '10 each', 60, 'Controlled', '55-60 lbs single-arm row — slight build from W1.', 'Dumbbells'),
+    ex('Shoulders', 'Dumbbell Shoulder Press', '3', '10', 75, 'Controlled', '35 lbs shoulder press — maintain W1, perfect reps.', 'Dumbbells'),
+    ex('Shoulders', 'Dumbbell Lateral Raise', '3', '12', 45, 'Controlled', '15 lbs lateral raise — maintain W1.', 'Dumbbells'),
+    ex('Triceps', 'Cable Pushdown (Rope)', '3', '12', 45, 'Controlled', '75 lbs rope pushdown — maintain W1.', 'Cable'),
     ex('Back', 'Cable Face Pull', '3', '15', 45, 'Controlled', 'Maintain', 'Cable'),
     ...coreFull, ...cooldown5
   ];
 
   const w2Fri = [...warmup15,
-    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', 'Slight progression OK', 'Machine'),
+    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '200 lbs leg press — maintain W1 form.', 'Machine'),
     ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Build weight', 'Machine'),
     ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Build weight', 'Machine'),
     ex('Lower', 'Standing Calf Raise', '3', '20', 30, 'Controlled', 'Add weight if easy', 'Machine'),
@@ -147,7 +147,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
 
   // ===== WEEK 3 (FOUNDATION - PUSH HARDER) =====
   const w3Mon = [...warmup15,
-    ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', 'Add 5-10 lbs, perfect form', 'Machine'),
+    ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', '135 lbs. +5 from W1. Push week — earn every rep.', 'Machine'),
     ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Light build', 'Cable'),
     ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '22 lbs each', 'Dumbbells'),
     ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '17 lbs each or build', 'Dumbbells'),
@@ -155,18 +155,18 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   ];
 
   const w3Tue = [...warmup15,
-    ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '+5 lbs (now 140) if 135×3×10 clean', 'Barbell'),
-    ex('Chest', 'Incline Dumbbell Press', '3', '10', 75, 'Controlled', '+5 lbs each (now 50)', 'Dumbbells'),
-    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '+10 lbs (now 60)', 'Machine'),
-    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '+5 lbs', 'Barbell'),
-    ex('Biceps', 'Hammer Curl', '3', '12', 45, 'Controlled', '+2.5 lbs each', 'Dumbbells'),
+    ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '+5 lbs (now 120 lbs incline barbell) if W1-2 felt clean', 'Barbell'),
+    ex('Chest', 'Incline Dumbbell Press', '3', '10', 75, 'Controlled', '+5 lbs each (now 65-70 lbs DB) if form held', 'Dumbbells'),
+    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '150 lbs pec deck — build on your strong baseline.', 'Machine'),
+    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '+5 lbs (now 75 lbs)', 'Barbell'),
+    ex('Biceps', 'Hammer Curl', '3', '12', 45, 'Controlled', '27.5 lbs hammer curl if available, else stay at 25.', 'Dumbbells'),
     ex('Back', 'Lat Pulldown (Wide)', '3', '12', 60, 'Controlled', 'Build weight', 'Machine'),
     ex('Back', 'Cable Face Pull', '3', '15', 45, 'Controlled', 'Light, rotator priority', 'Cable'),
     ...coreFull, ...cooldown5
   ];
 
   const w3Wed = [...warmup15,
-    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '+10 lbs if pain-free', 'Machine'),
+    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '210 lbs leg press — +10 only if zero knee discomfort.', 'Machine'),
     ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', '+10 lbs', 'Machine'),
     ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Add weight', 'Machine'),
     ex('Lower', 'Standing Hip Extension (Cable)', '3', '12 each', 45, 'Controlled', 'Build resistance', 'Cable'),
@@ -178,8 +178,8 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
     ex('Back', 'Seated Cable Row', '3', '10', 75, 'Controlled', '+10 lbs', 'Cable'),
     ex('Back', 'Lat Pulldown (Underhand)', '3', '12', 60, 'Controlled', 'Build weight', 'Machine'),
     ex('Back', 'Single-Arm Row', '3', '10 each', 60, 'Controlled', '+5 lbs each', 'Dumbbells'),
-    ex('Shoulders', 'Dumbbell Shoulder Press', '3', '10', 75, 'Controlled', '+5 lbs each (now 40)', 'Dumbbells'),
-    ex('Shoulders', 'Dumbbell Lateral Raise', '3', '12', 45, 'Controlled', '+2.5-5 lbs', 'Dumbbells'),
+    ex('Shoulders', 'Dumbbell Shoulder Press', '3', '10', 75, 'Controlled', '40 lbs each shoulder press. Build from 35.', 'Dumbbells'),
+    ex('Shoulders', 'Dumbbell Lateral Raise', '3', '12', 45, 'Controlled', '17.5 lbs lateral raise if available, else 20 lbs.', 'Dumbbells'),
     ex('Triceps', 'Cable Pushdown', '3', '12', 45, 'Controlled', 'Add weight', 'Cable'),
     ex('Back', 'Cable Face Pull', '3', '15', 45, 'Controlled', 'Light, rotator', 'Cable'),
     ...coreFull, ...cooldown5
@@ -204,10 +204,10 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   ];
 
   const w4Tue = [...warmup15,
-    ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '140 lbs, maintain or +5 if easy', 'Barbell'),
+    ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '120 lbs incline barbell — W3 weight or +5 if clean.', 'Barbell'),
     ex('Chest', 'Incline Smith Machine Press', '3', '10', 75, 'Controlled', 'Switch to variation: 90 lbs total', 'Smith Machine'),
-    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '60 lbs, higher weight week', 'Machine'),
-    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '70 lbs', 'Barbell'),
+    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '150 lbs pec deck — maintain W3.', 'Machine'),
+    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '75 lbs barbell curl — build.', 'Barbell'),
     ex('Biceps', 'Cable Curl (Machine)', '3', '12', 45, 'Controlled', 'Switch variation: moderate weight', 'Machine'),
     ex('Back', 'Lat Pulldown (Close Neutral)', '3', '12', 60, 'Controlled', 'Variation: narrow grip neutral', 'Machine'),
     ex('Back', 'Reverse Pec Deck (Rear Delt)', '3', '15', 45, 'Controlled', 'Variation: rear delt emphasis', 'Machine'),
@@ -246,18 +246,18 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   // ===== WEEKS 5-6 (PUSH - PEAK EFFORT WEEKS) =====
   // Week 5: Peak loads, add sets on main lifts
   const w5Mon = [...warmup15,
-    ex('Chest', 'Machine Chest Press', '4', '12', 60, '3010', '4 sets, add slow tempo (3sec down)', 'Machine'),
-    ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Heavy week', 'Cable'),
+    ex('Chest', 'Machine Chest Press', '4', '12', 60, '3010', '135 lbs × 4 sets. Slow 3-sec descent. Feel the chest load.', 'Machine'),
+    ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Heavy week — push last 1-2 reps hard.', 'Cable'),
     ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '+5 lbs each (now 27)', 'Dumbbells'),
     ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '+5 lbs', 'Dumbbells'),
     ...coreFull, ...cooldown5
   ];
 
   const w5Tue = [...warmup15,
-    ex('Chest', 'Barbell Bench Press', '4', '10', 90, '3010', '145 lbs, 4 sets, slow descent', 'Barbell'),
-    ex('Chest', 'Incline Smith Machine Press', '3', '10', 75, 'Controlled', '95 lbs, build', 'Smith Machine'),
-    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '70 lbs, heavy week', 'Machine'),
-    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '75 lbs', 'Barbell'),
+    ex('Chest', 'Barbell Bench Press', '4', '10', 90, '3010', '125 lbs incline barbell, 4 sets, 3-sec descent. +10 from W1.', 'Barbell'),
+    ex('Chest', 'Incline Smith Machine Press', '3', '10', 75, 'Controlled', '130 lbs incline barbell. Keep building.', 'Smith Machine'),
+    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '160 lbs pec deck. Heavy week.', 'Machine'),
+    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '80 lbs barbell curl — heavy week.', 'Barbell'),
     ex('Biceps', 'Cable Curl (Machine)', '3', '12', 45, 'Controlled', 'Heavy week', 'Machine'),
     ex('Back', 'Lat Pulldown (Close Neutral)', '3', '12', 60, 'Controlled', 'Max weight this cycle', 'Machine'),
     ex('Back', 'Reverse Pec Deck', '3', '15', 45, 'Controlled', 'Heavy week', 'Machine'),
@@ -303,7 +303,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   // ===== WEEKS 7-9 (PUSH HARD - MAX EFFORT) =====
   // Week 7: Peak effort, technical failure
   const w7Mon = [...warmup15,
-    ex('Chest', 'Machine Chest Press', '4', '12', 60, '3010', 'Max weight this cycle, 4 sets', 'Machine'),
+    ex('Chest', 'Machine Chest Press', '4', '12', 60, '3010', '145 lbs × 4 sets. Your peak machine chest press target.', 'Machine'),
     ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Heavy', 'Cable'),
     ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '+5 lbs (now 32)', 'Dumbbells'),
     ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '+5 lbs (now 22)', 'Dumbbells'),
@@ -311,10 +311,10 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   ];
 
   const w7Tue = [...warmup15,
-    ex('Chest', 'Barbell Bench Press', '4', '10', 90, '3010', '150 lbs, 4 sets, max effort', 'Barbell'),
-    ex('Chest', 'Incline Barbell Press', '3', '10', 75, 'Controlled', 'Variation: barbell, 115 lbs', 'Barbell'),
-    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '80 lbs, heavy', 'Machine'),
-    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '80 lbs', 'Barbell'),
+    ex('Chest', 'Barbell Bench Press', '4', '10', 90, '3010', '135 lbs incline barbell, 4 sets. Your 12-week incline peak.', 'Barbell'),
+    ex('Chest', 'Incline Barbell Press', '3', '10', 75, 'Controlled', '135 lbs incline barbell — max effort this cycle.', 'Barbell'),
+    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '165 lbs pec deck. Peak weight this cycle.', 'Machine'),
+    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '85 lbs barbell curl. Peak effort.', 'Barbell'),
     ex('Biceps', 'Incline Dumbbell Curl', '3', '12', 45, 'Controlled', 'Variation: incline bench setup', 'Dumbbells'),
     ex('Back', 'Lat Pulldown (Close Grip)', '3', '12', 60, 'Controlled', 'Variation: close neutral grip', 'Machine'),
     ex('Back', 'Reverse Pec Deck', '3', '15', 45, 'Controlled', 'Heavy', 'Machine'),
@@ -365,7 +365,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
 
   // ===== WEEK 10 (DELOAD - 30% WEIGHT DROP) =====
   const w10Mon = [...warmup15,
-    ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', 'Drop 30% weight, focus form', 'Machine'),
+    ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', '~90 lbs machine chest press. Drop 30%. Recovery week.', 'Machine'),
     ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Light weight deload', 'Cable'),
     ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '20 lbs each, light', 'Dumbbells'),
     ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '15 lbs, light', 'Dumbbells'),
@@ -373,10 +373,10 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   ];
 
   const w10Tue = [...warmup15,
-    ex('Chest', 'Barbell Bench Press', '3', '12', 90, 'Controlled', '100 lbs (drop 30%), same volume', 'Barbell'),
-    ex('Chest', 'Incline Barbell Press', '3', '12', 75, 'Controlled', '80 lbs light', 'Barbell'),
-    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '50 lbs light', 'Machine'),
-    ex('Biceps', 'Barbell Curl', '3', '12', 60, 'Controlled', '55 lbs light', 'Barbell'),
+    ex('Chest', 'Barbell Bench Press', '3', '12', 90, 'Controlled', '~80 lbs incline barbell. Drop 30% — deload is mandatory.', 'Barbell'),
+    ex('Chest', 'Incline Barbell Press', '3', '12', 75, 'Controlled', '90 lbs incline barbell light.', 'Barbell'),
+    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '100 lbs pec deck light.', 'Machine'),
+    ex('Biceps', 'Barbell Curl', '3', '12', 60, 'Controlled', '50 lbs barbell curl light.', 'Barbell'),
     ex('Biceps', 'Incline Dumbbell Curl', '3', '12', 45, 'Controlled', 'Light recovery', 'Dumbbells'),
     ex('Back', 'Lat Pulldown (Close)', '3', '12', 60, 'Controlled', 'Light', 'Machine'),
     ex('Back', 'Reverse Pec Deck', '3', '15', 45, 'Controlled', 'Light', 'Machine'),
@@ -415,7 +415,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   // ===== WEEKS 11-12 (PEAK - PUSH PAST W7-9 MAXES) =====
   // Week 11: New max attempt
   const w11Mon = [...warmup15,
-    ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', '+5-10 lbs past W7 max', 'Machine'),
+    ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', '150 lbs machine chest press. New personal record attempt.', 'Machine'),
     ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Build past max', 'Cable'),
     ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '+5 lbs (now 37)', 'Dumbbells'),
     ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '+5 lbs (now 27)', 'Dumbbells'),
@@ -423,10 +423,10 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   ];
 
   const w11Tue = [...warmup15,
-    ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '+5 lbs (now 155 lbs)', 'Barbell'),
-    ex('Chest', 'Incline Barbell Press', '3', '10', 75, 'Controlled', '+5 lbs (now 120)', 'Barbell'),
-    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '+10 lbs (now 90)', 'Machine'),
-    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '+5 lbs (now 85)', 'Barbell'),
+    ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '140 lbs incline barbell. Push past W7 peak.', 'Barbell'),
+    ex('Chest', 'Incline Barbell Press', '3', '10', 75, 'Controlled', '140 lbs incline barbell — peak week.', 'Barbell'),
+    ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '170 lbs pec deck. Final peak.', 'Machine'),
+    ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '90 lbs barbell curl. New PR attempt.', 'Barbell'),
     ex('Biceps', 'Incline Dumbbell Curl', '3', '12', 45, 'Controlled', '+5 lbs each', 'Dumbbells'),
     ex('Back', 'Lat Pulldown (Close)', '3', '12', 60, 'Controlled', 'Build past max', 'Machine'),
     ex('Back', 'Reverse Pec Deck', '3', '15', 45, 'Controlled', 'Peak effort', 'Machine'),
