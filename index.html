@@ -542,28 +542,36 @@ body{padding-bottom:104px}
 .phase-header{border-radius:6px 6px 0 0;padding:0.38rem 0.55rem}
 .phase-header.stretch,.phase-header.main,.phase-header.bonus{background:var(--bg3);color:var(--text2)}
 .phase-body{border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;overflow:hidden;background:var(--bg2)}
-.ex-card{display:grid;grid-template-columns:76px minmax(0,1fr) 250px;gap:0;border:0;border-bottom:1px solid var(--border);border-radius:0;padding:0;background:var(--bg2);align-items:stretch;min-height:68px}
+/* ── COMPACT EXERCISE CARD ── */
+.ex-card{display:grid;grid-template-columns:52px minmax(0,1fr);grid-template-rows:auto auto;gap:0;border:0;border-bottom:1px solid var(--border);border-radius:0;padding:0;background:var(--bg2);align-items:stretch;min-height:0;cursor:pointer}
 .ex-card:last-child{border-radius:0;border-bottom:none}
 .ex-card.done,.ex-card.completed{opacity:0.62}
-.ex-card.active-card{border-color:var(--border);box-shadow:none;background:var(--bg2)}
-.ex-complete-cell{border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0.45rem}
-.ex-check{width:auto;height:auto;min-width:54px;border:1px solid var(--border);border-radius:5px;background:var(--bg3);color:var(--text3);padding:0.28rem 0.35rem;font-size:0.62rem;font-weight:800;text-transform:uppercase;line-height:1.05;flex-direction:column;gap:0.12rem}
-.ex-check::after{content:'Complete';display:block}
-.ex-check.checked{background:var(--accent);border-color:var(--accent);color:#10140c}
-.ex-main-cell{min-width:0;padding:0.5rem 0.65rem;display:flex;flex-direction:column;justify-content:center}
-.ex-name{font-size:0.86rem;margin:0;color:var(--text)}
-.ex-name-row{justify-content:flex-start}
-.ex-link-btn{font-weight:800;line-height:1.15}
-.ex-target-inline{font-size:0.72rem;color:var(--text3);font-family:var(--font-body);letter-spacing:0}
-.ex-last-result{font-size:0.68rem;color:var(--text3);line-height:1.25;margin-top:0.18rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ex-swap-indicator{font-size:0.56rem;margin-bottom:0.12rem}
-.ex-log-cell{border-left:1px solid var(--border);padding:0.38rem 0.45rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(58px,1fr));gap:0.32rem;align-content:center}
+.ex-card.active-card{border-left:3px solid rgba(200,245,90,0.6);background:var(--bg2)}
+/* checkbox column */
+.ex-complete-cell{border-right:1px solid var(--border);display:flex;align-items:center;justify-content:center;padding:0.5rem 0.35rem;grid-row:1/3}
+.ex-check{width:32px;height:32px;border:2px solid var(--border);border-radius:8px;background:var(--bg3);color:transparent;padding:0;font-size:0;flex-direction:row;gap:0;line-height:1;display:flex;align-items:center;justify-content:center}
+.ex-check::after{display:none}
+.ex-check.checked{background:var(--accent);border-color:var(--accent);color:#10140c;font-size:1rem}
+/* name row */
+.ex-main-cell{min-width:0;padding:0.45rem 0.6rem 0.38rem;display:flex;flex-direction:column;justify-content:center;grid-column:2;grid-row:1}
+.ex-name{font-size:0.84rem;margin:0;color:var(--text)}
+.ex-name-row{justify-content:flex-start;align-items:baseline;gap:0.3rem}
+.ex-link-btn{font-weight:800;line-height:1.2;font-size:0.84rem}
+.ex-target-inline{font-size:0.68rem;color:var(--text3);font-family:var(--font-body);letter-spacing:0;white-space:nowrap}
+.ex-last-result{font-size:0.65rem;color:var(--text3);line-height:1.25;margin-top:0.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-swap-indicator{font-size:0.52rem;margin-bottom:0.08rem}
+/* log inputs — hidden until card expanded */
+.ex-log-cell{display:none}
+.ex-card:not(.collapsed) .ex-log-cell{display:none}/* inputs now live in ex-details instead */
+/* expanded panel */
+.ex-details{grid-column:1 / 3;border-top:1px solid var(--border);padding:0.5rem 0.6rem 0.55rem;margin:0;background:rgba(255,255,255,0.02)}
+.ex-card.collapsed .ex-details{display:none}
+/* inputs inside the expand panel */
+.ex-inputs-panel{display:grid;grid-template-columns:repeat(auto-fit,minmax(68px,1fr));gap:0.4rem;margin-bottom:0.4rem}
 .log-field{min-width:0}
 .log-field span{font-size:0.56rem;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:0.12rem;font-weight:800;letter-spacing:0.08em}
-.log-field select,.log-field input{width:100%;height:28px;border:1px solid var(--border);border-radius:5px;background:var(--bg3);color:var(--text);font:inherit;font-size:0.72rem;padding:0.2rem 0.3rem}
+.log-field select,.log-field input{width:100%;height:32px;border:1px solid var(--border);border-radius:6px;background:var(--bg3);color:var(--text);font:inherit;font-size:0.78rem;padding:0.2rem 0.4rem}
 .log-field select:focus,.log-field input:focus{outline:none;border-color:var(--accent)}
-.ex-details{grid-column:2 / 4;border-top:1px solid var(--border);padding:0.45rem 0.65rem;margin:0;background:rgba(255,255,255,0.02)}
-.ex-card.collapsed .ex-details{display:none}
 .ex-log-btn{margin-top:0.35rem;border-radius:5px}
 @media(max-width:640px){
   .content{padding:0.5rem}
@@ -571,13 +579,13 @@ body{padding-bottom:104px}
   .workout-tab{font-size:0.66rem;padding:0.48rem 0.35rem}
   .home-controls{margin-bottom:0.35rem}
   .phase-header{padding:0.34rem 0.45rem}
-  .ex-card{grid-template-columns:1fr;min-height:0}
-  .ex-complete-cell{border-right:none;border-bottom:1px solid var(--border);justify-content:flex-start;padding:0.38rem 0.5rem}
-  .ex-check{min-width:0;flex-direction:row;padding:0.24rem 0.45rem}
-  .ex-main-cell{padding:0.45rem 0.5rem 0.35rem}
+  .ex-card{grid-template-columns:44px minmax(0,1fr);min-height:0}
+  .ex-complete-cell{padding:0.4rem 0.25rem}
+  .ex-check{width:28px;height:28px}
+  .ex-main-cell{padding:0.4rem 0.5rem 0.35rem}
   .ex-last-result{white-space:normal}
-  .ex-log-cell{border-left:none;border-top:1px solid var(--border);grid-template-columns:repeat(3,minmax(0,1fr));padding:0.38rem 0.5rem}
-  .ex-details{grid-column:auto;padding:0.42rem 0.5rem}
+  .ex-details{grid-column:1/3;padding:0.42rem 0.5rem}
+  .ex-inputs-panel{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 </style>
 </head>
@@ -2125,67 +2133,25 @@ function renderDay(day) {
           </div>
           <div class="ex-main-cell">
             <div class="ex-name">
-              ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alternative</div>' : (getAlternative(ex.notes) ? '<div class="ex-swap-indicator" style="color:var(--text3);">&#9733; Sub Available</div>' : '')}
+              ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alt</div>' : (getAlternative(ex.notes) ? '<div class="ex-swap-indicator" style="color:var(--text3);">&#9733; Sub</div>' : '')}
               <div class="ex-name-row">
-                  <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
-                  <span class="ex-target-inline"> - ${ex.sets} x ${ex.reps}</span>
+                <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
+                <span class="ex-target-inline">${ex.sets}×${ex.reps}</span>
               </div>
               <div class="ex-last-result">${lastText}</div>
             </div>
           </div>
-          <div class="ex-log-cell">
-            ${isCardioExercise(ex) ? `
-              <div class="log-field">
-                <span>Speed</span>
-                <input type="number" step="0.1" value="${s.speed || ''}" placeholder="mph" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'speed',this.value); event.stopPropagation();">
-              </div>
-              <div class="log-field">
-                <span>Incline</span>
-                <input type="number" step="0.5" value="${s.incline || ''}" placeholder="%" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'incline',this.value); event.stopPropagation();">
-              </div>
-              <div class="log-field">
-                <span>Distance</span>
-                <input type="number" step="0.1" value="${s.distance || ''}" placeholder="mi" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'distance',this.value); event.stopPropagation();">
-              </div>
-              <div class="log-field">
-                <span>Time</span>
-                <input type="text" value="${s.time || ''}" placeholder="min" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'time',this.value); event.stopPropagation();">
-              </div>` : isTrackableWorkoutExercise(ex) ? `
-                 ${!isBodyweightOnly(nameToFind) ? `
-                 <div class="log-field">
-                   <span>Weight</span>
-                   <select 
-                     onchange="setWeight('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();"
-                     onclick="event.stopPropagation();">
-                     ${buildWeightOptionsHtml(parseFloat(s.weight) || 0)}
-                   </select>
-                 </div>` : ''}
-                 <div class="log-field">
-                   <span>${isTimeBased(nameToFind) ? 'Seconds' : 'Reps'}</span>
-                   <select 
-                     onchange="setReps('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();"
-                     onclick="event.stopPropagation();">
-                     ${renderRepsOptions(s.reps || ex._defaultReps)}
-                   </select>
-                 </div>
-                 <div class="log-field">
-                   <span>Sets</span>
-                   <select
-                     onchange="setSets('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();"
-                     onclick="event.stopPropagation();">
-                     ${renderSetOptions(s.sets, ex.sets)}
-                   </select>
-                 </div>` : '<div class="log-field"><span>Sets</span><select onclick="event.stopPropagation();" onchange="setSets(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();">' + renderSetOptions(s.sets, ex.sets) + '</select></div><div class="log-field"><span>Time</span><input type="text" value="' + (s.reps || '') + '" placeholder="' + ex.reps + '" onclick="event.stopPropagation();" onchange="setReps(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();"></div>'}
-          </div>
-
-            <div class="ex-details">
-              <div class="ex-info-grid">
-                <div class="ex-info-cell"><b>Last Time</b><span>${lastText}</span></div>
-                <div class="ex-info-cell"><b>Today's Target</b><span>${targetText}</span></div>
-              </div>
-              <div class="ex-dot-row">${dots}</div>
-              <button class="ex-log-btn" type="button" onclick="openSetLogger('${day}',${ex._idx}); event.stopPropagation();">${isTrackableWorkoutExercise(ex) ? 'Set Logger' : 'Log Stretch'}</button>
+          <div class="ex-details">
+            <div class="ex-inputs-panel">
+              ${isCardioExercise(ex) ? `<div class="log-field"><span>Speed</span><input type="number" step="0.1" value="${s.speed || ''}" placeholder="mph" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'speed',this.value); event.stopPropagation();"></div><div class="log-field"><span>Incline</span><input type="number" step="0.5" value="${s.incline || ''}" placeholder="%" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'incline',this.value); event.stopPropagation();"></div><div class="log-field"><span>Dist</span><input type="number" step="0.1" value="${s.distance || ''}" placeholder="mi" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'distance',this.value); event.stopPropagation();"></div><div class="log-field"><span>Time</span><input type="text" value="${s.time || ''}" placeholder="min" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'time',this.value); event.stopPropagation();"></div>` : isTrackableWorkoutExercise(ex) ? `${!isBodyweightOnly(nameToFind) ? '<div class="log-field"><span>Weight</span><select onchange="setWeight(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();" onclick="event.stopPropagation();">' + buildWeightOptionsHtml(parseFloat(s.weight) || 0) + '</select></div>' : ''}<div class="log-field"><span>${isTimeBased(nameToFind) ? 'Seconds' : 'Reps'}</span><select onchange="setReps('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();" onclick="event.stopPropagation();">${renderRepsOptions(s.reps || ex._defaultReps)}</select></div><div class="log-field"><span>Sets</span><select onchange="setSets('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();" onclick="event.stopPropagation();">${renderSetOptions(s.sets, ex.sets)}</select></div>` : '<div class="log-field"><span>Sets</span><select onclick="event.stopPropagation();" onchange="setSets(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();">' + renderSetOptions(s.sets, ex.sets) + '</select></div><div class="log-field"><span>Time</span><input type="text" value="' + (s.reps || '') + '" placeholder="' + ex.reps + '" onclick="event.stopPropagation();" onchange="setReps(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();"></div>'}
             </div>
+            <div class="ex-info-grid">
+              <div class="ex-info-cell"><b>Last</b><span>${lastText}</span></div>
+              <div class="ex-info-cell"><b>Target</b><span>${targetText}</span></div>
+            </div>
+            <div class="ex-dot-row">${dots}</div>
+            <button class="ex-log-btn" type="button" onclick="openSetLogger('${day}',${ex._idx}); event.stopPropagation();">${isTrackableWorkoutExercise(ex) ? 'Set Logger' : 'Log Stretch'}</button>
+          </div>
         </div>`;
       });
       out += '</div></div>';
