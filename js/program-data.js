@@ -68,7 +68,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   ];
 
   const w1Wed = [...warmup15,
-    ex('Lower', 'Leg Press (Shallow Depth)', '3', '12', 75, 'Controlled', 'Start 200 lbs. Your knee-safe working weight — feet high, 60-70° bend max.', 'Machine'),
+    ex('Lower', 'Leg Press (Shallow Depth)', '3', '12', 75, 'Controlled', 'Start 307 lbs. Your confirmed knee-safe working weight — feet high, 60-70° bend max.', 'Machine'),
     ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Start 80 lbs. Your confirmed hamstring curl working weight.', 'Machine'),
     ex('Lower', 'Hip Abduction Machine', '3', '15', 45, 'Controlled', 'Knee stabilizer priority', 'Machine'),
     ex('Lower', 'Standing Hip Extension (Cable)', '3', '12 each leg', 45, 'Controlled', 'Glute + hip stability', 'Cable'),
@@ -88,7 +88,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   ];
 
   const w1Fri = [...warmup15,
-    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '200 lbs leg press. Maintain W1 — prioritize form and knee tracking.', 'Machine'),
+    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '307 lbs leg press. Maintain W1 — prioritize form and knee tracking.', 'Machine'),
     ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Stabilizer every lower day', 'Machine'),
     ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Hamstring focus', 'Machine'),
     ex('Lower', 'Standing Calf Raise (Machine)', '3', '20', 30, 'Controlled', 'Ankle-knee chain strength', 'Machine'),
@@ -137,7 +137,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   ];
 
   const w2Fri = [...warmup15,
-    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '200 lbs leg press — maintain W1 form.', 'Machine'),
+    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '307 lbs leg press — maintain W1 form.', 'Machine'),
     ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Build weight', 'Machine'),
     ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Build weight', 'Machine'),
     ex('Lower', 'Standing Calf Raise', '3', '20', 30, 'Controlled', 'Add weight if easy', 'Machine'),
@@ -166,7 +166,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   ];
 
   const w3Wed = [...warmup15,
-    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '210 lbs leg press — +10 only if zero knee discomfort.', 'Machine'),
+    ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '317 lbs leg press — +10 only if zero knee discomfort.', 'Machine'),
     ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', '+10 lbs', 'Machine'),
     ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Add weight', 'Machine'),
     ex('Lower', 'Standing Hip Extension (Cable)', '3', '12 each', 45, 'Controlled', 'Build resistance', 'Cable'),
