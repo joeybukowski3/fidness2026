@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pro-trainer-elite-v5';
+const CACHE_NAME = 'pro-trainer-elite-v6';
 const ASSETS = [
   './',
   './index.html',
