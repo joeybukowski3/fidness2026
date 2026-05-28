@@ -2521,6 +2521,27 @@ function buildScheduleMarkdown() {
   ].join('\n');
 }
 
+function buildScheduleCsv() {
+  const program = getActiveProgram();
+  const weekData = getScheduleTableWeekData();
+  const rows = [
+    ['Program', program.name],
+    ['Week', String(state.week || 1)],
+    [],
+    ['Section', ...WEEK_DAYS]
+  ];
+  SCHEDULE_SECTIONS.forEach(section => {
+    const dayCells = WEEK_DAYS.map(day => {
+      const names = getScheduleItemsForCell(weekData, day, section.id)
+        .map(item => getScheduleEntryName(item.entry));
+      return names.join('; ');
+    });
+    rows.push([section.label, ...dayCells]);
+  });
+  const csvCell = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
+  return rows.map(row => row.map(csvCell).join(',')).join('\r\n');
+}
+
 async function copySchedule() {
   const text = buildScheduleMarkdown();
   const status = document.getElementById('scheduleCopyStatus');
@@ -2537,6 +2558,21 @@ async function copySchedule() {
     if (status) status.textContent = 'Copied';
   }
   setTimeout(() => { if (status) status.textContent = ''; }, 1800);
+}
+
+function downloadScheduleCsv() {
+  const program = getActiveProgram();
+  const csv = buildScheduleCsv();
+  const slug = `${program.id || 'program'}-week-${state.week || 1}-schedule.csv`.replace(/[^a-z0-9._-]+/gi, '-');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = slug;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
 function renderScheduleCellRead(items, day, programId) {
@@ -2613,6 +2649,7 @@ function renderMasterExerciseList(editMode = false) {
           <button class="program-btn" onclick="cancelScheduleEdits()">Cancel</button>
         ` : `
           <button class="program-btn" onclick="copySchedule()">Copy Schedule</button>
+          <button class="program-btn" onclick="downloadScheduleCsv()">Download CSV</button>
           <button class="program-btn primary" onclick="startScheduleEdit()">Edit Schedule</button>
         `}
       </div>
