@@ -640,7 +640,7 @@ body{padding-bottom:104px}
   <div class="set-sheet-card" id="setSheetCard"></div>
 </div>
 
-<script src="js/program-data.js?v=3"></script>
+<script src="js/program-data.js?v=4"></script>
 <script>
 const APP_VERSION = 'v2026.04.11-2';
 // ============ WORKOUT DATA ============
@@ -977,9 +977,12 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   if (!state.activeWorkoutTab) state.activeWorkoutTab = 'pre';
   if (!state.lastAccessedDate) state.lastAccessedDate = '';
   const WEEK_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  if (!state.programId) state.programId = PROGRAMS[0].id;
-  if (!state.defaultProgramId) state.defaultProgramId = state.programId || PROGRAMS[0].id;
-  if (!PROGRAMS.find(p => p.id === state.defaultProgramId)) state.defaultProgramId = PROGRAMS[0].id;
+  const hasProgram = id => PROGRAMS.some(p => p.id === id);
+  const fallbackProgramId = hasProgram(state.defaultProgramId)
+    ? state.defaultProgramId
+    : (hasProgram(state.programId) ? state.programId : PROGRAMS[0].id);
+  if (!hasProgram(state.programId)) state.programId = fallbackProgramId;
+  if (!hasProgram(state.defaultProgramId)) state.defaultProgramId = fallbackProgramId;
   state.programId = state.defaultProgramId;
   if (!state.programStarts) state.programStarts = {};
 

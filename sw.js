@@ -1,9 +1,9 @@
-const CACHE_NAME = 'pro-trainer-elite-v4';
+const CACHE_NAME = 'pro-trainer-elite-v5';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json?v=7',
-  './js/program-data.js?v=3',
+  './js/program-data.js?v=4',
   './assets/diagrams/placeholder.svg'
 ];
 
