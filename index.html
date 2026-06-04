@@ -334,36 +334,6 @@ body{overflow-x:hidden; width:100%; position:relative;}
 .program-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .program-btn:hover{border-color:var(--accent)}
 .program-meta{font-size:0.78rem;color:var(--text2);line-height:1.5}
-.schedule-toolbar{display:flex;align-items:center;justify-content:space-between;gap:0.65rem;flex-wrap:wrap;margin-bottom:0.75rem}
-.schedule-actions{display:flex;gap:0.45rem;flex-wrap:wrap}
-.schedule-copy-status{font-size:0.72rem;color:var(--accent);font-weight:700;min-height:1em}
-.schedule-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--bg2);max-width:100%;-webkit-overflow-scrolling:touch}
-.schedule-table{width:100%;min-width:1040px;border-collapse:collapse;table-layout:fixed}
-.schedule-table th,.schedule-table td{border-bottom:1px solid var(--border);border-right:1px solid var(--border);vertical-align:top}
-.schedule-table th:last-child,.schedule-table td:last-child{border-right:none}
-.schedule-table tr:last-child td{border-bottom:none}
-.schedule-table th{position:sticky;top:0;background:var(--bg3);color:var(--text);font-size:0.68rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;padding:0.55rem 0.6rem;text-align:left;z-index:1}
-.schedule-section-head{width:150px;color:var(--accent)!important;background:rgba(200,245,90,0.08)!important}
-.schedule-section-cell{background:rgba(255,255,255,0.02);font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--text2);padding:0.65rem 0.6rem;width:150px}
-.schedule-day-cell{padding:0.5rem;min-height:150px}
-.schedule-item{display:block;width:100%;text-align:left;border:1px solid transparent;background:transparent;color:var(--text);border-radius:6px;padding:0.32rem 0.36rem;margin-bottom:0.28rem;font-size:0.74rem;line-height:1.25;font-family:inherit;cursor:pointer}
-.schedule-item:hover{border-color:rgba(200,245,90,0.35);background:rgba(200,245,90,0.08)}
-.schedule-item-title{display:block;font-weight:800}
-.schedule-item-meta{display:block;color:var(--text3);font-size:0.64rem;margin-top:0.08rem}
-.schedule-empty{color:var(--text3);font-size:0.72rem;padding:0.25rem}
-.schedule-edit-cell{display:grid;gap:0.4rem}
-.schedule-edit-list{width:100%;min-height:132px;resize:vertical;border:1px solid var(--border);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit;font-size:0.74rem;line-height:1.35;padding:0.45rem}
-.schedule-picker-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0.35rem}
-.schedule-picker-row input{min-width:0;border:1px solid var(--border);border-radius:7px;background:var(--bg3);color:var(--text);font-family:inherit;font-size:0.72rem;padding:0.35rem}
-.schedule-picker-row button{border:1px solid var(--border);border-radius:7px;background:var(--bg3);color:var(--text);font-size:0.68rem;font-weight:800;padding:0.35rem 0.5rem;font-family:inherit;cursor:pointer}
-.schedule-picker-row button:hover{border-color:var(--accent);color:var(--accent)}
-.schedule-edit-note{font-size:0.68rem;color:var(--text3);line-height:1.4;margin-top:0.45rem}
-@media(max-width:640px){
-  .schedule-toolbar{align-items:flex-start}
-  .schedule-actions{width:100%}
-  .schedule-actions .program-btn{flex:1}
-  .schedule-table{min-width:980px}
-}
 
 /* Today's Weight */
 .weight-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:0.75rem;margin-bottom:0.75rem}
@@ -670,7 +640,7 @@ body{padding-bottom:104px}
   <div class="set-sheet-card" id="setSheetCard"></div>
 </div>
 
-<script src="js/program-data.js?v=4"></script>
+<script src="js/program-data.js?v=3"></script>
 <script>
 const APP_VERSION = 'v2026.04.11-2';
 // ============ WORKOUT DATA ============
@@ -825,38 +795,8 @@ function getProgramWeekData(programId = null, week = null) {
   const activeProgramId = programId || state.programId || PROGRAMS[0].id;
   const activeWeek = parseInt(week || state.week || 1, 10);
   const template = getProgramTemplate(activeProgramId);
-  if (template && template.weeks && template.weeks[activeWeek]) {
-    return getScheduleWeekDataWithEdits(activeProgramId, activeWeek, template.weeks[activeWeek]);
-  }
+  if (template && template.weeks && template.weeks[activeWeek]) return template.weeks[activeWeek];
   return null;
-}
-
-function cloneScheduleEntry(entry) {
-  return entry && typeof entry === 'object' ? { ...entry } : null;
-}
-
-function cloneScheduleWeekData(weekData) {
-  const source = weekData && typeof weekData === 'object' ? weekData : {};
-  const clone = {};
-  const days = typeof WEEK_DAYS !== 'undefined' ? WEEK_DAYS : DAYS.filter(day => day !== 'Weight Log');
-  days.forEach(day => {
-    clone[day] = Array.isArray(source[day])
-      ? source[day].map(cloneScheduleEntry).filter(Boolean)
-      : [];
-  });
-  return clone;
-}
-
-function getScheduleEditWeek(programId, week) {
-  const editRoot = state && state.programScheduleEdits && state.programScheduleEdits[programId];
-  const edited = editRoot && editRoot.weeks && editRoot.weeks[String(week)];
-  if (!edited || typeof edited !== 'object') return null;
-  return cloneScheduleWeekData(edited);
-}
-
-function getScheduleWeekDataWithEdits(programId, week, baseWeekData) {
-  const edited = getScheduleEditWeek(programId, week);
-  return edited || cloneScheduleWeekData(baseWeekData);
 }
 
 function getWorkoutsForDay(day, programId = null, week = null) {
@@ -1037,15 +977,11 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   if (!state.activeWorkoutTab) state.activeWorkoutTab = 'pre';
   if (!state.lastAccessedDate) state.lastAccessedDate = '';
   const WEEK_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  const hasProgram = id => PROGRAMS.some(p => p.id === id);
-  const fallbackProgramId = hasProgram(state.defaultProgramId)
-    ? state.defaultProgramId
-    : (hasProgram(state.programId) ? state.programId : PROGRAMS[0].id);
-  if (!hasProgram(state.programId)) state.programId = fallbackProgramId;
-  if (!hasProgram(state.defaultProgramId)) state.defaultProgramId = fallbackProgramId;
+  if (!state.programId) state.programId = PROGRAMS[0].id;
+  if (!state.defaultProgramId) state.defaultProgramId = state.programId || PROGRAMS[0].id;
+  if (!PROGRAMS.find(p => p.id === state.defaultProgramId)) state.defaultProgramId = PROGRAMS[0].id;
   state.programId = state.defaultProgramId;
   if (!state.programStarts) state.programStarts = {};
-  if (!state.programScheduleEdits) state.programScheduleEdits = {};
 
   // MIGRATION: Move old history/weight logs into state if they exist
   if (!state.history || state.history.length === 0) {
@@ -2350,7 +2286,7 @@ function renderProgram() {
   c.innerHTML = html;
 }
 
-function renderLegacyMasterExerciseList() {
+function renderMasterExerciseList() {
   const c = document.getElementById('programArea');
   const program = getActiveProgram();
   
@@ -2386,330 +2322,6 @@ function filterMasterList(query) {
     const name = el.getAttribute('data-name');
     el.style.display = name.includes(q) ? 'block' : 'none';
   });
-}
-
-let scheduleEditDraft = null;
-
-const SCHEDULE_SECTIONS = [
-  { id: 'pre', label: 'Pre-Workout Stretches', phase: 'Pre-Workout Stretch' },
-  { id: 'main', label: 'Main Workout', phase: 'Main Workout' },
-  { id: 'bonus', label: 'Bonus', phase: 'Bonus (Optional)' }
-];
-
-function escapeHtml(value) {
-  return String(value ?? '').replace(/[&<>"']/g, char => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;'
-  }[char]));
-}
-
-function escapeAttr(value) {
-  return escapeHtml(value).replace(/`/g, '&#96;');
-}
-
-function getScheduleSectionId(entry) {
-  const phase = String((entry && entry.phase) || '').toLowerCase();
-  if (phase.includes('stretch')) return 'pre';
-  if (phase.includes('bonus') || phase.includes('optional') || phase.includes('recovery') || phase.includes('rest')) return 'bonus';
-  return 'main';
-}
-
-function getScheduleEntryName(entry) {
-  return (entry && (entry.exercise || entry.activity)) || '';
-}
-
-function getScheduleEntryMeta(entry) {
-  if (!entry) return '';
-  const parts = [];
-  if (entry.sets || entry.reps) parts.push(`${entry.sets || '1'} x ${entry.reps || ''}`.trim());
-  if (entry.duration) parts.push(entry.duration);
-  return parts.filter(Boolean).join(' | ');
-}
-
-function getScheduleTableWeekData() {
-  return cloneScheduleWeekData(getProgramWeekData(getActiveProgramId(), state.week) || {});
-}
-
-function getScheduleItemsForCell(weekData, day, sectionId) {
-  const dayItems = Array.isArray(weekData && weekData[day]) ? weekData[day] : [];
-  return dayItems
-    .map((entry, idx) => ({ entry, idx }))
-    .filter(item => getScheduleSectionId(item.entry) === sectionId && getScheduleEntryName(item.entry));
-}
-
-function getExerciseLibraryEntries() {
-  const byName = new Map();
-  const addEntry = entry => {
-    const name = getScheduleEntryName(entry).trim();
-    if (!name || byName.has(name.toLowerCase())) return;
-    byName.set(name.toLowerCase(), cloneScheduleEntry(entry));
-  };
-  Object.values(PROGRAM_TEMPLATES || {}).forEach(template => {
-    Object.values((template && template.weeks) || {}).forEach(weekData => {
-      Object.values(weekData || {}).forEach(dayItems => {
-        if (Array.isArray(dayItems)) dayItems.forEach(addEntry);
-      });
-    });
-  });
-  Object.values(WORKOUTS || {}).forEach(dayItems => {
-    if (Array.isArray(dayItems)) dayItems.forEach(addEntry);
-  });
-  return Array.from(byName.values()).sort((a, b) => getScheduleEntryName(a).localeCompare(getScheduleEntryName(b)));
-}
-
-function findScheduleTemplateEntry(name, sourceWeekData = null) {
-  const target = String(name || '').trim().toLowerCase();
-  if (!target) return null;
-  const scanWeek = weekData => {
-    for (const day of WEEK_DAYS) {
-      const items = Array.isArray(weekData && weekData[day]) ? weekData[day] : [];
-      const found = items.find(entry => getScheduleEntryName(entry).trim().toLowerCase() === target);
-      if (found) return found;
-    }
-    return null;
-  };
-  return scanWeek(sourceWeekData) || getExerciseLibraryEntries().find(entry => getScheduleEntryName(entry).trim().toLowerCase() === target) || null;
-}
-
-function createScheduleEntryFromName(name, sectionId, sourceWeekData = null) {
-  const cleanName = String(name || '').trim();
-  const existing = findScheduleTemplateEntry(cleanName, sourceWeekData);
-  const section = SCHEDULE_SECTIONS.find(item => item.id === sectionId) || SCHEDULE_SECTIONS[1];
-  if (existing) {
-    const copy = cloneScheduleEntry(existing);
-    copy.phase = section.phase;
-    if (copy.activity && !copy.exercise && sectionId !== 'bonus') {
-      copy.exercise = copy.activity;
-      delete copy.activity;
-    }
-    return copy;
-  }
-  return {
-    phase: section.phase,
-    exercise: cleanName,
-    sets: '',
-    reps: '',
-    rest: 0,
-    tempo: '',
-    notes: '',
-    equipment: ''
-  };
-}
-
-function buildScheduleMarkdown() {
-  const program = getActiveProgram();
-  const weekData = getScheduleTableWeekData();
-  const header = ['Section', ...WEEK_DAYS];
-  const rows = SCHEDULE_SECTIONS.map(section => {
-    const cells = WEEK_DAYS.map(day => {
-      const names = getScheduleItemsForCell(weekData, day, section.id).map(item => getScheduleEntryName(item.entry));
-      return names.length ? names.join('<br>') : '';
-    });
-    return [section.label, ...cells];
-  });
-  const clean = value => String(value || '').replace(/\|/g, '/').replace(/\n/g, ' ').trim();
-  return [
-    `Program: ${program.name}`,
-    `Week: ${state.week}`,
-    '',
-    `| ${header.map(clean).join(' | ')} |`,
-    `| ${header.map(() => '---').join(' | ')} |`,
-    ...rows.map(row => `| ${row.map(clean).join(' | ')} |`)
-  ].join('\n');
-}
-
-function buildScheduleCsv() {
-  const program = getActiveProgram();
-  const weekData = getScheduleTableWeekData();
-  const rows = [
-    ['Program', program.name],
-    ['Week', String(state.week || 1)],
-    [],
-    ['Section', ...WEEK_DAYS]
-  ];
-  SCHEDULE_SECTIONS.forEach(section => {
-    const dayCells = WEEK_DAYS.map(day => {
-      const names = getScheduleItemsForCell(weekData, day, section.id)
-        .map(item => getScheduleEntryName(item.entry));
-      return names.join('; ');
-    });
-    rows.push([section.label, ...dayCells]);
-  });
-  const csvCell = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
-  return rows.map(row => row.map(csvCell).join(',')).join('\r\n');
-}
-
-async function copySchedule() {
-  const text = buildScheduleMarkdown();
-  const status = document.getElementById('scheduleCopyStatus');
-  try {
-    await navigator.clipboard.writeText(text);
-    if (status) status.textContent = 'Copied';
-  } catch (err) {
-    const temp = document.createElement('textarea');
-    temp.value = text;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand('copy');
-    temp.remove();
-    if (status) status.textContent = 'Copied';
-  }
-  setTimeout(() => { if (status) status.textContent = ''; }, 1800);
-}
-
-function downloadScheduleCsv() {
-  const program = getActiveProgram();
-  const csv = buildScheduleCsv();
-  const slug = `${program.id || 'program'}-week-${state.week || 1}-schedule.csv`.replace(/[^a-z0-9._-]+/gi, '-');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = slug;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
-function renderScheduleCellRead(items, day, programId) {
-  if (!items.length) return `<div class="schedule-empty">None</div>`;
-  return items.map(({ entry, idx }) => {
-    const name = getScheduleEntryName(entry);
-    const meta = getScheduleEntryMeta(entry);
-    const canOpen = !!entry.exercise;
-    return `<button type="button" class="schedule-item" ${canOpen ? `onclick="openExerciseDetail('${day}', ${idx}, ${state.week}, '${programId}')"` : ''}>
-      <span class="schedule-item-title">${escapeHtml(name)}</span>
-      ${meta ? `<span class="schedule-item-meta">${escapeHtml(meta)}</span>` : ''}
-    </button>`;
-  }).join('');
-}
-
-function renderScheduleCellEdit(weekData, day, section) {
-  const items = getScheduleItemsForCell(weekData, day, section.id);
-  const id = `schedule_${day}_${section.id}`.replace(/\s+/g, '_');
-  const inputId = `${id}_pick`;
-  const value = items.map(item => getScheduleEntryName(item.entry)).join('\n');
-  return `<div class="schedule-edit-cell">
-    <textarea class="schedule-edit-list" id="${id}" data-day="${day}" data-section="${section.id}" spellcheck="false">${escapeHtml(value)}</textarea>
-    <div class="schedule-picker-row">
-      <input id="${inputId}" list="scheduleExerciseOptions" placeholder="Search exercise library">
-      <button type="button" onclick="addScheduleExerciseToCell('${id}', '${inputId}')">Add</button>
-    </div>
-  </div>`;
-}
-
-function renderScheduleTable(editMode = false) {
-  const program = getActiveProgram();
-  const weekData = editMode && scheduleEditDraft ? scheduleEditDraft : getScheduleTableWeekData();
-  const libraryOptions = getExerciseLibraryEntries().map(entry => `<option value="${escapeAttr(getScheduleEntryName(entry))}"></option>`).join('');
-  let html = editMode ? `<datalist id="scheduleExerciseOptions">${libraryOptions}</datalist>` : '';
-  html += `<div class="schedule-table-wrap">
-    <table class="schedule-table">
-      <thead><tr>
-        <th class="schedule-section-head">Section</th>
-        ${WEEK_DAYS.map(day => `<th>${day}</th>`).join('')}
-      </tr></thead>
-      <tbody>
-        ${SCHEDULE_SECTIONS.map(section => `<tr>
-          <td class="schedule-section-cell">${section.label}</td>
-          ${WEEK_DAYS.map(day => `<td class="schedule-day-cell">${editMode ? renderScheduleCellEdit(weekData, day, section) : renderScheduleCellRead(getScheduleItemsForCell(weekData, day, section.id), day, program.id)}</td>`).join('')}
-        </tr>`).join('')}
-      </tbody>
-    </table>
-  </div>`;
-  if (editMode) {
-    html += `<div class="schedule-edit-note">One exercise per line. Reorder by moving lines. Use Add to pull names from the existing exercise library. Save writes only this program and week.</div>`;
-  }
-  return html;
-}
-
-function renderMasterExerciseList(editMode = false) {
-  const c = document.getElementById('programArea');
-  const program = getActiveProgram();
-  const effectiveWeek = state.week || 1;
-  if (editMode && !scheduleEditDraft) scheduleEditDraft = getScheduleTableWeekData();
-  
-  let html = `<div class="detail-header">
-    <button class="detail-back" onclick="renderProgram()">Back to Program</button>
-    <div class="detail-title">Weekly Schedule</div>
-  </div>`;
-  html += `<div class="program-card">
-    <div class="schedule-toolbar">
-      <div>
-        <h2>${escapeHtml(program.name)}</h2>
-        <div class="program-meta">Week ${effectiveWeek} schedule overview</div>
-      </div>
-      <div class="schedule-actions">
-        ${editMode ? `
-          <button class="program-btn primary" onclick="saveScheduleEdits()">Save Schedule</button>
-          <button class="program-btn" onclick="cancelScheduleEdits()">Cancel</button>
-        ` : `
-          <button class="program-btn" onclick="copySchedule()">Copy Schedule</button>
-          <button class="program-btn" onclick="downloadScheduleCsv()">Download CSV</button>
-          <button class="program-btn primary" onclick="startScheduleEdit()">Edit Schedule</button>
-        `}
-      </div>
-    </div>
-    <div class="schedule-copy-status" id="scheduleCopyStatus"></div>
-    ${renderScheduleTable(editMode)}
-  </div>`;
-  c.innerHTML = html;
-}
-
-function addScheduleExerciseToCell(textareaId, inputId) {
-  const textarea = document.getElementById(textareaId);
-  const input = document.getElementById(inputId);
-  if (!textarea || !input || !input.value.trim()) return;
-  const lines = textarea.value.split('\n').map(line => line.trim()).filter(Boolean);
-  lines.push(input.value.trim());
-  textarea.value = lines.join('\n');
-  input.value = '';
-}
-
-function startScheduleEdit() {
-  scheduleEditDraft = getScheduleTableWeekData();
-  renderMasterExerciseList(true);
-}
-
-function readScheduleDraftFromDom() {
-  const sourceWeekData = scheduleEditDraft || getScheduleTableWeekData();
-  const next = {};
-  WEEK_DAYS.forEach(day => { next[day] = []; });
-  document.querySelectorAll('.schedule-edit-list').forEach(textarea => {
-    const day = textarea.dataset.day;
-    const sectionId = textarea.dataset.section;
-    if (!WEEK_DAYS.includes(day) || !SCHEDULE_SECTIONS.some(section => section.id === sectionId)) return;
-    const lines = textarea.value.split('\n').map(line => line.trim()).filter(Boolean);
-    lines.forEach(name => {
-      const entry = createScheduleEntryFromName(name, sectionId, sourceWeekData);
-      if (entry && getScheduleEntryName(entry)) next[day].push(entry);
-    });
-  });
-  return next;
-}
-
-function saveScheduleEdits() {
-  const program = getActiveProgram();
-  const week = String(state.week || 1);
-  const nextWeekData = cloneScheduleWeekData(readScheduleDraftFromDom());
-  if (!state.programScheduleEdits) state.programScheduleEdits = {};
-  if (!state.programScheduleEdits[program.id]) state.programScheduleEdits[program.id] = { weeks: {} };
-  if (!state.programScheduleEdits[program.id].weeks) state.programScheduleEdits[program.id].weeks = {};
-  state.programScheduleEdits[program.id].weeks[week] = nextWeekData;
-  scheduleEditDraft = null;
-  save();
-  renderTabs();
-  renderDay(state.day);
-  renderMasterExerciseList(false);
-}
-
-function cancelScheduleEdits() {
-  scheduleEditDraft = null;
-  renderMasterExerciseList(false);
 }
 
 function changeProgram(id) {
