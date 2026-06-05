@@ -1013,8 +1013,21 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
     });
   };
 
+  // Inline merge of knee-safe program into PROGRAMS/GUIDES/TEMPLATES
   const kneeSafeUpperFocus = buildKneeSafeUpperFocusProgram();
-  mergeDefaultPrograms([kneeSafeUpperFocus]);
+  if (kneeSafeUpperFocus) {
+    const { program, guide, template } = kneeSafeUpperFocus;
+    if (program) {
+      const existing = PROGRAMS.findIndex(p => p.id === program.id);
+      if (existing >= 0) {
+        PROGRAMS[existing] = program;
+      } else {
+        PROGRAMS.push(program);
+      }
+    }
+    if (guide && program) PROGRAM_GUIDES[program.id] = guide;
+    if (template && program) PROGRAM_TEMPLATES[program.id] = template;
+  }
 
   return { PROGRAMS, PROGRAM_GUIDES, PROGRAM_TEMPLATES };
 };
