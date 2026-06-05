@@ -1012,12 +1012,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   }
 
   function handleLandingAction(action) {
-    if (!currentSyncKey) {
-      pendingDestination = action;
-      openAuth();
-      return;
-    }
-
+    // Always allow access — do not block on missing sync key
     hideLandingPage();
     if (action === 'workout') {
       const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
@@ -1030,6 +1025,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     } else if (action === 'program') {
       setActiveTab('program');
     }
+    if (!currentSyncKey) pendingDestination = action;
   }
 
   function updateSyncUI() {
@@ -1689,14 +1685,15 @@ function getViewDateISO(day) {
 
     refreshWeekSelectOptions();
     if (state.dark) document.body.classList.add('dark');
-    // Always start on Landing Page
-    showLandingPage();
-    
+    // Go directly to today's workout — skip landing page
+    const todayWeekday = getTodayWeekdayName();
+    if (WEEK_DAYS.includes(todayWeekday)) state.day = todayWeekday;
+    hideLandingPage();
     renderTabs();
     renderDay(state.day);
     renderProgram();
     updateWeekHeader();
-    setActiveTab(uiActiveTab);
+    setActiveTab('home');
     const sheet = document.getElementById('setSheet');
     if (sheet) {
       sheet.addEventListener('click', e => {
