@@ -765,388 +765,97 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
       ...coreFull, ...cooldown5
     ];
   
-    const w1Fri = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '307 lbs leg press. Maintain W1 — prioritize form and knee tracking.', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Stabilizer every lower day', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Hamstring focus', 'Machine'),
-      ex('Lower', 'Standing Calf Raise (Machine)', '3', '20', 30, 'Controlled', 'Ankle-knee chain strength', 'Machine'),
-      ex('Lower', 'Glute Bridge (Bodyweight)', '3', '15', 45, 'Controlled', 'Activation, no load', 'Bodyweight'),
-      ...coreMid, ...kneeStretch, ...walkCooldown
-    ];
   
-    // ===== WEEK 2 (FOUNDATION - SAME WEIGHT, FOCUS FORM) =====
-    const w2Mon = [...warmup15,
-      ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', '130 lbs — same as W1. Focus on deeper ROM and slower descent.', 'Machine'),
-      ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Same weight, balance work', 'Cable'),
-      ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '30 lbs — W1 weight. Full control on the negative.', 'Dumbbells'),
-      ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '15 lbs, full range', 'Dumbbells'),
-      ...coreMid, ...cooldown5
-    ];
-  
-    const w2Tue = [...warmup15,
-      ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '115 lbs incline barbell. Hit all 10 clean reps before considering +5.', 'Barbell'),
-      ex('Chest', 'Incline Dumbbell Press', '3', '10', 75, 'Controlled', '45 lbs, controlled descent', 'Dumbbells'),
-      ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '145 lbs pec deck. Small progression from 140.', 'Machine'),
-      ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '70 lbs — maintain baseline or +5 if reps felt easy.', 'Barbell'),
-      ex('Biceps', 'Hammer Curl', '3', '12', 45, 'Controlled', '25 lbs — maintain. Add 2.5 only if W1 felt very easy.', 'Dumbbells'),
-      ex('Back', 'Lat Pulldown (Wide)', '3', '12', 60, 'Controlled', '135 lbs lat pulldown. +5 from W1 only if all reps were clean.', 'Machine'),
-      ex('Back', 'Cable Face Pull', '3', '15', 45, 'Controlled', 'Maintain light', 'Cable'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w2Wed = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', 'Maintain form, no pain', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', '80 lbs — maintain W1 weight.', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', '120 lbs hip abduction — your confirmed working weight.', 'Machine'),
-      ex('Lower', 'Standing Hip Extension (Cable)', '3', '12 each', 45, 'Controlled', 'Moderate cable weight, controlled hip extension.', 'Cable'),
-      ex('Lower', 'Glute Bridge (Bodyweight)', '3', '15', 45, 'Controlled', 'Squeeze at top', 'Bodyweight'),
-      ...kneeStretch, ...walkCooldown
-    ];
-  
-    const w2Thu = [...warmup15,
-      ex('Back', 'Seated Cable Row', '3', '10', 75, 'Controlled', '110 lbs seated row — maintain W1.', 'Cable'),
-      ex('Back', 'Lat Pulldown (Underhand)', '3', '12', 60, 'Controlled', '135 lbs lat pulldown — maintain or +5.', 'Machine'),
-      ex('Back', 'Single-Arm Row', '3', '10 each', 60, 'Controlled', '55-60 lbs single-arm row — slight build from W1.', 'Dumbbells'),
-      ex('Shoulders', 'Dumbbell Shoulder Press', '3', '10', 75, 'Controlled', '35 lbs shoulder press — maintain W1, perfect reps.', 'Dumbbells'),
-      ex('Shoulders', 'Dumbbell Lateral Raise', '3', '12', 45, 'Controlled', '15 lbs lateral raise — maintain W1.', 'Dumbbells'),
-      ex('Triceps', 'Cable Pushdown (Rope)', '3', '12', 45, 'Controlled', '75 lbs rope pushdown — maintain W1.', 'Cable'),
-      ex('Back', 'Cable Face Pull', '3', '15', 45, 'Controlled', 'Maintain', 'Cable'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w2Fri = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '307 lbs leg press — maintain W1 form.', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Build weight', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Build weight', 'Machine'),
-      ex('Lower', 'Standing Calf Raise', '3', '20', 30, 'Controlled', 'Add weight if easy', 'Machine'),
-      ex('Lower', 'Glute Bridge (Bodyweight or Light DB)', '3', '15', 45, 'Controlled', 'Light DB if ready', 'Dumbbells'),
-      ...coreMid, ...kneeStretch, ...walkCooldown
-    ];
-  
-    // ===== WEEK 3 (FOUNDATION - PUSH HARDER) =====
-    const w3Mon = [...warmup15,
-      ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', '135 lbs. +5 from W1. Push week — earn every rep.', 'Machine'),
-      ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Light build', 'Cable'),
-      ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '22 lbs each', 'Dumbbells'),
-      ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '17 lbs each or build', 'Dumbbells'),
-      ...coreMid, ...cooldown5
-    ];
-  
-    const w3Tue = [...warmup15,
-      ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '+5 lbs (now 120 lbs incline barbell) if W1-2 felt clean', 'Barbell'),
-      ex('Chest', 'Incline Dumbbell Press', '3', '10', 75, 'Controlled', '+5 lbs each (now 65-70 lbs DB) if form held', 'Dumbbells'),
-      ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '150 lbs pec deck — build on your strong baseline.', 'Machine'),
-      ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '+5 lbs (now 75 lbs)', 'Barbell'),
-      ex('Biceps', 'Hammer Curl', '3', '12', 45, 'Controlled', '27.5 lbs hammer curl if available, else stay at 25.', 'Dumbbells'),
-      ex('Back', 'Lat Pulldown (Wide)', '3', '12', 60, 'Controlled', 'Build weight', 'Machine'),
-      ex('Back', 'Cable Face Pull', '3', '15', 45, 'Controlled', 'Light, rotator priority', 'Cable'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w3Wed = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '317 lbs leg press — +10 only if zero knee discomfort.', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', '+10 lbs', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Add weight', 'Machine'),
-      ex('Lower', 'Standing Hip Extension (Cable)', '3', '12 each', 45, 'Controlled', 'Build resistance', 'Cable'),
-      ex('Lower', 'Glute Bridge (Weighted)', '3', '15', 45, 'Controlled', '25-35 lb dumbbell if ready', 'Dumbbells'),
-      ...kneeStretch, ...walkCooldown
-    ];
-  
-    const w3Thu = [...warmup15,
-      ex('Back', 'Seated Cable Row', '3', '10', 75, 'Controlled', '+10 lbs', 'Cable'),
-      ex('Back', 'Lat Pulldown (Underhand)', '3', '12', 60, 'Controlled', 'Build weight', 'Machine'),
-      ex('Back', 'Single-Arm Row', '3', '10 each', 60, 'Controlled', '+5 lbs each', 'Dumbbells'),
-      ex('Shoulders', 'Dumbbell Shoulder Press', '3', '10', 75, 'Controlled', '40 lbs each shoulder press. Build from 35.', 'Dumbbells'),
-      ex('Shoulders', 'Dumbbell Lateral Raise', '3', '12', 45, 'Controlled', '17.5 lbs lateral raise if available, else 20 lbs.', 'Dumbbells'),
-      ex('Triceps', 'Cable Pushdown', '3', '12', 45, 'Controlled', 'Add weight', 'Cable'),
-      ex('Back', 'Cable Face Pull', '3', '15', 45, 'Controlled', 'Light, rotator', 'Cable'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w3Fri = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '+10 lbs', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Build weight', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', '+10 lbs', 'Machine'),
-      ex('Lower', 'Standing Calf Raise', '3', '20', 30, 'Controlled', 'Add weight', 'Machine'),
-      ex('Lower', 'Glute Bridge (Weighted)', '3', '15', 45, 'Controlled', '+10 lbs dumbbell', 'Dumbbells'),
-      ...coreFull, ...kneeStretch, ...walkCooldown
-    ];
-  
-    // ===== WEEK 4 (BUILD - MAINTAIN W3 WEIGHT) =====
-    const w4Mon = [...warmup15,
-      ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', 'W3 weight, focus form', 'Machine'),
-      ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Maintain', 'Cable'),
-      ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '22 lbs, smooth reps', 'Dumbbells'),
-      ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '17 lbs', 'Dumbbells'),
-      ...coreMid, ...cooldown5
-    ];
-  
-    const w4Tue = [...warmup15,
-      ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '120 lbs incline barbell — W3 weight or +5 if clean.', 'Barbell'),
-      ex('Chest', 'Incline Smith Machine Press', '3', '10', 75, 'Controlled', 'Switch to variation: 90 lbs total', 'Smith Machine'),
-      ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '150 lbs pec deck — maintain W3.', 'Machine'),
-      ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '75 lbs barbell curl — build.', 'Barbell'),
-      ex('Biceps', 'Cable Curl (Machine)', '3', '12', 45, 'Controlled', 'Switch variation: moderate weight', 'Machine'),
-      ex('Back', 'Lat Pulldown (Close Neutral)', '3', '12', 60, 'Controlled', 'Variation: narrow grip neutral', 'Machine'),
-      ex('Back', 'Reverse Pec Deck (Rear Delt)', '3', '15', 45, 'Controlled', 'Variation: rear delt emphasis', 'Machine'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w4Wed = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', 'W3 weight', 'Machine'),
-      ex('Lower', 'Leg Curl (Seated)', '3', '12', 60, 'Controlled', 'Variation: seated vs lying', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Maintain w3', 'Machine'),
-      ex('Lower', 'Standing Cable Kickbacks', '3', '12 each', 45, 'Controlled', 'Variation: cable vs machine', 'Cable'),
-      ex('Lower', 'Glute Bridge (Weighted)', '3', '15', 45, 'Controlled', '+5 lbs', 'Dumbbells'),
-      ...kneeStretch, ...walkCooldown
-    ];
-  
-    const w4Thu = [...warmup15,
-      ex('Back', 'Seal Rows (or Machine Chest-Supported Row)', '3', '10', 75, 'Controlled', 'Variation: chest support for back', 'Machine'),
-      ex('Back', 'Lat Pulldown (Underhand)', '3', '12', 60, 'Controlled', 'Maintain weight', 'Machine'),
-      ex('Back', 'Dumbbell Rows (Alternating)', '3', '10 each', 60, 'Controlled', 'Variation: alternating vs single', 'Dumbbells'),
-      ex('Shoulders', 'Machine Shoulder Press', '3', '10', 75, 'Controlled', 'Variation: machine vs dumbbell', 'Machine'),
-      ex('Shoulders', 'Plate Loaded Lateral Raise Machine', '3', '12', 45, 'Controlled', 'Variation: machine vs free weight', 'Machine'),
-      ex('Triceps', 'Dips (Assisted if needed)', '3', '8-10', 45, 'Controlled', 'Variation: bodyweight progression', 'Machine'),
-      ex('Back', 'Machine Face Pull (or Cable)', '3', '15', 45, 'Controlled', 'Rotator cuff', 'Machine'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w4Fri = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', 'Maintain w3', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Maintain', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Maintain w3', 'Machine'),
-      ex('Lower', 'Standing Calf Raise', '3', '20', 30, 'Controlled', 'Add weight if easy', 'Machine'),
-      ex('Lower', 'Glute Bridge (Weighted)', '3', '15', 45, 'Controlled', '+5 lbs', 'Dumbbells'),
-      ...coreFull, ...kneeStretch, ...walkCooldown
-    ];
-  
-    // ===== WEEKS 5-6 (PUSH - PEAK EFFORT WEEKS) =====
-    // Week 5: Peak loads, add sets on main lifts
-    const w5Mon = [...warmup15,
-      ex('Chest', 'Machine Chest Press', '4', '12', 60, '3010', '135 lbs × 4 sets. Slow 3-sec descent. Feel the chest load.', 'Machine'),
-      ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Heavy week — push last 1-2 reps hard.', 'Cable'),
-      ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '+5 lbs each (now 27)', 'Dumbbells'),
-      ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '+5 lbs', 'Dumbbells'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w5Tue = [...warmup15,
-      ex('Chest', 'Barbell Bench Press', '4', '10', 90, '3010', '125 lbs incline barbell, 4 sets, 3-sec descent. +10 from W1.', 'Barbell'),
-      ex('Chest', 'Incline Smith Machine Press', '3', '10', 75, 'Controlled', '130 lbs incline barbell. Keep building.', 'Smith Machine'),
-      ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '160 lbs pec deck. Heavy week.', 'Machine'),
-      ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '80 lbs barbell curl — heavy week.', 'Barbell'),
-      ex('Biceps', 'Cable Curl (Machine)', '3', '12', 45, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Back', 'Lat Pulldown (Close Neutral)', '3', '12', 60, 'Controlled', 'Max weight this cycle', 'Machine'),
-      ex('Back', 'Reverse Pec Deck', '3', '15', 45, 'Controlled', 'Heavy week', 'Machine'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w5Wed = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '+10 lbs if pain-free', 'Machine'),
-      ex('Lower', 'Leg Curl (Seated)', '3', '12', 60, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Standing Cable Kickbacks', '3', '12 each', 45, 'Controlled', 'Heavy week', 'Cable'),
-      ex('Lower', 'Glute Bridge (Weighted)', '3', '15', 45, 'Controlled', '+5 lbs', 'Dumbbells'),
-      ...kneeStretch, ...walkCooldown
-    ];
-  
-    const w5Thu = [...warmup15,
-      ex('Back', 'Seal Rows (Machine)', '3', '10', 75, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Back', 'Lat Pulldown (Underhand)', '3', '12', 60, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Back', 'Dumbbell Rows (Alternating)', '3', '10 each', 60, 'Controlled', '55 lbs each, heavy', 'Dumbbells'),
-      ex('Shoulders', 'Machine Shoulder Press', '3', '10', 75, 'Controlled', '+10 lbs (now 95 total)', 'Machine'),
-      ex('Shoulders', 'Plate Lateral Raise Machine', '3', '12', 45, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Triceps', 'Dips (Assisted)', '3', '8-10', 45, 'Controlled', 'Heavy week, add weight if able', 'Machine'),
-      ex('Back', 'Machine Face Pull', '3', '15', 45, 'Controlled', 'Maintain light', 'Machine'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w5Fri = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Standing Calf Raise', '3', '20', 30, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Glute Bridge (Weighted)', '3', '15', 45, 'Controlled', 'Heavy week', 'Dumbbells'),
-      ...coreFull, ...kneeStretch, ...walkCooldown
-    ];
-  
-    // Week 6: Maintain W5 loads
-    const w6Mon = [...w5Mon];
-    const w6Tue = [...w5Tue];
-    const w6Wed = [...w5Wed];
-    const w6Thu = [...w5Thu];
-    const w6Fri = [...w5Fri];
-  
-    // ===== WEEKS 7-9 (PUSH HARD - MAX EFFORT) =====
-    // Week 7: Peak effort, technical failure
-    const w7Mon = [...warmup15,
-      ex('Chest', 'Machine Chest Press', '4', '12', 60, '3010', '145 lbs × 4 sets. Your peak machine chest press target.', 'Machine'),
-      ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Heavy', 'Cable'),
-      ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '+5 lbs (now 32)', 'Dumbbells'),
-      ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '+5 lbs (now 22)', 'Dumbbells'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w7Tue = [...warmup15,
-      ex('Chest', 'Barbell Bench Press', '4', '10', 90, '3010', '135 lbs incline barbell, 4 sets. Your 12-week incline peak.', 'Barbell'),
-      ex('Chest', 'Incline Barbell Press', '3', '10', 75, 'Controlled', '135 lbs incline barbell — max effort this cycle.', 'Barbell'),
-      ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '165 lbs pec deck. Peak weight this cycle.', 'Machine'),
-      ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '85 lbs barbell curl. Peak effort.', 'Barbell'),
-      ex('Biceps', 'Incline Dumbbell Curl', '3', '12', 45, 'Controlled', 'Variation: incline bench setup', 'Dumbbells'),
-      ex('Back', 'Lat Pulldown (Close Grip)', '3', '12', 60, 'Controlled', 'Variation: close neutral grip', 'Machine'),
-      ex('Back', 'Reverse Pec Deck', '3', '15', 45, 'Controlled', 'Heavy', 'Machine'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w7Wed = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '+10 lbs if pain-free', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Cable Hip Flexion (or Kickbacks)', '3', '12 each', 45, 'Controlled', 'Heavy week', 'Cable'),
-      ex('Lower', 'Glute Bridge (Weighted)', '3', '15', 45, 'Controlled', '+10 lbs', 'Dumbbells'),
-      ...kneeStretch, ...walkCooldown
-    ];
-  
-    const w7Thu = [...warmup15,
-      ex('Back', 'T-Bar Rows (or Seal Rows)', '3', '10', 75, 'Controlled', 'Variation: heavy rowing', 'Machine'),
-      ex('Back', 'Lat Pulldown (Underhand)', '3', '12', 60, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Back', 'Single-Arm Landmine Row', '3', '10 each', 60, 'Controlled', 'Variation: landmine setup', 'Landmine'),
-      ex('Shoulders', 'Machine Shoulder Press', '3', '10', 75, 'Controlled', '+15 lbs (now 110)', 'Machine'),
-      ex('Shoulders', 'Lateral Raise Machine', '3', '12', 45, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Triceps', 'Rope Pushdown (Heavy)', '3', '12', 45, 'Controlled', 'Heavy week', 'Cable'),
-      ex('Back', 'Reverse Pec Deck', '3', '15', 45, 'Controlled', 'Rotator cuff maintenance', 'Machine'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w7Fri = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Standing Calf Raise', '3', '20', 30, 'Controlled', 'Heavy week', 'Machine'),
-      ex('Lower', 'Glute Bridge (Weighted)', '3', '15', 45, 'Controlled', 'Heavy week', 'Dumbbells'),
-      ...coreFull, ...kneeStretch, ...walkCooldown
-    ];
-  
-    // Weeks 8-9: Maintain W7 loads
-    const w8Mon = [...w7Mon];
-    const w8Tue = [...w7Tue];
-    const w8Wed = [...w7Wed];
-    const w8Thu = [...w7Thu];
-    const w8Fri = [...w7Fri];
-  
-    const w9Mon = [...w7Mon];
-    const w9Tue = [...w7Tue];
-    const w9Wed = [...w7Wed];
-    const w9Thu = [...w7Thu];
-    const w9Fri = [...w7Fri];
-  
-    // ===== WEEK 10 (DELOAD - 30% WEIGHT DROP) =====
-    const w10Mon = [...warmup15,
-      ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', '~90 lbs machine chest press. Drop 30%. Recovery week.', 'Machine'),
-      ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Light weight deload', 'Cable'),
-      ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '20 lbs each, light', 'Dumbbells'),
-      ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '15 lbs, light', 'Dumbbells'),
-      ...coreMid, ...cooldown5
-    ];
-  
-    const w10Tue = [...warmup15,
-      ex('Chest', 'Barbell Bench Press', '3', '12', 90, 'Controlled', '~80 lbs incline barbell. Drop 30% — deload is mandatory.', 'Barbell'),
-      ex('Chest', 'Incline Barbell Press', '3', '12', 75, 'Controlled', '90 lbs incline barbell light.', 'Barbell'),
-      ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '100 lbs pec deck light.', 'Machine'),
-      ex('Biceps', 'Barbell Curl', '3', '12', 60, 'Controlled', '50 lbs barbell curl light.', 'Barbell'),
-      ex('Biceps', 'Incline Dumbbell Curl', '3', '12', 45, 'Controlled', 'Light recovery', 'Dumbbells'),
-      ex('Back', 'Lat Pulldown (Close)', '3', '12', 60, 'Controlled', 'Light', 'Machine'),
-      ex('Back', 'Reverse Pec Deck', '3', '15', 45, 'Controlled', 'Light', 'Machine'),
-      ...coreMid, ...cooldown5
-    ];
-  
-    const w10Wed = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', 'Drop 30% weight, light', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Light recovery', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Light recovery', 'Machine'),
-      ex('Lower', 'Cable Hip Flexion', '3', '12 each', 45, 'Controlled', 'Light recovery', 'Cable'),
-      ex('Lower', 'Glute Bridge (Bodyweight)', '3', '15', 45, 'Controlled', 'Bodyweight only deload', 'Bodyweight'),
-      ...kneeStretch, ...walkCooldown
-    ];
-  
-    const w10Thu = [...warmup15,
-      ex('Back', 'T-Bar Rows', '3', '10', 75, 'Controlled', 'Light recovery weight', 'Machine'),
-      ex('Back', 'Lat Pulldown (Underhand)', '3', '12', 60, 'Controlled', 'Light', 'Machine'),
-      ex('Back', 'Single-Arm Landmine Row', '3', '10 each', 60, 'Controlled', 'Light recovery', 'Landmine'),
-      ex('Shoulders', 'Machine Shoulder Press', '3', '10', 75, 'Controlled', 'Light recovery weight', 'Machine'),
-      ex('Shoulders', 'Lateral Raise Machine', '3', '12', 45, 'Controlled', 'Light', 'Machine'),
-      ex('Triceps', 'Rope Pushdown', '3', '12', 45, 'Controlled', 'Light recovery', 'Cable'),
-      ex('Back', 'Reverse Pec Deck', '3', '15', 45, 'Controlled', 'Light maintenance', 'Machine'),
-      ...coreMid, ...cooldown5
-    ];
-  
-    const w10Fri = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', 'Light recovery', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Light recovery', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Light recovery', 'Machine'),
-      ex('Lower', 'Standing Calf Raise', '3', '20', 30, 'Controlled', 'Light recovery', 'Machine'),
-      ex('Lower', 'Glute Bridge (Bodyweight)', '3', '15', 45, 'Controlled', 'Bodyweight deload', 'Bodyweight'),
-      ...coreMid, ...kneeStretch, ...walkCooldown
-    ];
-  
-    // ===== WEEKS 11-12 (PEAK - PUSH PAST W7-9 MAXES) =====
-    // Week 11: New max attempt
-    const w11Mon = [...warmup15,
-      ex('Chest', 'Machine Chest Press', '3', '12', 60, 'Controlled', '150 lbs machine chest press. New personal record attempt.', 'Machine'),
-      ex('Back', 'Seated Cable Row', '3', '12', 60, 'Controlled', 'Build past max', 'Cable'),
-      ex('Biceps', 'Dumbbell Curls', '3', '12', 45, 'Controlled', '+5 lbs (now 37)', 'Dumbbells'),
-      ex('Triceps', 'Overhead Dumbbell Extension', '3', '12', 45, 'Controlled', '+5 lbs (now 27)', 'Dumbbells'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w11Tue = [...warmup15,
-      ex('Chest', 'Barbell Bench Press', '3', '10', 90, 'Controlled', '140 lbs incline barbell. Push past W7 peak.', 'Barbell'),
-      ex('Chest', 'Incline Barbell Press', '3', '10', 75, 'Controlled', '140 lbs incline barbell — peak week.', 'Barbell'),
-      ex('Chest', 'Pec Deck Fly', '3', '12', 60, 'Controlled', '170 lbs pec deck. Final peak.', 'Machine'),
-      ex('Biceps', 'Barbell Curl', '3', '10', 60, 'Controlled', '90 lbs barbell curl. New PR attempt.', 'Barbell'),
-      ex('Biceps', 'Incline Dumbbell Curl', '3', '12', 45, 'Controlled', '+5 lbs each', 'Dumbbells'),
-      ex('Back', 'Lat Pulldown (Close)', '3', '12', 60, 'Controlled', 'Build past max', 'Machine'),
-      ex('Back', 'Reverse Pec Deck', '3', '15', 45, 'Controlled', 'Peak effort', 'Machine'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w11Wed = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', '+5-10 lbs past max', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Build past max', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Build past max', 'Machine'),
-      ex('Lower', 'Cable Hip Flexion', '3', '12 each', 45, 'Controlled', 'Build past max', 'Cable'),
-      ex('Lower', 'Glute Bridge (Weighted)', '3', '15', 45, 'Controlled', '+10 lbs', 'Dumbbells'),
-      ...kneeStretch, ...walkCooldown
-    ];
-  
-    const w11Thu = [...warmup15,
-      ex('Back', 'T-Bar Rows', '3', '10', 75, 'Controlled', 'Add weight past max', 'Machine'),
-      ex('Back', 'Lat Pulldown (Underhand)', '3', '12', 60, 'Controlled', 'Build past max', 'Machine'),
-      ex('Back', 'Single-Arm Landmine Row', '3', '10 each', 60, 'Controlled', '+5 lbs each', 'Landmine'),
-      ex('Shoulders', 'Machine Shoulder Press', '3', '10', 75, 'Controlled', '+10 lbs (now 125)', 'Machine'),
-      ex('Shoulders', 'Lateral Raise Machine', '3', '12', 45, 'Controlled', 'Build weight', 'Machine'),
-      ex('Triceps', 'Rope Pushdown', '3', '12', 45, 'Controlled', 'Build past max', 'Cable'),
-      ex('Back', 'Reverse Pec Deck', '3', '15', 45, 'Controlled', 'Rotator maintenance', 'Machine'),
-      ...coreFull, ...cooldown5
-    ];
-  
-    const w11Fri = [...warmup15,
-      ex('Lower', 'Leg Press (Shallow)', '3', '12', 75, 'Controlled', 'Build past max', 'Machine'),
-      ex('Lower', 'Hip Abduction', '3', '15', 45, 'Controlled', 'Build past max', 'Machine'),
-      ex('Lower', 'Lying Leg Curl', '3', '12', 60, 'Controlled', 'Build past max', 'Machine'),
-      ex('Lower', 'Standing Calf Raise', '3', '20', 30, 'Controlled', 'Build weight', 'Machine'),
-      ex('Lower', 'Glute Bridge (Weighted)', '3', '15', 45, 'Controlled', 'Peak weight', 'Dumbbells'),
-      ...coreFull, ...kneeStretch, ...walkCooldown
-    ];
-  
-    // Week 12: Maintain W11 peak loads
-    const w12Mon = [...w11Mon];
-    const w12Tue = [...w11Tue];
-    const w12Wed = [...w11Wed];
-    const w12Thu = [...w11Thu];
-    const w12Fri = [...w11Fri];
-  
+  // ===== FRIDAY: KNEE HEALTH + MOBILITY + FLEXIBILITY (All 12 Weeks) =====
+
+  const foamRoll = [
+    ex('Foam Rolling', 'IT Band Foam Roll', '1', '60 sec/leg', 0, 'Slow', 'Slow passes, pause on tender spots', 'Foam Roller'),
+    ex('Foam Rolling', 'Quad Foam Roll', '1', '60 sec/leg', 0, 'Slow', 'Inner, middle, outer quad passes', 'Foam Roller'),
+    ex('Foam Rolling', 'Hamstring Foam Roll', '1', '60 sec/leg', 0, 'Slow', 'Toes rotated in and out', 'Foam Roller'),
+    ex('Foam Rolling', 'Calf Foam Roll', '1', '45 sec/leg', 0, 'Slow', 'Cross one leg over for more pressure', 'Foam Roller')
+  ];
+  const hipFlexorBlock = [
+    ex('Hip Flexor Release', 'Couch Stretch', '1', '60 sec/leg', 0, 'Hold', 'Back foot on bench, sink hips forward', 'Bench'),
+    ex('Hip Flexor Release', 'Kneeling Hip Flexor Stretch', '1', '60 sec/leg', 0, 'Hold', 'Skip if kneeling hurts — use standing lunge instead', 'Bodyweight'),
+    ex('Hip Flexor Release', 'Pigeon Pose (Modified)', '1', '60 sec/leg', 0, 'Hold', 'Use mat, lie forward over front shin', 'Mat')
+  ];
+  const hamstringAdductor = [
+    ex('Flexibility', 'Supine Hamstring Stretch (Band)', '1', '90 sec/leg', 0, 'Hold', 'Lying on back, band under foot, pull gently', 'Resistance Band'),
+    ex('Flexibility', 'Seated Butterfly Stretch', '1', '60 sec', 0, 'Hold', 'Inner thigh/adductor release', 'Bodyweight'),
+    ex('Flexibility', 'Side Lunge Hold (Adductor)', '1', '45 sec/leg', 0, 'Hold', 'Shift weight to one side, keep other leg straight', 'Bodyweight')
+  ];
+  const ankleMobility = [
+    ex('Ankle Mobility', 'Knee-to-Wall Drill', '1', '10 reps/leg', 0, 'Controlled', 'Foot 4-6 inches from wall, drive knee over pinky toe', 'Bodyweight'),
+    ex('Ankle Mobility', 'Standing Calf Stretch (Wall)', '1', '45 sec/leg', 0, 'Hold', 'Straight leg then bent knee version', 'Bodyweight'),
+    ex('Ankle Mobility', 'Ankle Circles (Seated)', '1', '20 each dir/leg', 0, 'Controlled', 'Full range slow circles', 'Bodyweight')
+  ];
+  const vmoBase = [
+    ex('VMO Activation', 'Terminal Knee Extension (Band)', '3', '15/leg', 30, 'Controlled', 'Band behind knee, straighten from 30 degrees — feel inner quad fire', 'Resistance Band'),
+    ex('VMO Activation', 'Wall Sit (Toes Slightly Out)', '3', '30 sec', 45, 'Hold', 'Toes 10-15 degrees out activates VMO. Stop if sharp pain.', 'Bodyweight'),
+    ex('VMO Activation', 'Step-Down (Stair or Low Box)', '3', '10/leg', 45, 'Controlled', 'Slow controlled descent — VMO fires on the way down', 'Bodyweight')
+  ];
+  const vmoAdv = [
+    ex('VMO Activation', 'Terminal Knee Extension (Band)', '3', '20/leg', 30, 'Controlled', 'Stronger band — inner quad fire', 'Resistance Band'),
+    ex('VMO Activation', 'Wall Sit (Toes Out)', '3', '45 sec', 45, 'Hold', 'Longer hold — feel VMO engagement throughout', 'Bodyweight'),
+    ex('VMO Activation', 'Step-Down (Box)', '3', '12/leg', 45, 'Controlled', 'Add 5-10 lb dumbbell if step-down feels easy', 'Bodyweight')
+  ];
+  const vmoPeak = [
+    ex('VMO Activation', 'Terminal Knee Extension (Band)', '4', '25/leg', 30, 'Controlled', 'Heaviest band of cycle — peak VMO work', 'Resistance Band'),
+    ex('VMO Activation', 'Wall Sit (Toes Out)', '4', '60 sec', 45, 'Hold', 'Peak hold. Compare to W1 — notice the improvement.', 'Bodyweight'),
+    ex('VMO Activation', 'Step-Down (Box + Light DB)', '4', '15/leg', 45, 'Controlled', '5-10 lb dumbbell. Controlled descent is everything.', 'Dumbbells')
+  ];
+  const vmoDeload = [
+    ex('VMO Activation', 'Terminal Knee Extension (Light Band)', '2', '12/leg', 30, 'Controlled', 'Light band, deload week', 'Resistance Band'),
+    ex('VMO Activation', 'Wall Sit', '2', '30 sec', 45, 'Hold', 'Short hold, recovery week', 'Bodyweight')
+  ];
+  const lightGluteBase = [
+    ex('Glute Activation', 'Clamshells (Banded)', '3', '15/leg', 30, 'Controlled', 'Band above knees, slow controlled open', 'Resistance Band'),
+    ex('Glute Activation', 'Glute Bridge (Bodyweight)', '3', '15', 30, 'Controlled', 'Squeeze hard at top, 2-sec hold', 'Bodyweight'),
+    ex('Glute Activation', 'Hip Abduction Machine (Light)', '3', '15', 30, 'Controlled', 'Light weight — activation not strength today', 'Machine')
+  ];
+  const lightGluteAdv = [
+    ex('Glute Activation', 'Clamshells (Heavy Band)', '3', '20/leg', 30, 'Controlled', 'Stronger band, slow and controlled', 'Resistance Band'),
+    ex('Glute Activation', 'Single-Leg Glute Bridge', '3', '12/leg', 30, 'Controlled', 'One leg up, drive through heel', 'Bodyweight'),
+    ex('Glute Activation', 'Hip Abduction Machine (Light)', '3', '20', 30, 'Controlled', 'High reps light weight — knee stabilizer', 'Machine')
+  ];
+  const lightCoreBase = [
+    ex('Core', 'Dead Bug', '3', '10/side', 45, 'Controlled', 'Low back pressed to floor throughout', 'Bodyweight'),
+    ex('Core', 'Pallof Press (Cable)', '3', '10/side', 45, 'Controlled', 'Light weight, anti-rotation 2 sec hold', 'Cable'),
+    ex('Core', 'Side Plank', '2', '30 sec/side', 45, 'Hold', 'Hips stacked, no sag', 'Bodyweight')
+  ];
+  const lightCoreAdv = [
+    ex('Core', 'Dead Bug (Arms + Legs)', '3', '12/side', 45, 'Controlled', 'Opposite arm/leg, keep low back flat', 'Bodyweight'),
+    ex('Core', 'Pallof Press (Cable)', '3', '12/side', 45, 'Controlled', 'Slight weight increase from foundation weeks', 'Cable'),
+    ex('Core', 'Side Plank with Hip Dip', '3', '45 sec/side', 45, 'Hold', 'Add hip dip for advanced version', 'Bodyweight')
+  ];
+  const fullBodyCooldown = [
+    ex('Cooldown', 'Supine Spinal Twist', '1', '60 sec/side', 0, 'Hold', 'Knee crosses over, both shoulders stay flat', 'Mat'),
+    ex('Cooldown', 'Childs Pose', '1', '60 sec', 0, 'Hold', 'Arms extended, breathe into lower back', 'Mat'),
+    ex('Cooldown', 'Diaphragmatic Breathing', '1', '2 min', 0, 'Slow', '4 sec inhale, 6 sec exhale. Parasympathetic recovery.', 'Bodyweight')
+  ];
+  const fridayWarmup = [
+    ex('Warm-Up', 'Incline Treadmill Walk or Bike', '1', '10 min', 0, 'Easy', '3 mph easy pace — warm the joints up', 'Treadmill')
+  ];
+  const hipFlexorPeak = [
+    ex('Hip Flexor Release', 'Couch Stretch', '1', '90 sec/leg', 0, 'Hold', 'Peak hold — notice improvement from W1', 'Bench'),
+    ex('Hip Flexor Release', 'Kneeling Hip Flexor Stretch', '1', '90 sec/leg', 0, 'Hold', 'Deepest hold of the cycle', 'Bodyweight'),
+    ex('Hip Flexor Release', 'Pigeon Pose (Full)', '1', '90 sec/leg', 0, 'Hold', 'Most advanced pigeon hold of the cycle', 'Mat')
+  ];
+
+  const w1Fri = [...fridayWarmup, ...foamRoll, ...hipFlexorBlock, ...hamstringAdductor, ...ankleMobility, ...vmoBase, ...lightGluteBase, ...lightCoreBase, ...fullBodyCooldown];
+  const w2Fri = [...fridayWarmup, ...foamRoll, ...hipFlexorBlock, ...hamstringAdductor, ...ankleMobility, ...vmoBase, ...lightGluteBase, ...lightCoreBase, ...fullBodyCooldown];
+  const w3Fri = [...fridayWarmup, ...foamRoll, ...hipFlexorBlock, ...hamstringAdductor, ...ankleMobility, ...vmoBase, ...lightGluteBase, ...lightCoreBase, ...fullBodyCooldown];
+  const w4Fri = [...fridayWarmup, ...foamRoll, ...hipFlexorBlock, ...hamstringAdductor, ...ankleMobility, ...vmoAdv, ...lightGluteBase, ...lightCoreAdv, ...fullBodyCooldown];
+  const w5Fri = [...fridayWarmup, ...foamRoll, ...hipFlexorBlock, ...hamstringAdductor, ...ankleMobility, ...vmoAdv, ...lightGluteAdv, ...lightCoreAdv, ...fullBodyCooldown];
+  const w6Fri = [...fridayWarmup, ...foamRoll, ...hipFlexorBlock, ...hamstringAdductor, ...ankleMobility, ...vmoAdv, ...lightGluteAdv, ...lightCoreAdv, ...fullBodyCooldown];
+  const w7Fri = [...fridayWarmup, ...foamRoll, ...hipFlexorBlock, ...hamstringAdductor, ...ankleMobility, ...vmoPeak, ...lightGluteAdv, ...lightCoreAdv, ...fullBodyCooldown];
+  const w8Fri = [...w7Fri];
+  const w9Fri = [...w7Fri];
+  const w10Fri = [...fridayWarmup, ...foamRoll, ...hipFlexorBlock, ...hamstringAdductor, ...ankleMobility, ...vmoDeload, ...lightGluteBase, ...lightCoreBase, ...fullBodyCooldown];
+  const w11Fri = [...fridayWarmup, ...foamRoll, ...hipFlexorPeak, ...hamstringAdductor, ...ankleMobility, ...vmoPeak, ...lightGluteAdv, ...lightCoreAdv, ...fullBodyCooldown];
+  const w12Fri = [...w11Fri];
+
+    
     // ===== PROGRAM STRUCTURE =====
     const PROGRAMS = [
       { id: 'joey-12wk-knee-safe', name: '12-Week Knee-Safe Upper Focus 2026', weeks: 12 }
