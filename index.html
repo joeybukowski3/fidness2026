@@ -1581,13 +1581,13 @@ function getActiveEditableWorkoutDay() {
 }
 function syncStateToActiveProgramDay() {
   const progress = getProgramProgressFor();
+  // Always use today's actual calendar weekday — not program-cycle day
+  const todayName = getTodayWeekdayName();
   if (progress.started) {
     state.week = progress.week;
-    state.day = progress.dayName;
-    return;
+  } else {
+    state.week = 1;
   }
-  state.week = 1;
-  const todayName = getTodayWeekdayName();
   if (WEEK_DAYS.includes(todayName)) state.day = todayName;
 }
 function resetDailyWorkoutState(nowISO = formatLocalISO(new Date())) {
@@ -1686,8 +1686,6 @@ function getViewDateISO(day) {
     refreshWeekSelectOptions();
     if (state.dark) document.body.classList.add('dark');
     // Go directly to today's workout — skip landing page
-    const todayWeekday = getTodayWeekdayName();
-    if (WEEK_DAYS.includes(todayWeekday)) state.day = todayWeekday;
     hideLandingPage();
     renderTabs();
     renderDay(state.day);
