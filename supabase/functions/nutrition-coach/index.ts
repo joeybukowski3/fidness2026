@@ -1,7 +1,13 @@
-const ORIGINS=new Set(['https://joeybukowski3.github.io','http://localhost:3000','http://localhost:5173','capacitor://localhost']);
+const PROD_ORIGINS=new Set(['https://joeybukowski3.github.io','capacitor://localhost']);
 const MEALS=['Breakfast','Lunch','Dinner','Snack'];
 const schema={type:'object',additionalProperties:false,properties:{reply:{type:'string'},summary:{type:'string'},proposedItems:{type:'array',maxItems:20,items:{type:'object',additionalProperties:false,properties:{name:{type:'string'},quantity:{type:'string'},meal:{type:'string',enum:MEALS},calories:{type:'integer',minimum:0,maximum:5000},protein:{type:'number',minimum:0,maximum:500},carbs:{type:'number',minimum:0,maximum:1000},fat:{type:'number',minimum:0,maximum:500},notes:{type:'string'},confidence:{type:'string',enum:['high','medium','low']}},required:['name','quantity','meal','calories','protein','carbs','fat','notes','confidence']}}},required:['reply']};
-function cors(origin:string|null){return{'Access-Control-Allow-Origin':origin&&ORIGINS.has(origin)?origin:'https://joeybukowski3.github.io','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-coach-user','Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin'}}
+function allowedOrigin(origin:string|null){
+ if(!origin)return null;
+ if(PROD_ORIGINS.has(origin))return origin;
+ try{const url=new URL(origin);if(url.protocol==='http:'&&['localhost','127.0.0.1','0.0.0.0'].includes(url.hostname))return origin;if(url.protocol==='http:'&&/^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(url.hostname))return origin}catch{}
+ return null;
+}
+function cors(origin:string|null){const allowed=allowedOrigin(origin);return{'Access-Control-Allow-Origin':allowed||'https://joeybukowski3.github.io','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-coach-user','Access-Control-Allow-Methods':'POST, OPTIONS','Vary':'Origin'}}
 function response(body:unknown,status:number,origin:string|null){return new Response(JSON.stringify(body),{status,headers:{...cors(origin),'Content-Type':'application/json','Cache-Control':'no-store'}})}
 const clean=(v:unknown,n=5000)=>String(v??'').replace(/\u0000/g,'').slice(0,n);
 async function profileExists(syncKey:string){
@@ -34,7 +40,7 @@ function normalized(value:any){
  return out;
 }
 Deno.serve(async req=>{
- const origin=req.headers.get('origin');if(req.method==='OPTIONS')return new Response(null,{status:204,headers:cors(origin)});if(req.method!=='POST')return response({error:'Method not allowed.'},405,origin);if(origin&&!ORIGINS.has(origin))return response({error:'Origin not allowed.'},403,origin);
+ const origin=req.headers.get('origin');if(req.method==='OPTIONS')return new Response(null,{status:204,headers:cors(origin)});if(req.method!=='POST')return response({error:'Method not allowed.'},405,origin);if(origin&&!allowedOrigin(origin))return response({error:'Origin not allowed.'},403,origin);
  try{
   if(Number(req.headers.get('content-length')||0)>100000)return response({error:'Request too large.'},413,origin);
   const syncKey=clean(req.headers.get('x-coach-user'),120).trim();if(!syncKey||!/^[a-zA-Z0-9._-]+$/.test(syncKey))return response({error:'Sign in to sync before using Nutrition Chat.'},401,origin);if(!await profileExists(syncKey))return response({error:'Synced profile not found.'},401,origin);await rateLimit(syncKey);
