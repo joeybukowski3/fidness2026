@@ -1,10 +1,11 @@
-const CACHE_NAME = 'pro-trainer-elite-v10-coach';
+const CACHE_NAME = 'pro-trainer-elite-v11-nutrition';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json?v=7',
   './js/program-data.js?v=6',
   './js/coach.js?v=1',
+  './js/nutrition.js?v=1',
   './assets/diagrams/placeholder.svg'
 ];
 
@@ -26,30 +27,31 @@ self.addEventListener('activate', event => {
   );
 });
 
-async function injectCoachScript(response) {
+async function injectFeatureScripts(response) {
   if (!response) return response;
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) return response;
 
-  const html = await response.text();
-  if (html.includes('js/coach.js')) {
-    return new Response(html, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers
-    });
+  let html = await response.text();
+  const scripts = [
+    { marker: 'js/coach.js', tag: '<script src="./js/coach.js?v=1" defer></script>' },
+    { marker: 'js/nutrition.js', tag: '<script src="./js/nutrition.js?v=1" defer></script>' }
+  ];
+  const missing = scripts.filter(script => !html.includes(script.marker));
+
+  if (missing.length > 0) {
+    const tags = missing.map(script => script.tag).join('\n');
+    html = html.includes('</body>')
+      ? html.replace('</body>', `${tags}\n</body>`)
+      : `${html}\n${tags}`;
   }
 
-  const script = '<script src="./js/coach.js?v=1" defer></script>';
-  const updatedHtml = html.includes('</body>')
-    ? html.replace('</body>', `${script}\n</body>`)
-    : `${html}\n${script}`;
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.delete('content-encoding');
   headers.set('cache-control', 'no-cache');
 
-  return new Response(updatedHtml, {
+  return new Response(html, {
     status: response.status,
     statusText: response.statusText,
     headers
@@ -69,13 +71,13 @@ self.addEventListener('fetch', event => {
     event.respondWith((async () => {
       try {
         const networkResponse = await fetch(event.request);
-        const response = isAppShell ? await injectCoachScript(networkResponse) : networkResponse;
+        const response = isAppShell ? await injectFeatureScripts(networkResponse) : networkResponse;
         const copy = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         return response;
       } catch {
         const cached = await caches.match(event.request) || await caches.match('./index.html');
-        return isAppShell ? injectCoachScript(cached) : cached;
+        return isAppShell ? injectFeatureScripts(cached) : cached;
       }
     })());
     return;
