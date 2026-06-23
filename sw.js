@@ -1,9 +1,10 @@
-const CACHE_NAME = 'pro-trainer-elite-v9';
+const CACHE_NAME = 'pro-trainer-elite-v10-coach';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json?v=7',
   './js/program-data.js?v=6',
+  './js/coach.js?v=1',
   './assets/diagrams/placeholder.svg'
 ];
 
@@ -25,29 +26,62 @@ self.addEventListener('activate', event => {
   );
 });
 
+async function injectCoachScript(response) {
+  if (!response) return response;
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('text/html')) return response;
+
+  const html = await response.text();
+  if (html.includes('js/coach.js')) {
+    return new Response(html, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers
+    });
+  }
+
+  const script = '<script src="./js/coach.js?v=1" defer></script>';
+  const updatedHtml = html.includes('</body>')
+    ? html.replace('</body>', `${script}\n</body>`)
+    : `${html}\n${script}`;
+  const headers = new Headers(response.headers);
+  headers.delete('content-length');
+  headers.delete('content-encoding');
+  headers.set('cache-control', 'no-cache');
+
+  return new Response(updatedHtml, {
+    status: response.status,
+    statusText: response.statusText,
+    headers
+  });
+}
+
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
   const isHtmlRequest = event.request.mode === 'navigate' ||
     (event.request.headers.get('accept') || '').includes('text/html');
+  const isAppShell = url.origin === self.location.origin &&
+    (url.pathname.endsWith('/') || url.pathname.endsWith('/index.html'));
 
   if (isHtmlRequest) {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-          return response;
-        })
-        .catch(() => caches.match(event.request).then(resp => resp || caches.match('./index.html')))
-    );
+    event.respondWith((async () => {
+      try {
+        const networkResponse = await fetch(event.request);
+        const response = isAppShell ? await injectCoachScript(networkResponse) : networkResponse;
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        return response;
+      } catch {
+        const cached = await caches.match(event.request) || await caches.match('./index.html');
+        return isAppShell ? injectCoachScript(cached) : cached;
+      }
+    })());
     return;
   }
 
-  if (url.origin !== self.location.origin) {
-    return;
-  }
+  if (url.origin !== self.location.origin) return;
 
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
