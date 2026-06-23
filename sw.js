@@ -1,11 +1,11 @@
-const CACHE_NAME = 'pro-trainer-elite-v11-nutrition';
+const CACHE_NAME = 'pro-trainer-elite-v12-nutrition-table';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json?v=7',
   './js/program-data.js?v=6',
   './js/coach.js?v=1',
-  './js/nutrition.js?v=1',
+  './js/nutrition.js?v=2',
   './assets/diagrams/placeholder.svg'
 ];
 
@@ -35,7 +35,7 @@ async function injectFeatureScripts(response) {
   let html = await response.text();
   const scripts = [
     { marker: 'js/coach.js', tag: '<script src="./js/coach.js?v=1" defer></script>' },
-    { marker: 'js/nutrition.js', tag: '<script src="./js/nutrition.js?v=1" defer></script>' }
+    { marker: 'js/nutrition.js', tag: '<script src="./js/nutrition.js?v=2" defer></script>' }
   ];
   const missing = scripts.filter(script => !html.includes(script.marker));
 
