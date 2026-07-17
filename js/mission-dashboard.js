@@ -229,7 +229,7 @@
       phase.requiredCount ? `${phase.requiredCount} required` : '',
       phase.optionalCount ? `${phase.optionalCount} optional` : ''
     ].filter(Boolean).join(' • ');
-    return `<details class="mission-phase" ${phase.initiallyOpen ? 'open' : ''}>
+    return `<details class="mission-phase" id="mission-phase-${escapeHtml(phase.id)}" data-required-phase="${phase.requiredCount > 0}" ${phase.initiallyOpen ? 'open' : ''}>
       <summary>
         <span class="mission-phase-time">${escapeHtml(phase.startLabel)}–${escapeHtml(phase.endLabel)}</span>
         <span class="mission-phase-title">${escapeHtml(phase.title)}</span>
@@ -243,11 +243,19 @@
     if (!model) return '';
     const primaryHandler = model.status === 'completed'
       ? 'scrollToTodayTimeline()'
-      : model.status === 'in-progress' ? 'resumeTodayMission()' : 'startTodayMission()';
+      : model.status === 'in-progress' && model.hasStrength
+        ? `openTodayWorkoutLogger('${escapeHtml(model.weekday)}')`
+        : model.status === 'in-progress' ? 'resumeTodayMission()' : 'startTodayMission()';
+    const primaryLabel = model.status === 'in-progress' && model.hasStrength
+      ? 'Open Workout Logger'
+      : model.primaryAction;
     const completeButton = model.status === 'in-progress'
       ? '<button class="mission-btn secondary" onclick="completeTodayMission()">Complete Mission</button>'
       : '';
-    const loggerButton = model.hasStrength
+    const reopenButton = model.status === 'completed'
+      ? '<button class="mission-btn secondary" onclick="reopenTodayMission()">Reopen Mission</button>'
+      : '';
+    const loggerButton = model.hasStrength && model.status === 'not-started'
       ? `<button class="mission-btn ghost" onclick="openTodayWorkoutLogger('${escapeHtml(model.weekday)}')">Open Workout Logger</button>`
       : '';
     const trackNote = model.isWednesdayTrack
@@ -264,25 +272,42 @@
           <div><span>Time</span><strong>${escapeHtml(model.timeWindow)}</strong><small>${model.requiredMinutes ? `${model.requiredMinutes} required minutes` : 'No required duration'}</small></div>
           <div><span>Location</span><strong>${escapeHtml(model.location)}</strong></div>
           <div><span>Fasting</span><strong>${escapeHtml(model.fasting)}</strong></div>
-          <div><span>Meditation</span><strong>${escapeHtml(model.meditation)}</strong></div>
+          <div class="mission-meditation-fact"><span>Meditation</span><strong>${escapeHtml(model.meditation)}</strong></div>
         </div>
         <div class="mission-actions">
-          <button class="mission-btn primary" onclick="${primaryHandler}">${escapeHtml(model.primaryAction)}</button>
-          ${completeButton}${loggerButton}
+          <button class="mission-btn primary" onclick="${primaryHandler}">${escapeHtml(primaryLabel)}</button>
+          ${completeButton}${reopenButton}${loggerButton}
         </div>
       </div>
 
-      <div class="mission-orientation-grid">
-        <article class="mission-info-card"><span>Primary focus</span><div class="mission-chip-row">${model.focus.map(item => badge(item)).join('')}</div></article>
-        <article class="mission-info-card"><span>Long-term goals</span><ul>${model.goals.map(goal => `<li>${escapeHtml(goal)}</li>`).join('')}</ul></article>
-        <article class="mission-info-card"><span>Progress target</span><p>${escapeHtml(model.progressTarget)}</p></article>
-        <article class="mission-info-card"><span>Journal prompt</span><p>“${escapeHtml(model.journalPrompt)}”</p></article>
-        <article class="mission-info-card mission-safety"><span>Safety and recovery</span><p>${escapeHtml(model.safetyNote)}</p></article>
-      </div>
-      ${trackNote}${fridayNote}
       <div class="mission-timeline" id="todayMissionTimeline">
         <div class="mission-section-heading"><div><span>Morning plan</span><h2>Complete timeline</h2></div><strong>${escapeHtml(model.timeWindow)}</strong></div>
         ${model.phases.length ? model.phases.map(renderPhase).join('') : '<div class="mission-empty">This optional day is flexible. Choose recovery movement or full rest without penalty.</div>'}
+      </div>
+
+      <details class="mission-guidance" id="todayMissionGuidance" open>
+        <summary>Today’s Guidance</summary>
+        <div class="mission-guidance-body">
+          <div class="mission-orientation-grid">
+            <article class="mission-info-card"><span>Primary focus</span><p>${escapeHtml(model.focus.join(' • '))}</p></article>
+            <article class="mission-info-card"><span>Long-term goals</span><ul>${model.goals.map(goal => `<li>${escapeHtml(goal)}</li>`).join('')}</ul></article>
+            <article class="mission-info-card"><span>Progress target</span><p>${escapeHtml(model.progressTarget)}</p></article>
+            <article class="mission-info-card"><span>Journal prompt</span><p>“${escapeHtml(model.journalPrompt)}”</p></article>
+            <article class="mission-info-card"><span>Meditation</span><p>${escapeHtml(model.meditation)}${model.meditationGuidance ? ` • ${escapeHtml(model.meditationGuidance)}` : ''}</p></article>
+            <article class="mission-info-card mission-safety"><span>Safety and recovery</span><p>${escapeHtml(model.safetyNote)}</p></article>
+          </div>
+          ${trackNote}${fridayNote}
+        </div>
+      </details>
+
+      <div class="mission-sticky-actions" aria-label="Mission actions">
+        ${model.status === 'not-started'
+          ? '<button class="mission-btn primary" onclick="startTodayMission()">Start Mission</button>'
+          : model.status === 'completed'
+            ? '<button class="mission-btn primary" onclick="scrollToTodayTimeline()">View Completed Mission</button><button class="mission-btn secondary" onclick="reopenTodayMission()">Reopen Mission</button>'
+            : model.hasStrength
+              ? `<button class="mission-btn primary" onclick="openTodayWorkoutLogger('${escapeHtml(model.weekday)}')">Open Workout Logger</button><button class="mission-btn secondary" onclick="completeTodayMission()">Complete Mission</button>`
+              : '<button class="mission-btn primary" onclick="resumeTodayMission()">Resume Mission</button><button class="mission-btn secondary" onclick="completeTodayMission()">Complete Mission</button>'}
       </div>
     </section>`;
   }
@@ -290,7 +315,7 @@
   function renderScheduleCard(day) {
     const mission = day.mission;
     if (!mission) return '';
-    return `<button class="schedule-day-card${day.selected ? ' selected' : ''}${day.optional ? ' optional' : ''}" onclick="previewScheduleMission('${escapeHtml(day.weekday)}')">
+    return `<button id="schedule-day-${escapeHtml(day.weekday.toLowerCase())}" data-schedule-day="${escapeHtml(day.weekday)}" class="schedule-day-card${day.selected ? ' selected' : ''}${day.optional ? ' optional' : ''}" onclick="previewScheduleMission('${escapeHtml(day.weekday)}')">
       <div class="schedule-card-top"><span>${escapeHtml(day.weekday)}</span><div>${day.labels.map(label => badge(label, label.toLowerCase().replace(/\s+/g, '-'))).join('')}</div></div>
       <h3>${escapeHtml(mission.name)}</h3>
       <p>${escapeHtml((mission.focus || []).slice(0, 3).join(' • '))}</p>
@@ -316,11 +341,13 @@
       ? '<div class="mission-coach-note">Controlled consistency comes before faster laps or more jogging distance.</div>'
       : '';
     return `<section class="schedule-preview" aria-labelledby="schedulePreviewTitle">
+      <button class="schedule-back" onclick="returnToWeeklySchedule('${escapeHtml(model.weekday)}')">← Back to Weekly Schedule</button>
       <div class="mission-section-heading"><div><span>${escapeHtml(model.weekday)} preview • Week ${model.programWeek} • Variation ${escapeHtml(model.variation)}</span><h2 id="schedulePreviewTitle">${escapeHtml(model.name)}</h2></div>${badge(model.statusLabel, model.status)}</div>
       <p class="schedule-preview-purpose">${escapeHtml(model.description)}</p>
       <div class="schedule-preview-facts"><span><strong>Time:</strong> ${escapeHtml(model.timeWindow)}</span><span><strong>Location:</strong> ${escapeHtml(model.location)}</span><span><strong>Fast:</strong> ${escapeHtml(model.fasting)}</span><span><strong>Meditation:</strong> ${escapeHtml(model.meditation)}</span></div>
       ${trackNote}
       <div class="mission-timeline">${model.phases.length ? model.phases.map(renderPhase).join('') : '<div class="mission-empty">Optional flexible recovery or full rest.</div>'}</div>
+      <button class="schedule-back schedule-back-bottom" onclick="returnToWeeklySchedule('${escapeHtml(model.weekday)}')">← Back to Weekly Schedule</button>
     </section>`;
   }
 

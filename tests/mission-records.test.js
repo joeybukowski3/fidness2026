@@ -55,6 +55,43 @@ test('Complete Mission preserves start time and writes completion time', () => {
   assert.equal(records.getMissionStatus(state, IDENTITY), 'completed');
 });
 
+test('mission completion requires an affirmative confirmation', () => {
+  const state = { missionRecords: {} };
+  records.startMission(state, IDENTITY, '2026-07-20T08:30:00.000Z');
+  let confirmations = 0;
+  const result = records.completeMissionWithConfirmation(state, IDENTITY, () => {
+    confirmations += 1;
+    return true;
+  }, '2026-07-20T10:00:00.000Z');
+  assert.equal(confirmations, 1);
+  assert.equal(result.confirmed, true);
+  assert.equal(result.record.status, 'completed');
+});
+
+test('canceling completion leaves the durable in-progress record unchanged', () => {
+  const state = { missionRecords: {} };
+  records.startMission(state, IDENTITY, '2026-07-20T08:30:00.000Z');
+  const before = JSON.stringify(state);
+  const result = records.completeMissionWithConfirmation(state, IDENTITY, () => false, '2026-07-20T10:00:00.000Z');
+  assert.equal(result.confirmed, false);
+  assert.equal(JSON.stringify(state), before);
+  assert.equal(records.getMissionStatus(state, IDENTITY), 'in-progress');
+});
+
+test('a completed mission can be reopened and remains reopened after refresh', () => {
+  const state = { missionRecords: {} };
+  records.startMission(state, IDENTITY, '2026-07-20T08:30:00.000Z');
+  records.completeMission(state, IDENTITY, '2026-07-20T10:00:00.000Z');
+  const reopened = records.reopenMission(state, IDENTITY, '2026-07-20T10:05:00.000Z');
+  assert.equal(reopened.status, 'in-progress');
+  assert.equal(reopened.startedAt, '2026-07-20T08:30:00.000Z');
+  assert.equal(reopened.completedAt, null);
+  assert.equal(reopened.lastUpdatedAt, '2026-07-20T10:05:00.000Z');
+  const refreshed = JSON.parse(JSON.stringify(state));
+  assert.equal(records.getMissionStatus(refreshed, IDENTITY), 'in-progress');
+  assert.equal(records.getMissionRecord(refreshed, IDENTITY).completedAt, null);
+});
+
 test('mission records survive JSON refresh persistence', () => {
   const state = { missionRecords: {} };
   records.startMission(state, IDENTITY, '2026-07-20T08:30:00.000Z');

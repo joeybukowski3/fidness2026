@@ -2,7 +2,11 @@
 .tab-today .home-only,.tab-today .program-only,.tab-today .history-only{display:none!important}
 .tab-today .today-only{display:block!important}
 
+.app-shell{overflow-x:clip}
 .mission-dashboard,.mission-schedule{display:grid;gap:1rem;max-width:900px;margin:0 auto}
+.mission-dashboard>.mission-hero{order:1}
+.mission-dashboard>.mission-guidance{order:2}
+.mission-dashboard>.mission-timeline{order:3}
 .mission-hero,.mission-info-card,.mission-timeline,.mission-schedule,.schedule-preview{background:var(--bg2);border:1px solid var(--border);border-radius:18px}
 .mission-hero{padding:clamp(1rem,4vw,1.5rem);overflow:hidden}
 .mission-kicker,.mission-info-card>span,.schedule-heading span,.mission-section-heading span{display:block;font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2);margin-bottom:.45rem}
@@ -25,8 +29,11 @@
 .mission-btn.primary{flex:1 1 210px;background:var(--accent);border-color:var(--accent);color:#10140d;font-size:.9rem}
 .mission-btn.secondary{border-color:var(--accent2);color:var(--accent2)}
 .mission-btn.ghost{color:var(--text2)}
-.mission-btn:focus-visible,.schedule-day-card:focus-visible,.mission-phase summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mission-btn:focus-visible,.schedule-day-card:focus,.mission-phase summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 
+.mission-guidance{border:0;border-radius:18px;background:transparent}
+.mission-guidance>summary{display:none}
+.mission-guidance-body{display:grid;gap:.75rem}
 .mission-orientation-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}
 .mission-info-card{padding:1rem;min-width:0}
 .mission-info-card p,.mission-info-card li{color:var(--text2);font-size:.79rem;line-height:1.55}
@@ -82,6 +89,18 @@
 .schedule-preview-purpose{color:var(--text2);font-size:.82rem;line-height:1.5;margin:0 0 .8rem}
 .schedule-preview-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem;margin-bottom:.85rem}
 .schedule-preview-facts span{padding:.55rem .65rem;border-radius:10px;background:var(--bg3);color:var(--text2);font-size:.68rem;line-height:1.4;overflow-wrap:anywhere}
+.schedule-back{display:inline-flex;align-items:center;min-height:44px;margin:0 0 .85rem;padding:.65rem .8rem;border:1px solid var(--border);border-radius:11px;background:var(--bg3);color:var(--text);font:800 .76rem var(--font-body);cursor:pointer}
+.schedule-back-bottom{margin:1rem 0 0}
+.schedule-back:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.mission-sticky-actions{display:none}
+
+/* Core five-tab mobile navigation lives with the app shell, including the dynamically inserted Coach tab. */
+@media(max-width:640px){
+  .top-tabs{padding:.3rem .35rem calc(env(safe-area-inset-bottom) + .35rem)}
+  .top-tabs-inner{display:flex;max-width:none;width:100%;gap:.15rem;padding:0;overflow:visible;justify-content:stretch}
+  .top-tab{flex:1 1 20%;min-width:0;min-height:48px;padding:.45rem .15rem;font-size:.68rem;line-height:1.1;white-space:nowrap}
+  .top-tab:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+}
 
 @media(max-width:760px){
   .schedule-weekdays{grid-template-columns:1fr}
@@ -89,18 +108,60 @@
   .schedule-card-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
-@media(max-width:560px){
+@media(max-width:639px){
+  .tab-today .today-only{padding-bottom:calc(11rem + env(safe-area-inset-bottom))}
+  .mission-dashboard>.mission-timeline{order:2}
+  .mission-dashboard>.mission-guidance{order:3}
   .mission-hero-row{display:block}
   .mission-hero-row>.mission-badge{margin-top:.75rem}
   .mission-facts,.mission-orientation-grid,.schedule-preview-facts{grid-template-columns:1fr}
+  .mission-facts{grid-template-columns:repeat(2,minmax(0,1fr));gap:.5rem}
+  .mission-facts>div{padding:.68rem}
+  .mission-facts>div:nth-child(3){grid-column:1/-1}
+  .mission-meditation-fact{display:none}
   .mission-info-card.mission-safety{grid-column:auto}
-  .mission-phase summary{grid-template-columns:88px minmax(0,1fr);padding-right:1.6rem}
+  .mission-actions{margin-top:.8rem}
+  .mission-actions .mission-btn{width:100%}
+  .mission-guidance{border:1px solid var(--border);background:var(--bg2)}
+  .mission-guidance>summary{display:flex;align-items:center;justify-content:space-between;min-height:52px;padding:.2rem 1rem;color:var(--text);font-size:.9rem;font-weight:800;cursor:pointer;list-style:none}
+  .mission-guidance>summary::-webkit-details-marker{display:none}
+  .mission-guidance>summary::after{content:'+';color:var(--accent);font-size:1.25rem}
+  .mission-guidance[open]>summary::after{content:'–'}
+  .mission-guidance-body{padding:0 .75rem .75rem}
+  .mission-guidance .mission-info-card{padding:.85rem}
+  .mission-guidance .mission-info-card p,.mission-guidance .mission-info-card li{font-size:.8rem}
+  .mission-hero h1{font-size:clamp(2.55rem,13vw,3.55rem)}
+  .mission-hero p{font-size:.85rem}
+  .mission-timeline{padding:.85rem}
+  .mission-section-heading h2{font-size:1.8rem}
+  .mission-phase summary{grid-template-columns:92px minmax(0,1fr);min-height:64px;padding-right:1.6rem}
   .mission-phase-body{padding-left:0}
-  .mission-actions{position:relative}
-  .mission-btn{width:100%}
+  .mission-phase-time{font-size:1.05rem}
+  .mission-phase-title{font-size:.96rem;line-height:1.3}
+  .mission-phase-meta{font-size:.72rem}
+  .mission-activity{padding:.85rem}
+  .mission-activity-heading h4{font-size:.98rem}
+  .mission-activity-type{font-size:.65rem}
+  .mission-target,.mission-rir,.mission-activity-note,.mission-private-note{font-size:.79rem;line-height:1.55}
+  .mission-prompt-list{font-size:.8rem}
+  .mission-activity-heading .mission-badge.required{display:none}
+  .mission-sticky-actions{position:fixed;z-index:120;left:max(.6rem,env(safe-area-inset-left));right:max(.6rem,env(safe-area-inset-right));bottom:calc(4.35rem + env(safe-area-inset-bottom));display:flex;gap:.45rem;max-width:620px;margin:0 auto;padding:.5rem;border:1px solid var(--border);border-radius:15px;background:rgba(18,18,26,.96);box-shadow:0 -8px 28px rgba(0,0,0,.28);backdrop-filter:blur(18px);opacity:0;visibility:hidden;pointer-events:none;transform:translateY(.5rem);transition:opacity .16s ease,transform .16s ease,visibility .16s}
+  .mission-sticky-actions.is-active{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0)}
+  .mission-sticky-actions .mission-btn{min-height:48px;padding:.65rem .7rem}
+  .mission-sticky-actions .mission-btn.primary{flex:1 1 auto;width:auto}
+  .mission-sticky-actions .mission-btn.secondary{flex:0 1 auto;width:auto}
   .schedule-weekend-grid{grid-template-columns:1fr}
+  .schedule-day-card{min-height:0;padding:1rem}
+  .schedule-day-card h3{font-size:1.55rem}
+  .schedule-day-card p{font-size:.78rem}
+  .schedule-card-meta{font-size:.72rem;line-height:1.45}
+  .schedule-card-top{font-size:.72rem}
+  .schedule-preview{padding:.85rem}
+  .schedule-preview-purpose{font-size:.84rem}
+  .schedule-preview-facts span{font-size:.76rem}
+  .schedule-back{width:100%;justify-content:center;font-size:.82rem}
 }
 
 @media(prefers-reduced-motion:reduce){
-  .mission-btn,.schedule-day-card{transition:none!important}
+  .mission-btn,.schedule-day-card,.mission-sticky-actions{transition:none!important}
 }

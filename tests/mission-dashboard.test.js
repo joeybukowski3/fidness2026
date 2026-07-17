@@ -2,6 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const performance = require('../js/performance-program');
 const dashboard = require('../js/mission-dashboard');
 const records = require('../js/mission-records');
@@ -102,6 +104,30 @@ test('Today action labels reflect not-started, in-progress, and completed missio
   assert.equal(missionModel('Monday', 1, { status: 'completed' }).primaryAction, 'View Completed Mission');
 });
 
+test('mobile-first Today source order puts the timeline before collapsed guidance and sticky actions', () => {
+  const html = dashboard.renderToday(missionModel('Monday'));
+  const heroIndex = html.indexOf('class="mission-hero"');
+  const timelineIndex = html.indexOf('id="todayMissionTimeline"');
+  const guidanceIndex = html.indexOf('id="todayMissionGuidance"');
+  const stickyIndex = html.indexOf('class="mission-sticky-actions"');
+  assert.ok(heroIndex >= 0);
+  assert.ok(heroIndex < timelineIndex);
+  assert.ok(timelineIndex < guidanceIndex);
+  assert.ok(guidanceIndex < stickyIndex);
+  assert.match(html, /Today’s Guidance/);
+});
+
+test('mobile sticky actions reflect mission status and strength-day logger priority', () => {
+  const notStarted = dashboard.renderToday(missionModel('Monday'));
+  const strengthInProgress = dashboard.renderToday(missionModel('Monday', 1, { status: 'in-progress' }));
+  const trackInProgress = dashboard.renderToday(missionModel('Wednesday', 1, { status: 'in-progress' }));
+  const completed = dashboard.renderToday(missionModel('Friday', 1, { status: 'completed' }));
+  assert.match(notStarted, /mission-sticky-actions[\s\S]*Start Mission/);
+  assert.match(strengthInProgress, /mission-sticky-actions[\s\S]*Open Workout Logger[\s\S]*Complete Mission/);
+  assert.match(trackInProgress, /mission-sticky-actions[\s\S]*Resume Mission[\s\S]*Complete Mission/);
+  assert.match(completed, /mission-sticky-actions[\s\S]*View Completed Mission[\s\S]*Reopen Mission/);
+});
+
 test('weekly schedule previews all weekdays, status labels, and optional weekends without mutation', () => {
   const state = { missionRecords: {} };
   const monday = performance.getMission('Monday', 1);
@@ -161,7 +187,18 @@ test('schedule rendering includes previews and does not expose completion contro
   assert.match(html, /Variation B/);
   assert.match(html, /Recover and Reflect/);
   assert.match(html, /Optional weekend recovery/);
+  assert.equal((html.match(/Back to Weekly Schedule/g) || []).length, 2);
   assert.doesNotMatch(html, /startTodayMission|completeTodayMission/);
+});
+
+test('core mobile navigation CSS supports five touch-safe tabs without Coach-injected nav rules', () => {
+  const root = path.join(__dirname, '..');
+  const css = fs.readFileSync(path.join(root, 'css', 'mission-dashboard.css'), 'utf8');
+  const coach = fs.readFileSync(path.join(root, 'js', 'coach.js'), 'utf8');
+  assert.match(css, /@media\(max-width:640px\)[\s\S]*\.top-tab\{[^}]*flex:1 1 20%[^}]*min-height:48px/);
+  assert.match(css, /env\(safe-area-inset-bottom\)/);
+  assert.match(css, /\.mission-sticky-actions\.is-active/);
+  assert.doesNotMatch(coach, /\.top-tabs-inner\{overflow-x:auto/);
 });
 
 test('legacy and unknown programs remain compatible with exact registry resolution', () => {

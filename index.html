@@ -12,7 +12,7 @@
 <title>Pro Trainer Elite</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/mission-dashboard.css?v=1">
+<link rel="stylesheet" href="css/mission-dashboard.css?v=2">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 if ('serviceWorker' in navigator) {
@@ -646,10 +646,10 @@ body{padding-bottom:104px}
 <script src="js/state-schema.js?v=2"></script>
 <script src="js/performance-program.js?v=1"></script>
 <script src="js/program-data.js?v=8"></script>
-<script src="js/mission-records.js?v=1"></script>
-<script src="js/mission-dashboard.js?v=1"></script>
+<script src="js/mission-records.js?v=2"></script>
+<script src="js/mission-dashboard.js?v=2"></script>
 <script>
-const APP_VERSION = 'v2026.07.17-mission-dashboard';
+const APP_VERSION = 'v2026.07.17-mission-dashboard-mobile';
 // ============ WORKOUT DATA ============
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','Weight Log'];
 const WORKOUTS = {
@@ -1381,7 +1381,8 @@ let showCompletedOverride = false;
 let activeWorkoutTab = state.activeWorkoutTab;
 let workoutHistory = getWorkoutHistory();
 let dailyResetTimeout = null;
-let schedulePreviewDay = getTodayWeekdayName();
+let schedulePreviewDay = '';
+let missionActionObserver = null;
 
 function setActiveTab(tab) {
   uiActiveTab = ['today', 'workout', 'program', 'history'].includes(tab) ? tab : 'today';
@@ -1397,6 +1398,7 @@ function setActiveTab(tab) {
   if (uiActiveTab === 'history') document.body.classList.add('tab-history');
 
   renderCurrentView();
+  requestAnimationFrame(() => document.querySelector('.top-tab.active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
 }
 
 function renderCurrentView() {
@@ -1677,6 +1679,8 @@ function renderTodayDashboard() {
     programWeek: context.programWeek
   });
   container.innerHTML = FidnessMissionDashboard.renderToday(model);
+  configureMissionGuidance();
+  configureMissionStickyActions();
 }
 
 function updateTodayMission(action) {
@@ -1693,19 +1697,75 @@ function updateTodayMission(action) {
 
 function startTodayMission() {
   updateTodayMission('start');
+  scrollToTodayTimeline(true);
 }
 
 function resumeTodayMission() {
   updateTodayMission('resume');
-  scrollToTodayTimeline();
+  scrollToTodayTimeline(true);
 }
 
 function completeTodayMission() {
-  updateTodayMission('complete');
+  const context = getTodayMissionContext();
+  if (!context.mission) return;
+  const identity = getMissionRecordIdentity(context.mission, context.localDate);
+  const result = FidnessMissionRecords.completeMissionWithConfirmation(
+    state,
+    identity,
+    () => confirm('Complete today’s mission?\n\nThis marks the overall mission complete and does not independently verify every exercise or activity.'),
+    new Date()
+  );
+  if (!result.confirmed) return;
+  save();
+  renderTodayDashboard();
+  if (uiActiveTab === 'program') renderProgram();
 }
 
-function scrollToTodayTimeline() {
-  document.getElementById('todayMissionTimeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+function reopenTodayMission() {
+  const context = getTodayMissionContext();
+  if (!context.mission) return;
+  const identity = getMissionRecordIdentity(context.mission, context.localDate);
+  FidnessMissionRecords.reopenMission(state, identity, new Date());
+  save();
+  renderTodayDashboard();
+  scrollToTodayTimeline(true);
+  if (uiActiveTab === 'program') renderProgram();
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+}
+
+function scrollToTodayTimeline(expandFirstRequired = false) {
+  const timeline = document.getElementById('todayMissionTimeline');
+  if (!timeline) return;
+  if (expandFirstRequired) {
+    const firstRequiredPhase = timeline.querySelector('.mission-phase[data-required-phase="true"]');
+    if (firstRequiredPhase) firstRequiredPhase.open = true;
+  }
+  timeline.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+}
+
+function configureMissionGuidance() {
+  const guidance = document.getElementById('todayMissionGuidance');
+  if (!guidance) return;
+  guidance.open = !window.matchMedia?.('(max-width: 639px)').matches;
+}
+
+function configureMissionStickyActions() {
+  missionActionObserver?.disconnect();
+  missionActionObserver = null;
+  const sticky = document.querySelector('.mission-sticky-actions');
+  const heroActions = document.querySelector('.mission-hero .mission-actions');
+  if (!sticky || !heroActions || !window.matchMedia?.('(max-width: 639px)').matches) return;
+  if (!('IntersectionObserver' in window)) {
+    sticky.classList.add('is-active');
+    return;
+  }
+  missionActionObserver = new IntersectionObserver(entries => {
+    sticky.classList.toggle('is-active', !entries[0]?.isIntersecting);
+  }, { threshold: 0.2 });
+  missionActionObserver.observe(heroActions);
 }
 
 function openTodayWorkoutLogger(weekday) {
@@ -1718,7 +1778,18 @@ function previewScheduleMission(weekday) {
   if (!FidnessMissionRecords.WEEKDAYS.includes(weekday)) return;
   schedulePreviewDay = weekday;
   renderProgram();
-  requestAnimationFrame(() => document.getElementById('schedulePreviewTitle')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  requestAnimationFrame(() => document.getElementById('schedulePreviewTitle')?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' }));
+}
+
+function returnToWeeklySchedule(weekday) {
+  schedulePreviewDay = '';
+  renderProgram();
+  requestAnimationFrame(() => {
+    const card = document.getElementById(`schedule-day-${String(weekday || '').toLowerCase()}`);
+    if (!card) return;
+    card.focus({ preventScroll: true });
+    card.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
+  });
 }
 
 function buildActiveScheduleView() {
@@ -1737,7 +1808,9 @@ function buildActiveScheduleView() {
       ? FidnessMissionRecords.getMissionRecord(state, getMissionRecordIdentity(mission, localDate))
       : null
   });
-  const previewDay = schedule.weekdays.concat(schedule.weekend).find(day => day.weekday === schedulePreviewDay) || schedule.weekdays[0];
+  const previewDay = schedulePreviewDay
+    ? schedule.weekdays.concat(schedule.weekend).find(day => day.weekday === schedulePreviewDay)
+    : null;
   const previewModel = previewDay?.mission ? FidnessMissionDashboard.buildMissionModel({
     program: FidnessPerformanceProgram.PROGRAM,
     mission: previewDay.mission,

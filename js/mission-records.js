@@ -112,6 +112,19 @@
     return writeMissionRecord(state, details, STATUSES.COMPLETED, now);
   }
 
+  function completeMissionWithConfirmation(state, details, confirmCompletion, now = new Date()) {
+    if (typeof confirmCompletion !== 'function' || confirmCompletion() !== true) {
+      return { confirmed: false, record: getMissionRecord(state, details) };
+    }
+    return { confirmed: true, record: completeMission(state, details, now) };
+  }
+
+  function reopenMission(state, details, now = new Date()) {
+    const existing = getMissionRecord(state, details);
+    if (!existing || existing.status !== STATUSES.COMPLETED) return existing;
+    return writeMissionRecord(state, details, STATUSES.IN_PROGRESS, now);
+  }
+
   return {
     STATUSES,
     WEEKDAYS,
@@ -123,6 +136,8 @@
     getMissionStatus,
     startMission,
     resumeMission,
-    completeMission
+    completeMission,
+    completeMissionWithConfirmation,
+    reopenMission
   };
 });

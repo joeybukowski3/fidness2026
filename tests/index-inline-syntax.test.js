@@ -19,7 +19,7 @@ test('mission dashboard assets load before the main inline application', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
   const recordsIndex = html.indexOf('js/mission-records.js');
   const dashboardIndex = html.indexOf('js/mission-dashboard.js');
-  const appIndex = html.indexOf("const APP_VERSION = 'v2026.07.17-mission-dashboard'");
+  const appIndex = html.indexOf('const APP_VERSION =');
   assert.ok(recordsIndex > 0);
   assert.ok(dashboardIndex > recordsIndex);
   assert.ok(appIndex > dashboardIndex);
