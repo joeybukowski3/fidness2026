@@ -1,12 +1,15 @@
-const CACHE_NAME = 'pro-trainer-elite-v12-program-recovery-privacy';
+const CACHE_NAME = 'pro-trainer-elite-v14-mission-dashboard-mobile';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json?v=7',
+  './css/mission-dashboard.css?v=2',
   './js/state-schema.js?v=2',
   './js/performance-program.js?v=1',
   './js/program-data.js?v=8',
-  './js/coach.js?v=1',
+  './js/mission-records.js?v=2',
+  './js/mission-dashboard.js?v=2',
+  './js/coach.js?v=2',
   './assets/diagrams/placeholder.svg'
 ];
 
@@ -42,7 +45,7 @@ async function injectCoachScript(response) {
     });
   }
 
-  const script = '<script src="./js/coach.js?v=1" defer></script>';
+  const script = '<script src="./js/coach.js?v=2" defer></script>';
   const updatedHtml = html.includes('</body>')
     ? html.replace('</body>', `${script}\n</body>`)
     : `${html}\n${script}`;

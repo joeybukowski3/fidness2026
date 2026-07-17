@@ -12,6 +12,7 @@
 <title>Pro Trainer Elite</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/mission-dashboard.css?v=2">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 if ('serviceWorker' in navigator) {
@@ -20,7 +21,7 @@ if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(regs => Promise.all(regs.map(reg => reg.unregister()))),
       caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))))
     ]).finally(() => {
-      navigator.serviceWorker.register('./sw.js?v=5').then(reg => {
+      navigator.serviceWorker.register('./sw.js?v=6').then(reg => {
         console.log('SW Registered!', reg);
       }).catch(err => {
         console.log('SW Reg Failed:', err);
@@ -596,8 +597,9 @@ body{padding-bottom:104px}
     </div>
     
     <div style="margin-bottom:2rem;text-align:center;">
-      <div style="font-family:var(--font-display);font-size:2rem;letter-spacing:0.06em;color:var(--text);margin-bottom:1.5rem;">Do you even lift bro?</div>
-      <button type="button" onclick="event.stopPropagation();handleLandingAction('workout');" style="display:block;width:220px;margin:0 auto 0.75rem;padding:0.8rem 0;border-radius:14px;border:2px solid var(--accent);background:var(--accent);color:#10140d;font-family:var(--font-display);font-size:1.4rem;letter-spacing:0.08em;cursor:pointer;">Yes. bro</button>
+      <div style="font-family:var(--font-display);font-size:2rem;letter-spacing:0.06em;color:var(--text);margin-bottom:0.5rem;">Today’s Mission Is Ready</div>
+      <div style="font-size:0.8rem;line-height:1.5;color:var(--text3);margin:0 auto 1.5rem;max-width:300px;">Your 4:30–6:00 AM plan, location, targets, and coaching guidance in one place.</div>
+      <button type="button" onclick="event.stopPropagation();handleLandingAction('today');" style="display:block;width:240px;min-height:50px;margin:0 auto 0.75rem;padding:0.8rem 0;border-radius:14px;border:2px solid var(--accent);background:var(--accent);color:#10140d;font-family:var(--font-display);font-size:1.35rem;letter-spacing:0.08em;cursor:pointer;">Open Today</button>
       <button type="button" onclick="document.getElementById('clutchScreen')?.classList.add('active');" style="display:block;width:220px;margin:0 auto;padding:0.8rem 0;border-radius:14px;border:2px solid var(--border);background:var(--bg3);color:var(--text2);font-family:var(--font-display);font-size:1.4rem;letter-spacing:0.08em;cursor:pointer;">No, I’m not clutch</button>
     </div>
 
@@ -610,9 +612,9 @@ body{padding-bottom:104px}
 <div class="app-shell" id="appShell">
 <div class="top-tabs">
 <div class="top-tabs-inner">
-<button class="top-tab" onclick="showLandingPage()">&#8962; Home</button>
-<button class="top-tab" id="homeTabBtn" onclick="setActiveTab('home')">&#127947; Workout</button>
-<button class="top-tab" id="programTabBtn" onclick="setActiveTab('program')">&#128197; Program</button>
+<button class="top-tab" id="todayTabBtn" onclick="setActiveTab('today')">&#9728; Today</button>
+<button class="top-tab" id="homeTabBtn" onclick="setActiveTab('workout')">&#127947; Workout</button>
+<button class="top-tab" id="programTabBtn" onclick="setActiveTab('program')">&#128197; Schedule</button>
 <button class="top-tab" id="historyTabBtn" onclick="setActiveTab('history')">&#128200; History</button>
 </div>
 </div>
@@ -628,6 +630,7 @@ body{padding-bottom:104px}
 </div>
 </div>
 
+<div class="content today-only" id="todayArea"></div>
 <div class="content home-only" id="content"></div>
 <div class="content program-only" id="programArea"></div>
 <div class="content history-only" id="historyArea"></div>
@@ -643,8 +646,10 @@ body{padding-bottom:104px}
 <script src="js/state-schema.js?v=2"></script>
 <script src="js/performance-program.js?v=1"></script>
 <script src="js/program-data.js?v=8"></script>
+<script src="js/mission-records.js?v=2"></script>
+<script src="js/mission-dashboard.js?v=2"></script>
 <script>
-const APP_VERSION = 'v2026.07.17-foundation';
+const APP_VERSION = 'v2026.07.17-mission-dashboard-mobile';
 // ============ WORKOUT DATA ============
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','Weight Log'];
 const WORKOUTS = {
@@ -1045,14 +1050,16 @@ let state = migrateRuntimeState(FidnessStateSchema.safeParseState(localStorage.g
   function handleLandingAction(action) {
     // Always allow access — do not block on missing sync key
     hideLandingPage();
-    if (action === 'workout') {
+    if (action === 'today') {
+      setActiveTab('today');
+    } else if (action === 'workout') {
       const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
       switchDay(WEEK_DAYS.includes(today) ? today : 'Monday');
       setWorkoutTab('pre');
-      setActiveTab('home');
+      setActiveTab('workout');
     } else if (action === 'progress') {
       switchDay('Weight Log');
-      setActiveTab('home');
+      setActiveTab('workout');
     } else if (action === 'program') {
       setActiveTab('program');
     }
@@ -1101,7 +1108,7 @@ let state = migrateRuntimeState(FidnessStateSchema.safeParseState(localStorage.g
           // Update local state and re-render only if cloud data is newer
           state = migrateRuntimeState(payload.new.state);
           localStorage.setItem('wt_state', JSON.stringify(state));
-          renderDay(state.day);
+          renderCurrentView();
           updateWeekHeader();
           renderTabs();
           showSyncIndicator('success');
@@ -1159,7 +1166,7 @@ let state = migrateRuntimeState(FidnessStateSchema.safeParseState(localStorage.g
     if (data && data.state) {
       state = migrateRuntimeState(data.state);
       localStorage.setItem('wt_state', JSON.stringify(state));
-      renderDay(state.day);
+      renderCurrentView();
       updateWeekHeader();
       renderTabs();
       showSyncIndicator('success');
@@ -1366,26 +1373,38 @@ let state = migrateRuntimeState(FidnessStateSchema.safeParseState(localStorage.g
   const HISTORY_KEY = 'wt_ex_history';
   const UI_TAB_KEY = 'uiActiveTab';
   const HIDE_COMPLETED_KEY = 'hideCompleted';
-let uiActiveTab = (localStorage.getItem(UI_TAB_KEY) || 'home').toLowerCase();
-if (!['home', 'program', 'history'].includes(uiActiveTab)) uiActiveTab = 'home';
+let uiActiveTab = (localStorage.getItem(UI_TAB_KEY) || 'today').toLowerCase();
+if (uiActiveTab === 'home') uiActiveTab = 'today';
+if (!['today', 'workout', 'program', 'history'].includes(uiActiveTab)) uiActiveTab = 'today';
 let hideCompleted = JSON.parse(localStorage.getItem(HIDE_COMPLETED_KEY) || 'true');
 let showCompletedOverride = false;
 let activeWorkoutTab = state.activeWorkoutTab;
 let workoutHistory = getWorkoutHistory();
 let dailyResetTimeout = null;
+let schedulePreviewDay = '';
+let missionActionObserver = null;
 
 function setActiveTab(tab) {
-  uiActiveTab = ['home', 'program', 'history'].includes(tab) ? tab : 'home';
+  uiActiveTab = ['today', 'workout', 'program', 'history'].includes(tab) ? tab : 'today';
   localStorage.setItem(UI_TAB_KEY, uiActiveTab);
-  document.getElementById('homeTabBtn').classList.toggle('active', uiActiveTab === 'home');
+  document.getElementById('todayTabBtn').classList.toggle('active', uiActiveTab === 'today');
+  document.getElementById('homeTabBtn').classList.toggle('active', uiActiveTab === 'workout');
   document.getElementById('programTabBtn').classList.toggle('active', uiActiveTab === 'program');
   document.getElementById('historyTabBtn').classList.toggle('active', uiActiveTab === 'history');
   
-  document.body.classList.remove('tab-program', 'tab-history');
+  document.body.classList.remove('tab-today', 'tab-program', 'tab-history');
+  if (uiActiveTab === 'today') document.body.classList.add('tab-today');
   if (uiActiveTab === 'program') document.body.classList.add('tab-program');
   if (uiActiveTab === 'history') document.body.classList.add('tab-history');
 
-  if (uiActiveTab === 'program') {
+  renderCurrentView();
+  requestAnimationFrame(() => document.querySelector('.top-tab.active')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }));
+}
+
+function renderCurrentView() {
+  if (uiActiveTab === 'today') {
+    renderTodayDashboard();
+  } else if (uiActiveTab === 'program') {
     renderProgram();
   } else if (uiActiveTab === 'history') {
     renderHistory();
@@ -1608,6 +1627,201 @@ function getProgramProgressFor(programId = getActiveProgramId()) {
   const completedDays = Math.min(Math.max(daysSinceStart, 0), totalDays);
   return { started: true, week, dayName: WEEK_DAYS[dayIndex], dayNumber: dayIndex + 1, completedDays, totalDays, finished: daysSinceStart >= totalDays };
 }
+
+function getCurrentProgramWeek() {
+  const progress = getProgramProgressFor();
+  return progress.started && progress.week ? progress.week : Math.max(1, parseInt(state.week, 10) || 1);
+}
+
+function getMissionDefinition(weekday, programWeek = getCurrentProgramWeek()) {
+  if (getActiveProgramId() !== DEFAULT_PROGRAM_ID) return null;
+  return getPerformanceMission(weekday, programWeek);
+}
+
+function getMissionRecordIdentity(mission, localDate) {
+  return {
+    programId: mission.programId,
+    missionId: mission.id,
+    localDate,
+    programWeek: mission.programWeek,
+    variation: mission.variation
+  };
+}
+
+function getTodayMissionContext(now = new Date()) {
+  const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
+  const localDate = FidnessMissionRecords.localDateISO(now);
+  const programWeek = getCurrentProgramWeek();
+  const mission = getMissionDefinition(weekday, programWeek);
+  if (!mission) return { weekday, localDate, programWeek, mission: null, record: null };
+  const record = FidnessMissionRecords.getMissionRecord(state, getMissionRecordIdentity(mission, localDate));
+  return { weekday, localDate, programWeek, mission, record };
+}
+
+function renderTodayDashboard() {
+  const container = document.getElementById('todayArea');
+  const resolution = getActiveProgramResolution();
+  if (!resolution.available) {
+    container.innerHTML = `<div class="program-card"><h2>Selected Program Unavailable</h2><div class="program-meta">Your saved program ID is preserved. Choose a recovery option from Schedule before a Today mission can be shown.</div><button class="mission-btn primary" style="margin-top:1rem" onclick="setActiveTab('program')">Open Program Recovery</button></div>`;
+    return;
+  }
+  const context = getTodayMissionContext();
+  if (!context.mission) {
+    container.innerHTML = `<div class="program-card"><h2>Today Mission Not Available</h2><div class="program-meta">${resolution.program.name} remains active and available in the existing workout logger. Mission guidance is shown only for programs with a mission definition.</div><button class="mission-btn primary" style="margin-top:1rem" onclick="setActiveTab('workout')">Open Workout Logger</button></div>`;
+    return;
+  }
+  const model = FidnessMissionDashboard.buildMissionModel({
+    program: FidnessPerformanceProgram.PROGRAM,
+    mission: context.mission,
+    record: context.record,
+    localDate: context.localDate,
+    dateLabel: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }),
+    programWeek: context.programWeek
+  });
+  container.innerHTML = FidnessMissionDashboard.renderToday(model);
+  configureMissionGuidance();
+  configureMissionStickyActions();
+}
+
+function updateTodayMission(action) {
+  const context = getTodayMissionContext();
+  if (!context.mission) return;
+  const identity = getMissionRecordIdentity(context.mission, context.localDate);
+  if (action === 'complete') FidnessMissionRecords.completeMission(state, identity, new Date());
+  else if (action === 'resume') FidnessMissionRecords.resumeMission(state, identity, new Date());
+  else FidnessMissionRecords.startMission(state, identity, new Date());
+  save();
+  renderTodayDashboard();
+  if (uiActiveTab === 'program') renderProgram();
+}
+
+function startTodayMission() {
+  updateTodayMission('start');
+  scrollToTodayTimeline(true);
+}
+
+function resumeTodayMission() {
+  updateTodayMission('resume');
+  scrollToTodayTimeline(true);
+}
+
+function completeTodayMission() {
+  const context = getTodayMissionContext();
+  if (!context.mission) return;
+  const identity = getMissionRecordIdentity(context.mission, context.localDate);
+  const result = FidnessMissionRecords.completeMissionWithConfirmation(
+    state,
+    identity,
+    () => confirm('Complete today’s mission?\n\nThis marks the overall mission complete and does not independently verify every exercise or activity.'),
+    new Date()
+  );
+  if (!result.confirmed) return;
+  save();
+  renderTodayDashboard();
+  if (uiActiveTab === 'program') renderProgram();
+}
+
+function reopenTodayMission() {
+  const context = getTodayMissionContext();
+  if (!context.mission) return;
+  const identity = getMissionRecordIdentity(context.mission, context.localDate);
+  FidnessMissionRecords.reopenMission(state, identity, new Date());
+  save();
+  renderTodayDashboard();
+  scrollToTodayTimeline(true);
+  if (uiActiveTab === 'program') renderProgram();
+}
+
+function prefersReducedMotion() {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+}
+
+function scrollToTodayTimeline(expandFirstRequired = false) {
+  const timeline = document.getElementById('todayMissionTimeline');
+  if (!timeline) return;
+  if (expandFirstRequired) {
+    const firstRequiredPhase = timeline.querySelector('.mission-phase[data-required-phase="true"]');
+    if (firstRequiredPhase) firstRequiredPhase.open = true;
+  }
+  timeline.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' });
+}
+
+function configureMissionGuidance() {
+  const guidance = document.getElementById('todayMissionGuidance');
+  if (!guidance) return;
+  guidance.open = !window.matchMedia?.('(max-width: 639px)').matches;
+}
+
+function configureMissionStickyActions() {
+  missionActionObserver?.disconnect();
+  missionActionObserver = null;
+  const sticky = document.querySelector('.mission-sticky-actions');
+  const heroActions = document.querySelector('.mission-hero .mission-actions');
+  if (!sticky || !heroActions || !window.matchMedia?.('(max-width: 639px)').matches) return;
+  if (!('IntersectionObserver' in window)) {
+    sticky.classList.add('is-active');
+    return;
+  }
+  missionActionObserver = new IntersectionObserver(entries => {
+    sticky.classList.toggle('is-active', !entries[0]?.isIntersecting);
+  }, { threshold: 0.2 });
+  missionActionObserver.observe(heroActions);
+}
+
+function openTodayWorkoutLogger(weekday) {
+  switchDay(weekday);
+  setWorkoutTab('main');
+  setActiveTab('workout');
+}
+
+function previewScheduleMission(weekday) {
+  if (!FidnessMissionRecords.WEEKDAYS.includes(weekday)) return;
+  schedulePreviewDay = weekday;
+  renderProgram();
+  requestAnimationFrame(() => document.getElementById('schedulePreviewTitle')?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' }));
+}
+
+function returnToWeeklySchedule(weekday) {
+  schedulePreviewDay = '';
+  renderProgram();
+  requestAnimationFrame(() => {
+    const card = document.getElementById(`schedule-day-${String(weekday || '').toLowerCase()}`);
+    if (!card) return;
+    card.focus({ preventScroll: true });
+    card.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'center' });
+  });
+}
+
+function buildActiveScheduleView() {
+  if (getActiveProgramId() !== DEFAULT_PROGRAM_ID) return null;
+  const today = new Date();
+  const todayDate = FidnessMissionRecords.localDateISO(today);
+  const programWeek = getCurrentProgramWeek();
+  const schedule = FidnessMissionDashboard.buildScheduleModel({
+    programWeek,
+    referenceDate: today,
+    todayDate,
+    previewWeekday: schedulePreviewDay,
+    getMission: (weekday, week) => getMissionDefinition(weekday, week),
+    getWeekDateISO: FidnessMissionRecords.getWeekDateISO,
+    getRecord: (mission, localDate) => mission
+      ? FidnessMissionRecords.getMissionRecord(state, getMissionRecordIdentity(mission, localDate))
+      : null
+  });
+  const previewDay = schedulePreviewDay
+    ? schedule.weekdays.concat(schedule.weekend).find(day => day.weekday === schedulePreviewDay)
+    : null;
+  const previewModel = previewDay?.mission ? FidnessMissionDashboard.buildMissionModel({
+    program: FidnessPerformanceProgram.PROGRAM,
+    mission: previewDay.mission,
+    record: FidnessMissionRecords.getMissionRecord(state, getMissionRecordIdentity(previewDay.mission, previewDay.localDate)),
+    localDate: previewDay.localDate,
+    dateLabel: previewDay.weekday,
+    programWeek
+  }) : null;
+  return { schedule, previewModel };
+}
+
 function getActiveEditableWorkoutDay() {
   const progress = getProgramProgressFor();
   return progress.started && progress.dayName ? progress.dayName : getTodayWeekdayName();
@@ -1646,13 +1860,7 @@ function ensureDailyWorkoutState() {
 }
 function refreshActiveView() {
   renderTabs();
-  if (uiActiveTab === 'program') {
-    renderProgram();
-  } else if (uiActiveTab === 'history') {
-    renderHistory();
-  } else {
-    renderDay(state.day);
-  }
+  renderCurrentView();
   updateWeekHeader();
 }
 function scheduleDailyReset() {
@@ -1723,7 +1931,7 @@ function getViewDateISO(day) {
     renderDay(state.day);
     renderProgram();
     updateWeekHeader();
-    setActiveTab('home');
+    setActiveTab(uiActiveTab);
     const sheet = document.getElementById('setSheet');
     if (sheet) {
       sheet.addEventListener('click', e => {
@@ -2283,6 +2491,7 @@ function renderProgram() {
   const program = resolution.program;
   const defaultProgramId = state.defaultProgramId || DEFAULT_PROGRAM_ID;
   const defaultResolution = getProgramResolution(defaultProgramId);
+  const scheduleView = buildActiveScheduleView();
   const startISO = getProgramStartISO(program.id);
   const startLabel = startISO ? parseLocalISO(startISO).toLocaleDateString() : 'Not started';
   const progress = getProgramProgress();
@@ -2295,7 +2504,10 @@ function renderProgram() {
     progressText = progress.finished ? (progress.totalDays ? `Completed ${progress.totalDays}/${progress.totalDays} days` : 'Completed') : `${base}${completed ? ` • ${completed}` : ''}`;
   }
 
-  let html = `<div class="program-card">
+  let html = scheduleView
+    ? FidnessMissionDashboard.renderSchedule(scheduleView.schedule, scheduleView.previewModel)
+    : '';
+  html += `<div class="program-card">
     <h2>Program Management</h2>
     <div class="program-row">
       <select class="program-select" id="programSelect" onchange="changeProgram(this.value)">
