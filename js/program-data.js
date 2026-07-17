@@ -258,6 +258,17 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
     }
   ];
 
+  function resolveProgramById(programId) {
+    const selectedId = typeof programId === 'string' && programId ? programId : null;
+    const program = selectedId ? PROGRAMS.find(candidate => candidate.id === selectedId) || null : null;
+    return {
+      selectedId,
+      status: program ? 'available' : 'unavailable',
+      available: !!program,
+      program
+    };
+  }
+
   const PROGRAM_GUIDES = {
     'joey-12wk-knee-safe': `
 <h2>12-Week Knee-Safe Upper Body + Core Focus</h2>
@@ -340,6 +351,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
     PROGRAM_GUIDES,
     PROGRAM_TEMPLATES,
     PROGRAM_MISSIONS: performance.PROGRAM.missions,
-    getPerformanceMission: performance.getMission
+    getPerformanceMission: performance.getMission,
+    resolveProgramById
   };
 };

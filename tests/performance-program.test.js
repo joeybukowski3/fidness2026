@@ -3,6 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const performance = require('../js/performance-program');
+const schema = require('../js/state-schema');
 
 function buildRegistry() {
   global.window = global;
@@ -18,6 +19,68 @@ test('registry uses an explicit default instead of array position', () => {
   assert.equal(registry.DEFAULT_PROGRAM_ID, 'performance-5day-v1');
   assert.ok(registry.PROGRAMS.some(program => program.id === 'joey-12wk-knee-safe'));
   assert.ok(registry.PROGRAMS.some(program => program.id === 'performance-5day-v1'));
+});
+
+test('registry resolves the known performance program exactly', () => {
+  const resolution = buildRegistry().resolveProgramById('performance-5day-v1');
+  assert.equal(resolution.status, 'available');
+  assert.equal(resolution.available, true);
+  assert.equal(resolution.selectedId, 'performance-5day-v1');
+  assert.equal(resolution.program.id, 'performance-5day-v1');
+});
+
+test('registry resolves the known legacy program exactly', () => {
+  const resolution = buildRegistry().resolveProgramById('joey-12wk-knee-safe');
+  assert.equal(resolution.status, 'available');
+  assert.equal(resolution.available, true);
+  assert.equal(resolution.selectedId, 'joey-12wk-knee-safe');
+  assert.equal(resolution.program.id, 'joey-12wk-knee-safe');
+});
+
+test('unknown explicit selection resolves as unavailable without a silent fallback', () => {
+  const registry = buildRegistry();
+  const selectedState = schema.migrateState({
+    programId: 'future-custom-program',
+    defaultProgramId: 'future-custom-program',
+    programSelection: { source: 'user', explicitlySelected: true, selectedAt: '2026-07-01T00:00:00.000Z' }
+  }).state;
+  const resolution = registry.resolveProgramById(selectedState.programId);
+  assert.equal(resolution.status, 'unavailable');
+  assert.equal(resolution.available, false);
+  assert.equal(resolution.selectedId, 'future-custom-program');
+  assert.equal(resolution.program, null);
+  assert.equal(selectedState.programId, 'future-custom-program');
+  assert.notEqual(resolution.program?.id, registry.DEFAULT_PROGRAM_ID);
+});
+
+test('user recovery explicitly replaces an unavailable selection with a known program', () => {
+  const registry = buildRegistry();
+  const unavailableId = 'future-custom-program';
+  const selectedState = schema.migrateState({
+    programId: unavailableId,
+    defaultProgramId: unavailableId,
+    programSelection: { source: 'user', explicitlySelected: true, selectedAt: '2026-07-01T00:00:00.000Z' }
+  }).state;
+  const untouched = schema.recoverUnavailableProgramSelection(
+    selectedState,
+    unavailableId,
+    'not-registered',
+    registry.PROGRAMS.map(program => program.id)
+  );
+  assert.equal(untouched.programId, unavailableId);
+
+  const recovered = schema.recoverUnavailableProgramSelection(
+    selectedState,
+    unavailableId,
+    registry.DEFAULT_PROGRAM_ID,
+    registry.PROGRAMS.map(program => program.id),
+    { now: '2026-07-17T12:00:00.000Z' }
+  );
+  assert.equal(selectedState.programId, unavailableId);
+  assert.equal(recovered.programId, registry.DEFAULT_PROGRAM_ID);
+  assert.equal(recovered.defaultProgramId, registry.DEFAULT_PROGRAM_ID);
+  assert.equal(recovered.programSelection.explicitlySelected, true);
+  assert.equal(registry.resolveProgramById(recovered.programId).available, true);
 });
 
 test('performance program has the explicit stable program ID and is ongoing', () => {

@@ -1,11 +1,11 @@
-const CACHE_NAME = 'pro-trainer-elite-v11-performance-foundation';
+const CACHE_NAME = 'pro-trainer-elite-v12-program-recovery-privacy';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json?v=7',
-  './js/state-schema.js?v=1',
+  './js/state-schema.js?v=2',
   './js/performance-program.js?v=1',
-  './js/program-data.js?v=7',
+  './js/program-data.js?v=8',
   './js/coach.js?v=1',
   './assets/diagrams/placeholder.svg'
 ];

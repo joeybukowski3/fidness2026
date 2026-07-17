@@ -99,6 +99,13 @@ test('explicit selection preserves known and unknown program IDs', () => {
   }
 });
 
+test('migration note documents the pre-v2 explicit-selection detection limit', () => {
+  assert.equal(
+    schema.MIGRATION_SELECTION_NOTE,
+    'Explicit selections recorded through schema-v2 selection metadata are preserved. Pre-v2 program selections without a start date, workout state, coach override, or explicit-selection metadata cannot be distinguished from the old automatic default and are treated as unused installations.'
+  );
+});
+
 test('schema migration is idempotent and never recommends a second backup', () => {
   const first = schema.migrateState({ dark: true }, { now: NOW });
   const second = schema.migrateState(first.state, { now: new Date(2026, 6, 18, 12) });
@@ -118,7 +125,7 @@ test('explicit program selection can update active and default independently', (
   assert.equal(defaultOnly.defaultProgramId, schema.DEFAULT_PROGRAM_ID);
 });
 
-test('sync serialization strips journal response text but keeps non-sensitive completion data', () => {
+test('sync serialization recursively strips private wellness data and keeps completion metadata', () => {
   const input = schema.migrateState({}, { now: NOW }).state;
   input.privateJournal = { secret: 'local only' };
   input.activityRecords.entry = {
@@ -126,15 +133,76 @@ test('sync serialization strips journal response text but keeps non-sensitive co
     activityType: 'journal',
     status: 'completed',
     completedAt: '2026-07-17T10:00:00.000Z',
+    journalCompleted: true,
+    missionCompleted: true,
+    meditationDuration: 600,
     responseText: 'private response',
-    metadata: { journalText: 'also private', mood: 4 }
+    metadata: {
+      journalText: 'also private',
+      reflectionText: 'private reflection',
+      mood: 4,
+      moodBefore: 2,
+      moodAfter: 4,
+      focusBefore: 2,
+      focusAfter: 5,
+      nested: {
+        emotionalState: 'anxious',
+        wellnessDetails: { stress: 'high', sleepConcern: 'private' },
+        privateResponseText: 'private nested response',
+        completionTimestamp: '2026-07-17T10:00:00.000Z'
+      },
+      journal: {
+        completed: true,
+        completedAt: '2026-07-17T10:00:00.000Z',
+        response: 'private journal answer',
+        promptAnswers: { first: 'private answer' }
+      },
+      reflection: {
+        completed: true,
+        completedAt: '2026-07-17T10:00:00.000Z',
+        whatWentWell: 'private reflection answer',
+        answers: ['private', 'responses']
+      },
+      weeklyReflectionResponses: {
+        completed: true,
+        responseOne: 'private',
+        responseTwo: 'also private'
+      },
+      promptAnswers: {
+        completed: true,
+        first: 'private answer'
+      }
+    }
   };
   const syncable = schema.toSyncableState(input);
   assert.equal(syncable.privateJournal, undefined);
   assert.equal(syncable.activityRecords.entry.responseText, undefined);
   assert.equal(syncable.activityRecords.entry.metadata.journalText, undefined);
+  assert.equal(syncable.activityRecords.entry.metadata.reflectionText, undefined);
+  assert.equal(syncable.activityRecords.entry.metadata.mood, undefined);
+  assert.equal(syncable.activityRecords.entry.metadata.moodBefore, undefined);
+  assert.equal(syncable.activityRecords.entry.metadata.moodAfter, undefined);
+  assert.equal(syncable.activityRecords.entry.metadata.focusBefore, undefined);
+  assert.equal(syncable.activityRecords.entry.metadata.focusAfter, undefined);
+  assert.equal(syncable.activityRecords.entry.metadata.nested.emotionalState, undefined);
+  assert.equal(syncable.activityRecords.entry.metadata.nested.wellnessDetails, undefined);
+  assert.equal(syncable.activityRecords.entry.metadata.nested.privateResponseText, undefined);
+  assert.equal(syncable.activityRecords.entry.metadata.nested.completionTimestamp, '2026-07-17T10:00:00.000Z');
+  assert.deepEqual(syncable.activityRecords.entry.metadata.journal, {
+    completed: true,
+    completedAt: '2026-07-17T10:00:00.000Z'
+  });
+  assert.deepEqual(syncable.activityRecords.entry.metadata.reflection, {
+    completed: true,
+    completedAt: '2026-07-17T10:00:00.000Z'
+  });
+  assert.deepEqual(syncable.activityRecords.entry.metadata.weeklyReflectionResponses, { completed: true });
+  assert.deepEqual(syncable.activityRecords.entry.metadata.promptAnswers, { completed: true });
   assert.equal(syncable.activityRecords.entry.status, 'completed');
-  assert.equal(syncable.activityRecords.entry.metadata.mood, 4);
+  assert.equal(syncable.activityRecords.entry.completedAt, '2026-07-17T10:00:00.000Z');
+  assert.equal(syncable.activityRecords.entry.journalCompleted, true);
+  assert.equal(syncable.activityRecords.entry.missionCompleted, true);
+  assert.equal(syncable.activityRecords.entry.meditationDuration, 600);
 });
 
 test('invalid serialized state safely becomes a fresh state', () => {

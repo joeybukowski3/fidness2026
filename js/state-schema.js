@@ -10,6 +10,7 @@
   const LEGACY_PROGRAM_ID = 'joey-12wk-knee-safe';
   const BACKUP_KEY = 'wt_state_backup_schema_v1';
   const PRIVATE_JOURNAL_KEY = 'wt_private_journal_v1';
+  const MIGRATION_SELECTION_NOTE = 'Explicit selections recorded through schema-v2 selection metadata are preserved. Pre-v2 program selections without a start date, workout state, coach override, or explicit-selection metadata cannot be distinguished from the old automatic default and are treated as unused installations.';
   const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Weight Log'];
 
   const clone = value => JSON.parse(JSON.stringify(value));
@@ -163,19 +164,89 @@
     return migrated;
   }
 
-  function stripPrivateText(value) {
-    if (Array.isArray(value)) return value.map(stripPrivateText);
-    if (!value || typeof value !== 'object') return value;
+  function recoverUnavailableProgramSelection(input, unavailableProgramId, replacementProgramId, availableProgramIds, options = {}) {
+    const original = safeParseState(input);
+    const available = new Set(Array.isArray(availableProgramIds) ? availableProgramIds : []);
+    if (original.programId !== unavailableProgramId || !available.has(replacementProgramId)) return original;
+    return markProgramSelected(original, replacementProgramId, {
+      ...options,
+      activate: true,
+      setDefault: original.defaultProgramId === unavailableProgramId
+    });
+  }
+
+  const PRIVATE_FIELD_NAMES = new Set([
+    'mood', 'moodbefore', 'moodafter', 'moodrating',
+    'focusbefore', 'focusafter',
+    'emotionalstate', 'emotionalrating', 'feeling', 'feelings',
+    'wellnessnote', 'wellnessnotes',
+    'journaltext',
+    'reflectiontext',
+    'responsetext', 'privateresponse', 'privateresponsetext',
+    'privatejournal', 'privatejournalentries'
+  ]);
+  const PRIVATE_RESPONSE_CONTAINERS = new Set([
+    'journal', 'journalentry', 'journalentries',
+    'reflection', 'reflectionentry', 'reflectionentries',
+    'weeklyreflection', 'weeklyreflections',
+    'response', 'responses', 'answer', 'answers',
+    'promptresponse', 'promptresponses', 'promptanswer', 'promptanswers'
+  ]);
+  const SYNCABLE_COMPLETION_FIELDS = new Set([
+    'id', 'activityid', 'missionid', 'date', 'status',
+    'completed', 'completedat', 'completionstatus', 'completiontimestamp',
+    'activitycompleted', 'journalcompleted', 'missioncompleted',
+    'duration', 'durationminutes', 'meditationduration', 'meditationminutes'
+  ]);
+
+  function normalizeFieldName(key) {
+    return String(key).replace(/[^a-z0-9]/gi, '').toLowerCase();
+  }
+
+  function isPrivateWellnessField(normalizedKey, entry) {
+    if (PRIVATE_FIELD_NAMES.has(normalizedKey)) return true;
+    if (normalizedKey.startsWith('mood')) return true;
+    if (normalizedKey.startsWith('emotional') || normalizedKey.startsWith('feeling') || normalizedKey.startsWith('wellness')) return true;
+    if (normalizedKey.startsWith('focus') && (normalizedKey.includes('before') || normalizedKey.includes('after'))) return true;
+    if (normalizedKey.startsWith('privatejournal') || normalizedKey.startsWith('privateresponse')) return true;
+    if ((normalizedKey.includes('journal') || normalizedKey.includes('reflection')) && /(text|response|answer)/.test(normalizedKey)) {
+      return !entry || typeof entry !== 'object';
+    }
+    if (/^(response|responses|answer|answers|promptresponse|promptresponses|promptanswer|promptanswers|answertext)$/.test(normalizedKey)) {
+      return !entry || typeof entry !== 'object';
+    }
+    return false;
+  }
+
+  function isPrivateResponseContainer(normalizedKey, entry) {
+    if (SYNCABLE_COMPLETION_FIELDS.has(normalizedKey)) return false;
+    if (PRIVATE_RESPONSE_CONTAINERS.has(normalizedKey)) return true;
+    return !!entry && typeof entry === 'object' && (
+      normalizedKey.includes('journal') ||
+      normalizedKey.includes('reflection') ||
+      PRIVATE_RESPONSE_CONTAINERS.has(normalizedKey)
+    );
+  }
+
+  function stripPrivateWellness(value, privateResponseContext = false) {
+    if (Array.isArray(value)) {
+      return value.map(entry => stripPrivateWellness(entry, privateResponseContext)).filter(entry => entry !== undefined);
+    }
+    if (!value || typeof value !== 'object') return privateResponseContext ? undefined : value;
     const output = {};
     Object.entries(value).forEach(([key, entry]) => {
-      if (['journalText', 'responseText', 'privateResponseText', 'privateJournal', 'privateJournalEntries', 'journalResponses'].includes(key)) return;
-      output[key] = stripPrivateText(entry);
+      const normalizedKey = normalizeFieldName(key);
+      if (isPrivateWellnessField(normalizedKey, entry)) return;
+      if (privateResponseContext && !SYNCABLE_COMPLETION_FIELDS.has(normalizedKey)) return;
+      const childPrivateContext = isPrivateResponseContainer(normalizedKey, entry);
+      const sanitized = stripPrivateWellness(entry, childPrivateContext);
+      if (sanitized !== undefined) output[key] = sanitized;
     });
     return output;
   }
 
   function toSyncableState(input) {
-    return stripPrivateText(safeParseState(input));
+    return stripPrivateWellness(safeParseState(input));
   }
 
   return {
@@ -184,6 +255,7 @@
     LEGACY_PROGRAM_ID,
     BACKUP_KEY,
     PRIVATE_JOURNAL_KEY,
+    MIGRATION_SELECTION_NOTE,
     safeParseState,
     formatLocalISO,
     currentWeekMondayISO,
@@ -191,6 +263,7 @@
     hasEstablishedPlan,
     migrateState,
     markProgramSelected,
+    recoverUnavailableProgramSelection,
     toSyncableState
   };
 });

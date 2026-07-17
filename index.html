@@ -640,9 +640,9 @@ body{padding-bottom:104px}
   <div class="set-sheet-card" id="setSheetCard"></div>
 </div>
 
-<script src="js/state-schema.js?v=1"></script>
+<script src="js/state-schema.js?v=2"></script>
 <script src="js/performance-program.js?v=1"></script>
-<script src="js/program-data.js?v=7"></script>
+<script src="js/program-data.js?v=8"></script>
 <script>
 const APP_VERSION = 'v2026.07.17-foundation';
 // ============ WORKOUT DATA ============
@@ -792,11 +792,16 @@ const {
   PROGRAM_GUIDES,
   PROGRAM_TEMPLATES,
   PROGRAM_MISSIONS,
-  getPerformanceMission
+  getPerformanceMission,
+  resolveProgramById: resolveRegisteredProgramById
 } = buildProgramData(WORKOUTS);
 
 function getProgramById(id) {
-  return PROGRAMS.find(program => program.id === id) || PROGRAMS.find(program => program.id === DEFAULT_PROGRAM_ID) || null;
+  return resolveRegisteredProgramById(id).program;
+}
+
+function getProgramResolution(id) {
+  return resolveRegisteredProgramById(id);
 }
 
 function getProgramTemplate(id = null) {
@@ -1550,6 +1555,9 @@ function renderRepsOptions(selected) {
 function getActiveProgram() {
   return getProgramById(state.programId || DEFAULT_PROGRAM_ID);
 }
+function getActiveProgramResolution() {
+  return getProgramResolution(state.programId || DEFAULT_PROGRAM_ID);
+}
 function getActiveProgramId() {
   return state.programId || DEFAULT_PROGRAM_ID;
 }
@@ -2251,10 +2259,30 @@ function getProgramProgress() {
   return getProgramProgressFor();
 }
 
+function renderUnavailableProgram(c, resolution) {
+  c.innerHTML = `<div class="program-card">
+    <h2>Selected Program Unavailable</h2>
+    <div class="program-meta">Your saved program selection is still preserved, but this version of Fidness does not have its program definition.</div>
+    <div class="program-meta"><strong>Saved program ID:</strong> <span id="unavailableProgramId"></span></div>
+    <div class="program-meta">Choose a replacement only when you are ready. Nothing changes until you select one below.</div>
+    <div class="program-row" style="margin-top:1rem;align-items:stretch">
+      <button class="program-btn primary" onclick="recoverUnavailableProgram('${DEFAULT_PROGRAM_ID}')">Use Five-Day Performance System</button>
+      <button class="program-btn" onclick="recoverUnavailableProgram('joey-12wk-knee-safe')">Use 12-Week Knee-Safe Program</button>
+    </div>
+  </div>`;
+  document.getElementById('unavailableProgramId').textContent = resolution.selectedId || 'Unknown program';
+}
+
 function renderProgram() {
   const c = document.getElementById('programArea');
-  const program = getActiveProgram();
+  const resolution = getActiveProgramResolution();
+  if (!resolution.available) {
+    renderUnavailableProgram(c, resolution);
+    return;
+  }
+  const program = resolution.program;
   const defaultProgramId = state.defaultProgramId || DEFAULT_PROGRAM_ID;
+  const defaultResolution = getProgramResolution(defaultProgramId);
   const startISO = getProgramStartISO(program.id);
   const startLabel = startISO ? parseLocalISO(startISO).toLocaleDateString() : 'Not started';
   const progress = getProgramProgress();
@@ -2277,7 +2305,7 @@ function renderProgram() {
       <button class="program-btn" onclick="restartProgram()">Restart</button>
     </div>
     <div class="program-meta"><strong>Active:</strong> ${program.name}</div>
-    <div class="program-meta"><strong>Default on Open:</strong> ${(getProgramById(defaultProgramId) || getProgramById(DEFAULT_PROGRAM_ID)).name}</div>
+    <div class="program-meta"><strong>Default on Open:</strong> <span id="defaultProgramLabel"></span></div>
     <div class="program-meta"><strong>Start date:</strong> ${startLabel}</div>
     <div class="program-meta"><strong>Status:</strong> ${progressText}</div>
     <div style="margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
@@ -2303,6 +2331,9 @@ function renderProgram() {
     html += `<div class="program-card" style="margin-top:0.75rem"><h2>Program Guide</h2><div class="program-meta">No guide available yet.</div></div>`;
   }
   c.innerHTML = html;
+  document.getElementById('defaultProgramLabel').textContent = defaultResolution.available
+    ? defaultResolution.program.name
+    : `Unavailable (${defaultResolution.selectedId || 'unknown ID'})`;
 }
 
 function renderMasterExerciseList() {
@@ -2344,7 +2375,29 @@ function filterMasterList(query) {
 }
 
 function changeProgram(id) {
+  if (!getProgramResolution(id).available) return;
   state = FidnessStateSchema.markProgramSelected(state, id, { setDefault: false });
+  state.activeWorkoutTab = 'pre';
+  activeWorkoutTab = 'pre';
+  showCompletedOverride = false;
+  syncStateToActiveProgramDay();
+  save();
+  refreshWeekSelectOptions();
+  renderTabs();
+  renderDay(state.day);
+  renderProgram();
+  updateWeekHeader();
+}
+
+function recoverUnavailableProgram(id) {
+  const currentResolution = getActiveProgramResolution();
+  if (currentResolution.available || !getProgramResolution(id).available) return;
+  state = FidnessStateSchema.recoverUnavailableProgramSelection(
+    state,
+    currentResolution.selectedId,
+    id,
+    PROGRAMS.map(program => program.id)
+  );
   state.activeWorkoutTab = 'pre';
   activeWorkoutTab = 'pre';
   showCompletedOverride = false;
