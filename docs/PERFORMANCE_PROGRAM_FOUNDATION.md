@@ -11,7 +11,7 @@
 
 ## Migration behavior
 
-Fresh users and unused installations receive `performance-5day-v1`. A program is treated as established when schema-v2 explicit-selection metadata, a program start date, saved workout state, or AI Coach overrides are present. Established and unknown program IDs remain unchanged.
+Fresh users and unused installations receive `performance-5day-v1`. A program is treated as established when schema-v2 explicit-selection metadata, a program start date, saved workout state, or AI Coach overrides are present. Established program IDs, including unknown IDs with one of those established-plan signals, remain unchanged.
 
 Explicit selections recorded through schema-v2 selection metadata are preserved. Pre-v2 program selections without a start date, workout state, coach override, or explicit-selection metadata cannot be distinguished from the old automatic default and are treated as unused installations.
 
