@@ -234,8 +234,28 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   );
 
   // ── PROGRAMS ──────────────────────────────────────────────────────
+  const performance = window.FidnessPerformanceProgram;
+  if (!performance) throw new Error('FidnessPerformanceProgram must load before program-data.js.');
+  const DEFAULT_PROGRAM_ID = performance.PROGRAM_ID;
+  const performanceWeek = week => ({
+    Monday: performance.toLegacyWorkout('Monday', week),
+    Tuesday: performance.toLegacyWorkout('Tuesday', week),
+    Wednesday: performance.toLegacyWorkout('Wednesday', week),
+    Thursday: performance.toLegacyWorkout('Thursday', week),
+    Friday: performance.toLegacyWorkout('Friday', week),
+    Saturday: performance.toLegacyWorkout('Saturday', week),
+    Sunday: performance.toLegacyWorkout('Sunday', week)
+  });
+
   const PROGRAMS = [
-    { id: 'joey-12wk-knee-safe', name: '12-Week Knee-Safe Upper Focus', weeks: 12 }
+    { id: 'joey-12wk-knee-safe', name: '12-Week Knee-Safe Upper Focus', weeks: 12, ongoing: false },
+    {
+      id: performance.PROGRAM_ID,
+      name: performance.PROGRAM.name,
+      ongoing: true,
+      cycleWeeks: 2,
+      reviewIntervalWeeks: performance.REVIEW_INTERVAL_WEEKS
+    }
   ];
 
   const PROGRAM_GUIDES = {
@@ -281,7 +301,20 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
 <li>Leg Press: 307 lbs (shallow depth)</li>
 <li>Hamstring Curl: 80 lbs</li>
 <li>Hip Abduction: 120 lbs</li>
-</ul>`
+</ul>`,
+    [performance.PROGRAM_ID]: `
+<h2>Five-Day Performance System</h2>
+<p><strong>Schedule:</strong> Monday through Friday, 4:30–6:00 AM. Weekends remain optional.</p>
+<p><strong>Rotation:</strong> Odd program weeks use Variation A. Even program weeks use Variation B. The program continues until you choose another program.</p>
+<h2>Five Pillars</h2>
+<ul>
+<li>Strength</li>
+<li>Core development</li>
+<li>Mobility and flexibility</li>
+<li>Cardiovascular conditioning</li>
+<li>Mental performance and reflection</li>
+</ul>
+<p>Targets are recommendations. Adjust as needed, stop if pain occurs, and consult a qualified clinician when appropriate.</p>`
   };
 
   const PROGRAM_TEMPLATES = {
@@ -290,8 +323,23 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
         1: w1, 2: w2, 3: w3, 4: w4, 5: w5, 6: w6,
         7: w7, 8: w8, 9: w9, 10: w10, 11: w11, 12: w12
       }
+    },
+    [performance.PROGRAM_ID]: {
+      ongoing: true,
+      cycleWeeks: 2,
+      weeks: {
+        1: performanceWeek(1),
+        2: performanceWeek(2)
+      }
     }
   };
 
-  return { PROGRAMS, PROGRAM_GUIDES, PROGRAM_TEMPLATES };
+  return {
+    DEFAULT_PROGRAM_ID,
+    PROGRAMS,
+    PROGRAM_GUIDES,
+    PROGRAM_TEMPLATES,
+    PROGRAM_MISSIONS: performance.PROGRAM.missions,
+    getPerformanceMission: performance.getMission
+  };
 };
