@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test tests/performance-program.test.js tests/state-schema.test.js tests/index-inline-syntax.test.js",
+    "test:syntax": "node --check js/performance-program.js && node --check js/state-schema.js && node --check js/program-data.js",
+    "validate": "npm run test:syntax && npm test"
   },
   "repository": {
     "type": "git",

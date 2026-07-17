@@ -20,7 +20,7 @@ if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(regs => Promise.all(regs.map(reg => reg.unregister()))),
       caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))))
     ]).finally(() => {
-      navigator.serviceWorker.register('./sw.js?v=4').then(reg => {
+      navigator.serviceWorker.register('./sw.js?v=5').then(reg => {
         console.log('SW Registered!', reg);
       }).catch(err => {
         console.log('SW Reg Failed:', err);
@@ -640,9 +640,11 @@ body{padding-bottom:104px}
   <div class="set-sheet-card" id="setSheetCard"></div>
 </div>
 
-<script src="js/program-data.js?v=6"></script>
+<script src="js/state-schema.js?v=2"></script>
+<script src="js/performance-program.js?v=1"></script>
+<script src="js/program-data.js?v=8"></script>
 <script>
-const APP_VERSION = 'v2026.04.11-2';
+const APP_VERSION = 'v2026.07.17-foundation';
 // ============ WORKOUT DATA ============
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','Weight Log'];
 const WORKOUTS = {
@@ -784,18 +786,38 @@ Sunday: [
 {phase:'Optional',activity:'Contrast Shower',duration:'5 min',notes:'Alternate hot (2 min) and cold (1 min) - end on cold'}
 ]
 };
-const { PROGRAMS, PROGRAM_GUIDES, PROGRAM_TEMPLATES } = buildProgramData(WORKOUTS);
+const {
+  DEFAULT_PROGRAM_ID,
+  PROGRAMS,
+  PROGRAM_GUIDES,
+  PROGRAM_TEMPLATES,
+  PROGRAM_MISSIONS,
+  getPerformanceMission,
+  resolveProgramById: resolveRegisteredProgramById
+} = buildProgramData(WORKOUTS);
+
+function getProgramById(id) {
+  return resolveRegisteredProgramById(id).program;
+}
+
+function getProgramResolution(id) {
+  return resolveRegisteredProgramById(id);
+}
 
 function getProgramTemplate(id = null) {
-  const programId = id || state.programId || PROGRAMS[0].id;
+  const programId = id || state.programId || DEFAULT_PROGRAM_ID;
   return PROGRAM_TEMPLATES[programId] || null;
 }
 
 function getProgramWeekData(programId = null, week = null) {
-  const activeProgramId = programId || state.programId || PROGRAMS[0].id;
+  const activeProgramId = programId || state.programId || DEFAULT_PROGRAM_ID;
   const activeWeek = parseInt(week || state.week || 1, 10);
   const template = getProgramTemplate(activeProgramId);
-  if (template && template.weeks && template.weeks[activeWeek]) return template.weeks[activeWeek];
+  if (!template || !template.weeks) return null;
+  const templateWeek = template.ongoing
+    ? ((Math.max(activeWeek, 1) - 1) % Math.max(parseInt(template.cycleWeeks, 10) || 1, 1)) + 1
+    : activeWeek;
+  if (template.weeks[templateWeek]) return template.weeks[templateWeek];
   return null;
 }
 
@@ -810,7 +832,7 @@ function getExerciseForDayIndex(day, idx, programId = null, week = null) {
 }
 
 function getAllProgramExercises(programId = null) {
-  const activeProgramId = programId || state.programId || PROGRAMS[0].id;
+  const activeProgramId = programId || state.programId || DEFAULT_PROGRAM_ID;
   const template = getProgramTemplate(activeProgramId);
   if (!template || !template.weeks) return [];
   const seen = new Set();
@@ -832,8 +854,8 @@ function getAllProgramExercises(programId = null) {
 function refreshWeekSelectOptions() {
   const el = document.getElementById('weekSelect');
   if (!el) return;
-  const activeProgram = PROGRAMS.find(p => p.id === (state.programId || PROGRAMS[0].id)) || PROGRAMS[0];
-  const maxWeeks = activeProgram.weeks || 1;
+  const activeProgram = getProgramById(state.programId || DEFAULT_PROGRAM_ID);
+  const maxWeeks = activeProgram?.ongoing ? Math.max(12, (parseInt(state.week, 10) || 1) + 6) : (activeProgram?.weeks || 1);
   if (state.week > maxWeeks) state.week = maxWeeks;
   if (state.week < 1) state.week = 1;
   el.innerHTML = Array.from({ length: maxWeeks }, (_, idx) => {
@@ -845,6 +867,7 @@ function refreshWeekSelectOptions() {
 
 function isTrackableWorkoutExercise(ex) {
   if (!ex || !ex.exercise) return false;
+  if (ex.required === false) return false;
   const phase = (ex.phase || '').toLowerCase();
   return !phase.includes('stretch');
 }
@@ -953,7 +976,7 @@ const EX_DESC = {
 "Foam Roll Targeted Areas":"Slowly roll over sore or tight muscles using a foam roller. Apply moderate pressure and pause on tender spots for 20-30 seconds. Focus on areas that feel tight from the week's training.",
 "Lacrosse Ball Foot Release":"Stand with a lacrosse ball under one foot. Roll it along your arch, applying pressure to release the plantar fascia. This is especially beneficial for golfers who spend hours standing and walking the course.",
 "Couch Stretch":"Kneel with one knee on the floor, foot pressed against a wall or couch behind you. Step the other foot forward into a lunge. Push your hips forward for an intense hip flexor and quad stretch.",
-"Weighted Hang (Decompression)":"Hang from a pull-up bar with arms fully extended, letting your body weight decompress the spine. Relax your shoulders and breathe deeply. This relieves pressure between vertebrae after a week of lifting."
+"Weighted Hang (Decompression)":"Use a full or supported hang with a comfortable grip and relaxed breathing. Hanging may create a temporary unloading sensation while training grip and shoulder mobility; it does not permanently lengthen or repair the spine. Stop for sharp shoulder pain, numbness, tingling, dizziness, or worsening symptoms."
 };
 
 // ============ STATE ============
@@ -964,7 +987,19 @@ const _sb = supabase.createClient(
 );
 
 // ============ STATE ============
-let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
+function migrateRuntimeState(input) {
+  const migration = FidnessStateSchema.migrateState(input, { now: new Date() });
+  if (migration.backupRecommended && !localStorage.getItem(migration.backupKey)) {
+    try {
+      localStorage.setItem(migration.backupKey, JSON.stringify(migration.original));
+    } catch (error) {
+      console.warn('Unable to store the one-time pre-schema-v2 backup.', error);
+    }
+  }
+  return migration.state;
+}
+
+let state = migrateRuntimeState(FidnessStateSchema.safeParseState(localStorage.getItem('wt_state')));
   if (!state.week) state.week = 1;
   if (!state.dark) state.dark = false;
   if (!state.day) state.day = 'Monday';
@@ -977,10 +1012,6 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
   if (!state.activeWorkoutTab) state.activeWorkoutTab = 'pre';
   if (!state.lastAccessedDate) state.lastAccessedDate = '';
   const WEEK_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-  if (!state.programId) state.programId = PROGRAMS[0].id;
-  if (!state.defaultProgramId) state.defaultProgramId = state.programId || PROGRAMS[0].id;
-  if (!PROGRAMS.find(p => p.id === state.defaultProgramId)) state.defaultProgramId = PROGRAMS[0].id;
-  state.programId = state.defaultProgramId;
   if (!state.programStarts) state.programStarts = {};
 
   // MIGRATION: Move old history/weight logs into state if they exist
@@ -1068,7 +1099,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
       }, payload => {
         if (payload.new && payload.new.state) {
           // Update local state and re-render only if cloud data is newer
-          state = payload.new.state;
+          state = migrateRuntimeState(payload.new.state);
           localStorage.setItem('wt_state', JSON.stringify(state));
           renderDay(state.day);
           updateWeekHeader();
@@ -1126,11 +1157,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
       .single();
     
     if (data && data.state) {
-      // Prune if cloud has old image data
-      if (data.state.customDiagrams) {
-        delete data.state.customDiagrams;
-      }
-      state = data.state;
+      state = migrateRuntimeState(data.state);
       localStorage.setItem('wt_state', JSON.stringify(state));
       renderDay(state.day);
       updateWeekHeader();
@@ -1146,19 +1173,12 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     if (!currentSyncKey) return;
     showSyncIndicator('syncing');
     
-    // PERMANENTLY purge images from local state to stop the bloat
-    if (state.customDiagrams) {
-      console.log("Migrating images out of main state...");
-      delete state.customDiagrams;
-      localStorage.setItem('wt_state', JSON.stringify(state));
-    }
-
     try {
       const { error } = await _sb
         .from('sync_data')
         .upsert({ 
           sync_key: currentSyncKey, 
-          state: state, // Progress only
+          state: FidnessStateSchema.toSyncableState(state), // Excludes local-only journal text
           updated_at: new Date().toISOString() 
         });
 
@@ -1285,7 +1305,7 @@ let state = JSON.parse(localStorage.getItem('wt_state') || '{}');
     if (data) {
       const choice = confirm("Cloud data found for this PIN!\n\nOK: Load Cloud Data (Overwrites this device)\nCancel: Use Local Data (Overwrites Cloud)");
       if (choice) {
-        state = data.state;
+        state = migrateRuntimeState(data.state);
         localStorage.setItem('wt_state', JSON.stringify(state));
       }
     }
@@ -1514,12 +1534,12 @@ function getExerciseId(name) {
 }
 function isBodyweightOnly(exName) {
   const n = (exName || '').toLowerCase();
-  return n.includes('plank') || n.includes('crunch') || n.includes('sit-up') || n.includes('bird dog') || n.includes('dead bug') || n.includes('bridge') || n.includes('march') || n.includes('scorpion') || n.includes('yoga') || n.includes('stretch');
+  return n.includes('plank') || n.includes('crunch') || n.includes('sit-up') || n.includes('bird dog') || n.includes('dead bug') || n.includes('bridge') || n.includes('march') || n.includes('scorpion') || n.includes('yoga') || n.includes('stretch') || n.includes('meditation') || n.includes('hang');
 }
 
 function isTimeBased(exName) {
   const n = (exName || '').toLowerCase();
-  return n.includes('plank') || n.includes('hold') || n.includes('hang') || n.includes('rest') || n.includes('activity');
+  return n.includes('plank') || n.includes('hold') || n.includes('hang') || n.includes('rest') || n.includes('activity') || n.includes('meditation') || n.includes('walk') || n.includes('jog');
 }
 
 function renderRepsOptions(selected) {
@@ -1533,10 +1553,13 @@ function renderRepsOptions(selected) {
 }
 
 function getActiveProgram() {
-  return PROGRAMS.find(p => p.id === state.programId) || PROGRAMS[0];
+  return getProgramById(state.programId || DEFAULT_PROGRAM_ID);
+}
+function getActiveProgramResolution() {
+  return getProgramResolution(state.programId || DEFAULT_PROGRAM_ID);
 }
 function getActiveProgramId() {
-  return state.programId || PROGRAMS[0].id;
+  return state.programId || DEFAULT_PROGRAM_ID;
 }
 function getProgramStartISO(id = getActiveProgramId()) {
   return (state.programStarts && state.programStarts[id]) || '';
@@ -1559,14 +1582,24 @@ function parseLocalISO(iso) {
 function getTodayWeekdayName() {
   return new Date().toLocaleDateString('en-US', { weekday: 'long' });
 }
+function localDayOrdinal(date) {
+  return Math.floor(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86400000);
+}
 function getProgramProgressFor(programId = getActiveProgramId()) {
-  const program = PROGRAMS.find(p => p.id === programId) || PROGRAMS[0];
+  const program = getProgramById(programId);
+  if (!program) return { started: false };
   const startISO = getProgramStartISO(program.id);
   if (!startISO) return { started: false };
   const start = parseLocalISO(startISO);
   const today = new Date();
   const todayLocal = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const daysSinceStart = Math.floor((todayLocal - start) / 86400000);
+  const daysSinceStart = localDayOrdinal(todayLocal) - localDayOrdinal(start);
+  if (program.ongoing) {
+    if (daysSinceStart < 0) return { started: true, startsIn: Math.abs(daysSinceStart), ongoing: true };
+    const week = Math.floor(daysSinceStart / 7) + 1;
+    const dayIndex = daysSinceStart % 7;
+    return { started: true, ongoing: true, week, dayName: WEEK_DAYS[dayIndex], dayNumber: dayIndex + 1, completedDays: Math.max(daysSinceStart, 0) };
+  }
   const totalDays = (program.weeks || 0) * 7;
   if (daysSinceStart < 0) return { started: true, startsIn: Math.abs(daysSinceStart), totalDays };
   const capped = Math.min(daysSinceStart, Math.max(totalDays - 1, 0));
@@ -1591,8 +1624,7 @@ function syncStateToActiveProgramDay() {
   if (WEEK_DAYS.includes(todayName)) state.day = todayName;
 }
 function resetDailyWorkoutState(nowISO = formatLocalISO(new Date())) {
-  console.log('New day detected. Resetting daily workout data.');
-  state.data = {};
+  console.log('New day detected. Advancing the active workout day while preserving scoped workout records.');
   state.ui.phaseCollapsed = {};
   state.ui.completedCelebrations = {};
   state.activeWorkoutTab = 'pre';
@@ -1673,9 +1705,9 @@ function getViewDateISO(day) {
   }
 
   // ============ INIT ============
-  function init() {
+  async function init() {
     renderVersionBadge();
-    initSupabase();
+    await initSupabase();
     const resetToday = ensureDailyWorkoutState();
     pruneWorkoutStateToCurrentDay();
     if (!resetToday) save();
@@ -2227,10 +2259,30 @@ function getProgramProgress() {
   return getProgramProgressFor();
 }
 
+function renderUnavailableProgram(c, resolution) {
+  c.innerHTML = `<div class="program-card">
+    <h2>Selected Program Unavailable</h2>
+    <div class="program-meta">Your saved program selection is still preserved, but this version of Fidness does not have its program definition.</div>
+    <div class="program-meta"><strong>Saved program ID:</strong> <span id="unavailableProgramId"></span></div>
+    <div class="program-meta">Choose a replacement only when you are ready. Nothing changes until you select one below.</div>
+    <div class="program-row" style="margin-top:1rem;align-items:stretch">
+      <button class="program-btn primary" onclick="recoverUnavailableProgram('${DEFAULT_PROGRAM_ID}')">Use Five-Day Performance System</button>
+      <button class="program-btn" onclick="recoverUnavailableProgram('joey-12wk-knee-safe')">Use 12-Week Knee-Safe Program</button>
+    </div>
+  </div>`;
+  document.getElementById('unavailableProgramId').textContent = resolution.selectedId || 'Unknown program';
+}
+
 function renderProgram() {
   const c = document.getElementById('programArea');
-  const program = getActiveProgram();
-  const defaultProgramId = state.defaultProgramId || PROGRAMS[0].id;
+  const resolution = getActiveProgramResolution();
+  if (!resolution.available) {
+    renderUnavailableProgram(c, resolution);
+    return;
+  }
+  const program = resolution.program;
+  const defaultProgramId = state.defaultProgramId || DEFAULT_PROGRAM_ID;
+  const defaultResolution = getProgramResolution(defaultProgramId);
   const startISO = getProgramStartISO(program.id);
   const startLabel = startISO ? parseLocalISO(startISO).toLocaleDateString() : 'Not started';
   const progress = getProgramProgress();
@@ -2253,7 +2305,7 @@ function renderProgram() {
       <button class="program-btn" onclick="restartProgram()">Restart</button>
     </div>
     <div class="program-meta"><strong>Active:</strong> ${program.name}</div>
-    <div class="program-meta"><strong>Default on Open:</strong> ${(PROGRAMS.find(p => p.id === defaultProgramId) || PROGRAMS[0]).name}</div>
+    <div class="program-meta"><strong>Default on Open:</strong> <span id="defaultProgramLabel"></span></div>
     <div class="program-meta"><strong>Start date:</strong> ${startLabel}</div>
     <div class="program-meta"><strong>Status:</strong> ${progressText}</div>
     <div style="margin-top:1rem; border-top:1px solid var(--border); padding-top:1rem;">
@@ -2279,6 +2331,9 @@ function renderProgram() {
     html += `<div class="program-card" style="margin-top:0.75rem"><h2>Program Guide</h2><div class="program-meta">No guide available yet.</div></div>`;
   }
   c.innerHTML = html;
+  document.getElementById('defaultProgramLabel').textContent = defaultResolution.available
+    ? defaultResolution.program.name
+    : `Unavailable (${defaultResolution.selectedId || 'unknown ID'})`;
 }
 
 function renderMasterExerciseList() {
@@ -2320,7 +2375,29 @@ function filterMasterList(query) {
 }
 
 function changeProgram(id) {
-  state.programId = id;
+  if (!getProgramResolution(id).available) return;
+  state = FidnessStateSchema.markProgramSelected(state, id, { setDefault: false });
+  state.activeWorkoutTab = 'pre';
+  activeWorkoutTab = 'pre';
+  showCompletedOverride = false;
+  syncStateToActiveProgramDay();
+  save();
+  refreshWeekSelectOptions();
+  renderTabs();
+  renderDay(state.day);
+  renderProgram();
+  updateWeekHeader();
+}
+
+function recoverUnavailableProgram(id) {
+  const currentResolution = getActiveProgramResolution();
+  if (currentResolution.available || !getProgramResolution(id).available) return;
+  state = FidnessStateSchema.recoverUnavailableProgramSelection(
+    state,
+    currentResolution.selectedId,
+    id,
+    PROGRAMS.map(program => program.id)
+  );
   state.activeWorkoutTab = 'pre';
   activeWorkoutTab = 'pre';
   showCompletedOverride = false;
@@ -2336,15 +2413,19 @@ function changeProgram(id) {
 function setDefaultProgram(id) {
   const selected = PROGRAMS.find(p => p.id === id);
   if (!selected) return;
-  state.defaultProgramId = id;
+  state = FidnessStateSchema.markProgramSelected(state, id, { setDefault: true, activate: false });
   save();
   renderProgram();
+}
+
+function getProgramAnchorISO(program = getActiveProgram()) {
+  return program?.ongoing ? FidnessStateSchema.currentWeekMondayISO(new Date()) : formatLocalISO(new Date());
 }
 
 function startProgram() {
   const programId = getActiveProgramId();
   if (!getProgramStartISO(programId)) {
-    setProgramStartISO(programId, formatLocalISO(new Date()));
+    setProgramStartISO(programId, getProgramAnchorISO());
   }
   syncStateToActiveProgramDay();
   save();
@@ -2357,7 +2438,7 @@ function startProgram() {
 function restartProgram() {
   const programId = getActiveProgramId();
   if (!confirm('Restart this program from today?')) return;
-  setProgramStartISO(programId, formatLocalISO(new Date()));
+  setProgramStartISO(programId, getProgramAnchorISO());
   state.activeWorkoutTab = 'pre';
   activeWorkoutTab = 'pre';
   syncStateToActiveProgramDay();
@@ -2743,7 +2824,7 @@ function updateWeekHeader() {
 
 function setWeek(w) {
   const activeProgram = getActiveProgram();
-  const maxWeeks = activeProgram.weeks || 1;
+  const maxWeeks = activeProgram?.ongoing ? Math.max(12, (parseInt(state.week, 10) || 1) + 6) : (activeProgram?.weeks || 1);
   state.week = Math.min(Math.max(parseInt(w, 10) || 1, 1), maxWeeks);
   showCompletedOverride = false;
   save();
