@@ -1,11 +1,14 @@
-const CACHE_NAME = 'pro-trainer-elite-v12-program-recovery-privacy';
+const CACHE_NAME = 'pro-trainer-elite-v13-mission-dashboard-schedule';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json?v=7',
+  './css/mission-dashboard.css?v=1',
   './js/state-schema.js?v=2',
   './js/performance-program.js?v=1',
   './js/program-data.js?v=8',
+  './js/mission-records.js?v=1',
+  './js/mission-dashboard.js?v=1',
   './js/coach.js?v=1',
   './assets/diagrams/placeholder.svg'
 ];

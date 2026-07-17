@@ -1,0 +1,106 @@
+.today-only{display:none}
+.tab-today .home-only,.tab-today .program-only,.tab-today .history-only{display:none!important}
+.tab-today .today-only{display:block!important}
+
+.mission-dashboard,.mission-schedule{display:grid;gap:1rem;max-width:900px;margin:0 auto}
+.mission-hero,.mission-info-card,.mission-timeline,.mission-schedule,.schedule-preview{background:var(--bg2);border:1px solid var(--border);border-radius:18px}
+.mission-hero{padding:clamp(1rem,4vw,1.5rem);overflow:hidden}
+.mission-kicker,.mission-info-card>span,.schedule-heading span,.mission-section-heading span{display:block;font-size:.68rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent2);margin-bottom:.45rem}
+.mission-hero-row{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem}
+.mission-hero h1{font-family:var(--font-display);font-size:clamp(2.25rem,9vw,4rem);line-height:.95;letter-spacing:.035em;color:var(--text);margin:0}
+.mission-hero p{max-width:650px;color:var(--text2);font-size:.9rem;line-height:1.55;margin:.65rem 0 0}
+.mission-badge{display:inline-flex;align-items:center;min-height:26px;padding:.25rem .55rem;border:1px solid var(--border);border-radius:999px;background:var(--bg3);color:var(--text2);font-size:.65rem;font-weight:800;line-height:1.15;white-space:normal}
+.mission-badge.required,.mission-badge.completed{border-color:rgba(90,245,200,.4);background:rgba(90,245,200,.1);color:var(--accent2)}
+.mission-badge.optional{border-color:rgba(255,255,255,.12);color:var(--text3)}
+.mission-badge.in-progress,.mission-badge.today,.mission-badge.variation{border-color:rgba(200,245,90,.45);background:rgba(200,245,90,.1);color:var(--accent)}
+.mission-badge.upcoming{color:var(--text2)}
+
+.mission-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem;margin-top:1.15rem}
+.mission-facts>div{min-width:0;padding:.75rem;background:var(--bg3);border:1px solid var(--border);border-radius:14px}
+.mission-facts span{display:block;color:var(--text3);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.25rem}
+.mission-facts strong{display:block;color:var(--text);font-size:.79rem;line-height:1.4;overflow-wrap:anywhere}
+.mission-facts small{display:block;color:var(--text3);font-size:.66rem;margin-top:.2rem}
+.mission-actions{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1rem}
+.mission-btn{min-height:48px;padding:.75rem 1rem;border-radius:12px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:var(--font-body);font-size:.8rem;font-weight:800;cursor:pointer;touch-action:manipulation}
+.mission-btn.primary{flex:1 1 210px;background:var(--accent);border-color:var(--accent);color:#10140d;font-size:.9rem}
+.mission-btn.secondary{border-color:var(--accent2);color:var(--accent2)}
+.mission-btn.ghost{color:var(--text2)}
+.mission-btn:focus-visible,.schedule-day-card:focus-visible,.mission-phase summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.mission-orientation-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}
+.mission-info-card{padding:1rem;min-width:0}
+.mission-info-card p,.mission-info-card li{color:var(--text2);font-size:.79rem;line-height:1.55}
+.mission-info-card ul{margin:.3rem 0 0;padding-left:1.05rem}
+.mission-info-card li+li{margin-top:.25rem}
+.mission-info-card.mission-safety{grid-column:1/-1;border-color:rgba(250,204,21,.22)}
+.mission-chip-row{display:flex;flex-wrap:wrap;gap:.35rem}
+.mission-coach-note{padding:.9rem 1rem;border:1px solid rgba(200,245,90,.28);border-radius:14px;background:rgba(200,245,90,.06);color:var(--text2);font-size:.79rem;line-height:1.55}
+.mission-coach-note strong{color:var(--accent)}
+
+.mission-timeline{padding:1rem}
+.mission-section-heading,.schedule-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.85rem}
+.mission-section-heading h2,.schedule-heading h2{font-family:var(--font-display);font-size:1.65rem;letter-spacing:.04em;margin:0;color:var(--text)}
+.mission-section-heading>strong{color:var(--text2);font-size:.75rem;white-space:nowrap}
+.mission-phase{border-top:1px solid var(--border)}
+.mission-phase:last-child{border-bottom:1px solid var(--border)}
+.mission-phase summary{position:relative;display:grid;grid-template-columns:105px minmax(0,1fr);gap:.15rem .75rem;min-height:58px;padding:.75rem 1.9rem .75rem 0;align-items:center;cursor:pointer;list-style:none;touch-action:manipulation}
+.mission-phase summary::-webkit-details-marker{display:none}
+.mission-phase summary::after{content:'+';position:absolute;right:.35rem;top:50%;transform:translateY(-50%);color:var(--accent);font-size:1.25rem}
+.mission-phase[open] summary::after{content:'–'}
+.mission-phase-time{grid-row:1/3;color:var(--accent2);font-family:var(--font-display);font-size:.98rem;letter-spacing:.02em}
+.mission-phase-title{color:var(--text);font-size:.86rem;font-weight:800}
+.mission-phase-meta{color:var(--text3);font-size:.65rem}
+.mission-phase-body{display:grid;gap:.6rem;padding:.1rem 0 .9rem 105px}
+.mission-activity{padding:.8rem;border:1px solid var(--border);border-radius:13px;background:var(--bg3);min-width:0}
+.mission-activity-optional{border-style:dashed;opacity:.88}
+.mission-activity-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem}
+.mission-activity-heading h4{margin:.18rem 0 0;color:var(--text);font-size:.84rem;line-height:1.35}
+.mission-activity-type{font-size:.58rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.mission-target,.mission-rir,.mission-activity-note,.mission-private-note{font-size:.7rem;line-height:1.5;margin-top:.45rem;color:var(--text2);overflow-wrap:anywhere}
+.mission-target{font-weight:800;color:var(--accent2)}
+.mission-rir{color:var(--accent)}
+.mission-private-note{color:var(--text3);font-style:italic}
+.mission-prompt-list{margin:.55rem 0 0 1.15rem;color:var(--text2);font-size:.72rem;line-height:1.5}
+.mission-prompt-list li+li{margin-top:.25rem}
+.mission-empty{padding:1rem;border:1px dashed var(--border);border-radius:12px;color:var(--text2);font-size:.78rem;line-height:1.5}
+
+.mission-schedule{padding:1rem;margin-bottom:1rem}
+.schedule-weekdays{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.55rem}
+.schedule-day-card{display:block;width:100%;min-width:0;min-height:180px;padding:.8rem;text-align:left;border:1px solid var(--border);border-radius:14px;background:var(--bg3);color:var(--text);font-family:var(--font-body);cursor:pointer;overflow:hidden;touch-action:manipulation}
+.schedule-day-card.selected{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.schedule-day-card.optional{min-height:145px}
+.schedule-card-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:.35rem;color:var(--accent2);font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.schedule-card-top>div{display:flex;flex-wrap:wrap;gap:.2rem}
+.schedule-day-card h3{font-family:var(--font-display);font-size:1.35rem;letter-spacing:.035em;line-height:1;margin:.65rem 0 .4rem}
+.schedule-day-card p{color:var(--text2);font-size:.67rem;line-height:1.4;margin:0 0 .65rem}
+.schedule-card-meta{display:grid;gap:.25rem;color:var(--text3);font-size:.61rem;line-height:1.35}
+.schedule-weekend{border-top:1px solid var(--border);padding-top:.8rem}
+.schedule-weekend>summary{min-height:44px;display:flex;align-items:center;color:var(--text);font-size:.8rem;font-weight:800;cursor:pointer}
+.schedule-weekend>p{color:var(--text2);font-size:.72rem;line-height:1.5;margin:0 0 .75rem}
+.schedule-weekend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+.schedule-preview{padding:1rem}
+.schedule-preview-purpose{color:var(--text2);font-size:.82rem;line-height:1.5;margin:0 0 .8rem}
+.schedule-preview-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.45rem;margin-bottom:.85rem}
+.schedule-preview-facts span{padding:.55rem .65rem;border-radius:10px;background:var(--bg3);color:var(--text2);font-size:.68rem;line-height:1.4;overflow-wrap:anywhere}
+
+@media(max-width:760px){
+  .schedule-weekdays{grid-template-columns:1fr}
+  .schedule-day-card{min-height:0}
+  .schedule-card-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:560px){
+  .mission-hero-row{display:block}
+  .mission-hero-row>.mission-badge{margin-top:.75rem}
+  .mission-facts,.mission-orientation-grid,.schedule-preview-facts{grid-template-columns:1fr}
+  .mission-info-card.mission-safety{grid-column:auto}
+  .mission-phase summary{grid-template-columns:88px minmax(0,1fr);padding-right:1.6rem}
+  .mission-phase-body{padding-left:0}
+  .mission-actions{position:relative}
+  .mission-btn{width:100%}
+  .schedule-weekend-grid{grid-template-columns:1fr}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .mission-btn,.schedule-day-card{transition:none!important}
+}

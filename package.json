@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test tests/performance-program.test.js tests/state-schema.test.js tests/index-inline-syntax.test.js",
-    "test:syntax": "node --check js/performance-program.js && node --check js/state-schema.js && node --check js/program-data.js",
+    "test": "node --test tests/performance-program.test.js tests/state-schema.test.js tests/mission-records.test.js tests/mission-dashboard.test.js tests/index-inline-syntax.test.js",
+    "test:syntax": "node --check js/performance-program.js && node --check js/state-schema.js && node --check js/program-data.js && node --check js/mission-records.js && node --check js/mission-dashboard.js && node --check js/coach.js && node --check sw.js",
     "validate": "npm run test:syntax && npm test"
   },
   "repository": {
