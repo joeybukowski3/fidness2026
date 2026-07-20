@@ -1,9 +1,9 @@
-const CACHE_NAME = 'pro-trainer-elite-v12-nutrition-table';
+const CACHE_NAME = 'pro-trainer-elite-v13-schedule-fasting';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json?v=7',
-  './js/program-data.js?v=6',
+  './js/program-data.js?v=7',
   './js/coach.js?v=1',
   './js/nutrition.js?v=2',
   './assets/diagrams/placeholder.svg'
