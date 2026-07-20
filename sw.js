@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pro-trainer-elite-v14-mission-dashboard-mobile';
+const CACHE_NAME = 'pro-trainer-elite-v15-schedule-fasting-merge';
 const ASSETS = [
   './',
   './index.html',
@@ -6,7 +6,7 @@ const ASSETS = [
   './css/mission-dashboard.css?v=2',
   './js/state-schema.js?v=2',
   './js/performance-program.js?v=1',
-  './js/program-data.js?v=8',
+  './js/program-data.js?v=9',
   './js/mission-records.js?v=2',
   './js/mission-dashboard.js?v=2',
   './js/coach.js?v=2',

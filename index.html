@@ -163,7 +163,8 @@ if ('serviceWorker' in navigator) {
 .dark .ex-card { border-color: var(--border); background: var(--bg2); }
 .dark .phase-header { border-bottom: 1px solid var(--border); }
 .dark .weight-panel { border-color: var(--border); background: var(--bg2); }
-.dark .sunday-card, .dark .program-card, .dark .wlog-stat, .dark .wlog-chart, .dark .wlog-table { background: var(--bg2); border-color: var(--border); }
+.dark .sunday-card, .dark .program-card, .dark .wlog-stat, .dark .wlog-chart, .dark .wlog-table, .dark .day-overview { background: var(--bg2); border-color: var(--border); }
+.dark .day-overview-item { background: var(--bg3); border-color: var(--border); }
 .dark .wlog-table th { background: var(--bg3); border-bottom-color: var(--border); }
 .dark .wlog-table td { border-bottom-color: var(--border); }
 .dark .ex-info-content { background: var(--bg3); border-left-color: var(--blue); }
@@ -306,6 +307,19 @@ body{overflow-x:hidden; width:100%; position:relative;}
 .sunday-card h3{font-size:0.85rem;font-weight:700;margin-bottom:0.3rem;display:flex;align-items:center;gap:0.4rem}
 .sunday-card p{font-size:0.8rem;color:var(--text2);line-height:1.5}
 .sunday-card .dur{font-size:0.7rem;color:var(--text3);margin-top:0.2rem}
+.day-overview{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;margin-bottom:0.85rem;box-shadow:var(--shadow)}
+.day-overview-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:0.5rem;margin-bottom:0.75rem}
+.day-overview-head h3{font-family:var(--font-display);font-size:1.15rem;letter-spacing:0.06em;color:var(--text);margin:0}
+.day-overview-time{font-size:0.72rem;font-weight:700;color:var(--accent);background:var(--accent-bg);border:1px solid rgba(200,245,90,0.25);padding:0.25rem 0.55rem;border-radius:99px}
+.day-overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem}
+.day-overview-item{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:0.55rem 0.65rem}
+.day-overview-item b{display:block;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.07em;color:var(--text3);margin-bottom:0.2rem}
+.day-overview-item span{font-size:0.78rem;color:var(--text2);line-height:1.35}
+.day-overview-fast{grid-column:1 / -1;border-color:rgba(200,245,90,0.28);background:var(--accent-bg)}
+.fast-badge{display:inline-block;font-size:0.62rem;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;padding:0.18rem 0.5rem;border-radius:99px;background:var(--accent);color:#0a0a0f;margin-bottom:0.35rem}
+.day-overview-fast .fast-window{display:block;font-size:0.78rem;color:var(--text);font-weight:700;margin-bottom:0.2rem}
+.day-overview-fast .fast-note{display:block;font-size:0.74rem;color:var(--text2);line-height:1.4}
+@media (max-width:520px){.day-overview-grid{grid-template-columns:1fr}}
 
 /* Guide */
 .guide-content{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;font-size:0.82rem;color:var(--text2);line-height:1.7}
@@ -645,7 +659,7 @@ body{padding-bottom:104px}
 
 <script src="js/state-schema.js?v=2"></script>
 <script src="js/performance-program.js?v=1"></script>
-<script src="js/program-data.js?v=8"></script>
+<script src="js/program-data.js?v=9"></script>
 <script src="js/mission-records.js?v=2"></script>
 <script src="js/mission-dashboard.js?v=2"></script>
 <script>
@@ -792,6 +806,7 @@ Sunday: [
 ]
 };
 const {
+  DAY_OVERVIEWS = {},
   DEFAULT_PROGRAM_ID,
   PROGRAMS,
   PROGRAM_GUIDES,
@@ -2281,12 +2296,40 @@ function toggleDetailGuide(mode) {
   musclesTab.classList.toggle('active', !movementOn);
 }
 
+function renderDayOverview(day) {
+  if (getActiveProgramId() !== 'joey-12wk-knee-safe') return '';
+  const overview =
+    typeof DAY_OVERVIEWS !== 'undefined' && DAY_OVERVIEWS
+      ? DAY_OVERVIEWS[day]
+      : null;
+  if (!overview) return '';
+  const fastingType = overview.fastingType || 'Standard overnight';
+  return `<div class="day-overview" aria-label="${day} daily overview">
+    <div class="day-overview-head">
+      <h3>${day} Overview</h3>
+      <span class="day-overview-time">${overview.time || ''}</span>
+    </div>
+    <div class="day-overview-grid">
+      <div class="day-overview-item"><b>Primary focus</b><span>${overview.focus || '—'}</span></div>
+      <div class="day-overview-item"><b>Running</b><span>${overview.running || '—'}</span></div>
+      <div class="day-overview-item" style="grid-column:1 / -1"><b>Mobility · Core · Recovery emphasis</b><span>${overview.emphasis || '—'}</span></div>
+      <div class="day-overview-item day-overview-fast">
+        <span class="fast-badge">${fastingType}</span>
+        <b>Fasting · ${overview.fastingDuration || '—'}</b>
+        <span class="fast-window">${overview.fastingWindow || '—'}</span>
+        <span class="fast-note">${overview.fastingNote || ''}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderDay(day) {
   if (ensureDailyWorkoutState()) day = state.day;
   const c = document.getElementById('content');
   if (day === 'Weight Log') { renderWeightLog(c); updateProgress(day); return; }
 
   let html = '';
+  html += renderDayOverview(day);
 
   if (day === 'Sunday') {
     html += renderSundayHtml();
