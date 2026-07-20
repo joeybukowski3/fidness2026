@@ -1,11 +1,15 @@
-const CACHE_NAME = 'pro-trainer-elite-v13-schedule-fasting';
+const CACHE_NAME = 'pro-trainer-elite-v15-schedule-fasting-merge';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json?v=7',
-  './js/program-data.js?v=7',
-  './js/coach.js?v=1',
-  './js/nutrition.js?v=2',
+  './css/mission-dashboard.css?v=2',
+  './js/state-schema.js?v=2',
+  './js/performance-program.js?v=1',
+  './js/program-data.js?v=9',
+  './js/mission-records.js?v=2',
+  './js/mission-dashboard.js?v=2',
+  './js/coach.js?v=2',
   './assets/diagrams/placeholder.svg'
 ];
 
@@ -27,31 +31,30 @@ self.addEventListener('activate', event => {
   );
 });
 
-async function injectFeatureScripts(response) {
+async function injectCoachScript(response) {
   if (!response) return response;
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('text/html')) return response;
 
-  let html = await response.text();
-  const scripts = [
-    { marker: 'js/coach.js', tag: '<script src="./js/coach.js?v=1" defer></script>' },
-    { marker: 'js/nutrition.js', tag: '<script src="./js/nutrition.js?v=2" defer></script>' }
-  ];
-  const missing = scripts.filter(script => !html.includes(script.marker));
-
-  if (missing.length > 0) {
-    const tags = missing.map(script => script.tag).join('\n');
-    html = html.includes('</body>')
-      ? html.replace('</body>', `${tags}\n</body>`)
-      : `${html}\n${tags}`;
+  const html = await response.text();
+  if (html.includes('js/coach.js')) {
+    return new Response(html, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers
+    });
   }
 
+  const script = '<script src="./js/coach.js?v=2" defer></script>';
+  const updatedHtml = html.includes('</body>')
+    ? html.replace('</body>', `${script}\n</body>`)
+    : `${html}\n${script}`;
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.delete('content-encoding');
   headers.set('cache-control', 'no-cache');
 
-  return new Response(html, {
+  return new Response(updatedHtml, {
     status: response.status,
     statusText: response.statusText,
     headers
@@ -71,13 +74,13 @@ self.addEventListener('fetch', event => {
     event.respondWith((async () => {
       try {
         const networkResponse = await fetch(event.request);
-        const response = isAppShell ? await injectFeatureScripts(networkResponse) : networkResponse;
+        const response = isAppShell ? await injectCoachScript(networkResponse) : networkResponse;
         const copy = response.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
         return response;
       } catch {
         const cached = await caches.match(event.request) || await caches.match('./index.html');
-        return isAppShell ? injectFeatureScripts(cached) : cached;
+        return isAppShell ? injectCoachScript(cached) : cached;
       }
     })());
     return;
