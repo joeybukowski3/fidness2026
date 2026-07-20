@@ -1653,6 +1653,18 @@ function getMissionDefinition(weekday, programWeek = getCurrentProgramWeek()) {
   return getPerformanceMission(weekday, programWeek);
 }
 
+function shouldRenderProgramWorkoutOnToday(weekday = getTodayWeekdayName()) {
+  return uiActiveTab === 'today' && !getMissionDefinition(weekday);
+}
+
+function getWorkoutDayContainer(day = state.day) {
+  const missionDay = day && day !== 'Weight Log' ? day : getTodayWeekdayName();
+  if (shouldRenderProgramWorkoutOnToday(missionDay)) {
+    return document.getElementById('todayArea') || document.getElementById('content');
+  }
+  return document.getElementById('content');
+}
+
 function getMissionRecordIdentity(mission, localDate) {
   return {
     programId: mission.programId,
@@ -1673,6 +1685,27 @@ function getTodayMissionContext(now = new Date()) {
   return { weekday, localDate, programWeek, mission, record };
 }
 
+function renderTodayProgramWorkout(weekday) {
+  const container = document.getElementById('todayArea');
+  const resolution = getActiveProgramResolution();
+  if (!container) return;
+  if (!WEEK_DAYS.includes(weekday)) {
+    container.innerHTML = `<div class="program-card"><h2>Today</h2><div class="program-meta">No weekday schedule is available right now.</div></div>`;
+    return;
+  }
+  if (state.day !== weekday) {
+    state.day = weekday;
+    save();
+    renderTabs();
+  }
+  // Reuse the Workout logger renderer (getWorkoutsForDay + overview + logging).
+  // Container routing sends this into #todayArea while the Today tab is active.
+  renderDay(weekday);
+  if (!container.innerHTML.trim()) {
+    container.innerHTML = `<div class="program-card"><h2>Today · ${weekday}</h2><div class="program-meta">${resolution.program?.name || 'This program'} has no scheduled workout for ${weekday}.</div><button class="mission-btn primary" style="margin-top:1rem" onclick="setActiveTab('workout')">Open Workout Logger</button></div>`;
+  }
+}
+
 function renderTodayDashboard() {
   const container = document.getElementById('todayArea');
   const resolution = getActiveProgramResolution();
@@ -1682,7 +1715,7 @@ function renderTodayDashboard() {
   }
   const context = getTodayMissionContext();
   if (!context.mission) {
-    container.innerHTML = `<div class="program-card"><h2>Today Mission Not Available</h2><div class="program-meta">${resolution.program.name} remains active and available in the existing workout logger. Mission guidance is shown only for programs with a mission definition.</div><button class="mission-btn primary" style="margin-top:1rem" onclick="setActiveTab('workout')">Open Workout Logger</button></div>`;
+    renderTodayProgramWorkout(context.weekday);
     return;
   }
   const model = FidnessMissionDashboard.buildMissionModel({
@@ -1996,8 +2029,9 @@ function setWorkoutTab(tabKey) {
   activeWorkoutTab = tabKey;
   state.activeWorkoutTab = tabKey;
   save();
-  const tabs = document.querySelectorAll('.workout-tab');
-  const sections = document.querySelectorAll('.workout-section');
+  const root = getWorkoutDayContainer(state.day) || document;
+  const tabs = root.querySelectorAll('.workout-tab');
+  const sections = root.querySelectorAll('.workout-section');
   tabs.forEach(tab => {
     const isActive = tab.dataset.tab === tabKey;
     tab.classList.toggle('active', isActive);
@@ -2325,8 +2359,15 @@ function renderDayOverview(day) {
 
 function renderDay(day) {
   if (ensureDailyWorkoutState()) day = state.day;
-  const c = document.getElementById('content');
-  if (day === 'Weight Log') { renderWeightLog(c); updateProgress(day); return; }
+  const c = getWorkoutDayContainer(day) || document.getElementById('content');
+  if (!c) return;
+  if (day === 'Weight Log') {
+    // Weight Log always lives in the Workout tab content area.
+    const workoutContent = document.getElementById('content');
+    if (workoutContent) renderWeightLog(workoutContent);
+    updateProgress(day);
+    return;
+  }
 
   let html = '';
   html += renderDayOverview(day);
@@ -2439,17 +2480,21 @@ function renderDay(day) {
   html += `<div class="workout-section${activeWorkoutTab === 'main' ? ' active' : ''}" id="mainWorkoutSection" data-section="main">${mainHtml}</div>`;
   html += `<div class="workout-section${activeWorkoutTab === 'bonus' ? ' active' : ''}" id="bonusWorkoutSection" data-section="bonus">${bonusHtml}</div>`;
   html += renderTodayWeightPanel();
+  if (!exercises.length) {
+    html += `<div class="sunday-card"><p>No scheduled exercises for ${day} in the active program.</p></div>`;
+  }
   c.innerHTML = html;
   setWorkoutTab(activeWorkoutTab);
   updateProgress(day);
-  attachSwipeListeners();
+  attachSwipeListeners(day);
 }
 
-function attachSwipeListeners() {
-  const cards = document.querySelectorAll('.ex-card');
+function attachSwipeListeners(day = state.day) {
+  const root = getWorkoutDayContainer(day) || document;
+  const cards = root.querySelectorAll('.ex-card');
   cards.forEach(card => {
     const idx = parseInt(card.dataset.idx);
-    const ex = getExerciseForDayIndex(state.day, idx);
+    const ex = getExerciseForDayIndex(day, idx);
     if (!ex || !getAlternative(ex.notes)) return;
 
     let startX = 0, startY = 0, currentX = 0, currentY = 0, isSwiping = false;
@@ -2484,7 +2529,7 @@ function attachSwipeListeners() {
       card.style.transform = '';
       
       if (Math.abs(diffX) >= 50 && Math.abs(diffX) > Math.abs(diffY)) {
-        toggleSwap(state.day, idx);
+        toggleSwap(day, idx);
       }
       startX = 0; currentX = 0; startY = 0; currentY = 0;
     });
