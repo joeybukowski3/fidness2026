@@ -119,12 +119,19 @@ function requiredStrength(day, week) {
     .filter(item => item.type === 'strength' && item.required !== false);
 }
 
-test('Monday variations contain five lower-body movements and three core movements', () => {
+test('Monday includes track plus chest, biceps, and core strength', () => {
   for (const week of [1, 2]) {
+    const mission = performance.getMission('Monday', week);
+    const track = mission.phases.find(phase => phase.title === 'Track Session');
+    assert.ok(track);
+    assert.equal(track.startTime, '04:30');
+    assert.equal(track.endTime, '05:00');
+    assert.deepEqual(track.activities.map(item => item.lengthLabel), ['1 lap', '1 lap', '1 lap', '1 lap']);
     const exercises = requiredStrength('Monday', week);
-    assert.equal(exercises.filter(item => item.category === 'Core').length, 3);
-    assert.equal(exercises.filter(item => item.category !== 'Core').length, 5);
-    assert.equal(exercises.reduce((sum, item) => sum + item.durationMinutes, 0) <= 48, true);
+    assert.ok(exercises.filter(item => item.category === 'Core').length >= 3);
+    assert.equal(exercises.filter(item => item.category === 'Biceps').length, 2);
+    assert.equal(exercises.filter(item => !['Core', 'Biceps'].includes(item.category)).length, 3);
+    assert.equal(exercises.reduce((sum, item) => sum + item.durationMinutes, 0), 45);
   }
 });
 
@@ -139,13 +146,18 @@ test('Tuesday variations contain four press or shoulder movements and three dire
   }
 });
 
-test('Thursday variations contain four back or rear-shoulder movements and three arm movements', () => {
+test('Thursday includes track plus back, shoulders, and triceps strength', () => {
   for (const week of [1, 2]) {
+    const mission = performance.getMission('Thursday', week);
+    const track = mission.phases.find(phase => phase.title === 'Track Session');
+    assert.ok(track);
+    assert.equal(track.startTime, '04:30');
+    assert.equal(track.endTime, '05:00');
+    assert.deepEqual(track.activities.map(item => item.lengthLabel), ['1 lap', '1 lap', '1 lap', '1 lap']);
     const exercises = requiredStrength('Thursday', week);
-    assert.equal(exercises.filter(item => ['Biceps', 'Triceps'].includes(item.category)).length, 3);
-    assert.equal(exercises.filter(item => !['Biceps', 'Triceps'].includes(item.category)).length, 4);
-    const optional = performance.getMission('Thursday', week).phases.flatMap(phase => phase.activities).filter(item => item.required === false);
-    assert.equal(optional.length, 1);
+    assert.equal(exercises.filter(item => item.category === 'Triceps').length, 2);
+    assert.equal(exercises.some(item => item.category === 'Biceps'), false);
+    assert.equal(exercises.reduce((sum, item) => sum + item.durationMinutes, 0), 45);
   }
 });
 
@@ -169,6 +181,18 @@ test('Wednesday is track-based and required fasting labels are correct', () => {
   assert.notEqual(wednesday.locationType, 'gym');
   assert.deepEqual([wednesday.fasting.type, wednesday.fasting.required], ['16:8', true]);
   assert.deepEqual([friday.fasting.type, friday.fasting.required], ['16:8', true]);
+  const track = wednesday.phases.find(phase => phase.title === 'Track Session');
+  const required = track.activities.filter(item => item.required !== false);
+  assert.deepEqual(required.map(item => item.title), [
+    'Lap 1 — Brisk Walk',
+    'Lap 2 — Timed Light Run/Jog',
+    'Lap 3 — Brisk Walk',
+    'Lap 4 — Timed Light Run/Jog'
+  ]);
+  assert.deepEqual(required.map(item => item.lengthLabel), ['1 lap', '1 lap', '1 lap', '1 lap']);
+  assert.deepEqual(required.map(item => item.timed === true), [false, true, false, true]);
+  assert.equal(track.activities.filter(item => item.required === false).length, 1);
+  assert.equal(track.activities.some(item => item.durationMinutes === 7), false);
 });
 
 test('weekend missions and fasting remain optional', () => {
@@ -187,4 +211,15 @@ test('legacy adapter preserves stable IDs and marks finishers optional', () => {
   const finisher = rows.find(row => row.required === false);
   assert.ok(finisher);
   assert.equal(finisher.phase, 'Bonus (Optional)');
+});
+
+test('legacy adapter carries outdoor track lap metadata into Workout rows', () => {
+  const rows = performance.toLegacyWorkout('Wednesday', 1);
+  const laps = rows.filter(row => row.activityType === 'outdoor-track-lap');
+  assert.equal(laps.filter(row => row.required !== false).length, 4);
+  assert.deepEqual(laps.filter(row => row.required !== false).map(row => row.reps), ['1 lap', '1 lap', '1 lap', '1 lap']);
+  assert.deepEqual(laps.filter(row => row.required !== false).map(row => row.timed === true), [false, true, false, true]);
+  assert.ok(laps.every(row => row.outdoorTrack === true));
+  assert.ok(laps.every(row => row.lengthLabel === '1 lap'));
+  assert.equal(laps.some(row => row.budgetMinutes === 7), false);
 });

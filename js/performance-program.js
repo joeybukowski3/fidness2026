@@ -42,35 +42,62 @@
     return { id, title, startTime, endTime, activities, ...details };
   }
 
+  function trackLap(id, title, lapNumber, paceType, details = {}) {
+    const timed = details.timed === true || paceType === 'timed-run';
+    return activity(id, 'outdoor-track-lap', title, 0, {
+      exerciseId: id,
+      lapNumber,
+      paceType,
+      timed,
+      timingRequired: timed,
+      lengthLabel: '1 lap',
+      sets: '1',
+      reps: '1 lap',
+      equipment: 'Outdoor Track',
+      category: 'Cardio',
+      metrics: timed ? ['lap-time'] : [],
+      ...details
+    });
+  }
+
+  function trackLapSequence(prefix) {
+    return [
+      trackLap(`${prefix}-walk-1`, 'Lap 1 — Brisk Walk', 1, 'walk'),
+      trackLap(`${prefix}-timed-run-1`, 'Lap 2 — Timed Light Run/Jog', 2, 'timed-run'),
+      trackLap(`${prefix}-walk-2`, 'Lap 3 — Brisk Walk', 3, 'walk'),
+      trackLap(`${prefix}-timed-run-2`, 'Lap 4 — Timed Light Run/Jog', 4, 'timed-run')
+    ];
+  }
+
   const MONDAY_A = [
-    strength('p5d-mon-a-leg-press', 'leg-press', 'Leg Press', 3, '8-12', 8, {
+    strength('p5d-mon-a-chest-press', 'machine-chest-press', 'Machine Chest Press', 3, '8-12', 9, {
       restSeconds: 90,
-      targetRir: { default: 2 },
-      equipment: 'Leg Press Machine',
-      notes: 'Use a comfortable, knee-tolerated range. Stop if pain occurs.',
-      substitutions: ['smith-squat-to-bench']
-    }),
-    strength('p5d-mon-a-smith-rdl', 'smith-machine-romanian-deadlift', 'Smith-Machine Romanian Deadlift', 3, '8-12', 9, {
-      restSeconds: 90,
-      targetRir: { default: 2 },
-      equipment: 'Smith Machine',
-      notes: 'Controlled hinge; prioritize hamstrings, glutes, and spinal position.',
-      substitutions: ['dumbbell-romanian-deadlift']
-    }),
-    strength('p5d-mon-a-ham-curl', 'seated-hamstring-curl', 'Seated Hamstring Curl', 2, '10-15', 5, {
       targetRir: { default: 2, final: 1 },
       equipment: 'Machine',
-      substitutions: ['lying-leg-curl']
+      notes: 'Primary chest press after the track block; controlled reps and full shoulder comfort.'
     }),
-    strength('p5d-mon-a-hip-abduction', 'hip-abduction-machine', 'Hip Abduction Machine', 2, '12-15', 4, {
-      targetRir: { default: 2 },
+    strength('p5d-mon-a-incline-press', 'incline-chest-press-machine', 'Incline Chest-Press Machine', 3, '8-12', 8, {
+      restSeconds: 75,
+      targetRir: { default: 2, final: 1 },
       equipment: 'Machine',
-      notes: 'Controlled hip-stability work; do not bounce.'
+      notes: 'Upper-chest emphasis without rushing after the run laps.'
     }),
-    strength('p5d-mon-a-calf-raise', 'machine-calf-raise', 'Standing or Machine Calf Raise', 2, '12-15', 5, {
-      targetRir: { default: 2 },
-      equipment: 'Machine or Smith Machine',
-      substitutions: ['bodyweight-calf-raise']
+    strength('p5d-mon-a-cable-fly', 'standing-cable-chest-fly', 'Standing Cable Chest Fly', 2, '12-15', 7, {
+      restSeconds: 60,
+      targetRir: { default: '1-2', final: 1 },
+      equipment: 'Cable'
+    }),
+    strength('p5d-mon-a-cable-curl', 'cable-curl', 'Cable Curl', 3, '8-12', 6, {
+      restSeconds: 60,
+      targetRir: { default: '1-2', final: '0-1' },
+      equipment: 'Cable',
+      category: 'Biceps'
+    }),
+    strength('p5d-mon-a-hammer-curl', 'hammer-curl', 'Hammer Curl', 2, '10-15', 5, {
+      restSeconds: 45,
+      targetRir: { default: '1-2', final: '0-1' },
+      equipment: 'Dumbbells',
+      category: 'Biceps'
     }),
     strength('p5d-mon-a-pallof', 'pallof-press', 'Pallof Press', 2, '8-12/side', 6, {
       restSeconds: 45,
@@ -79,59 +106,49 @@
       category: 'Core',
       substitutions: ['band-pallof-press']
     }),
-    strength('p5d-mon-a-dead-bug', 'dead-bug', 'Dead Bug', 2, '8-10/side', 5, {
+    strength('p5d-mon-a-dead-bug', 'dead-bug', 'Dead Bug', 2, '8-10/side', 3, {
       restSeconds: 45,
       targetRir: { rule: 'Stop when the lower back or rib position cannot be controlled.' },
       category: 'Core',
       substitutions: ['bird-dog']
     }),
-    strength('p5d-mon-a-front-plank', 'front-plank', 'Front Plank', 2, 'Controlled holds', 4, {
+    strength('p5d-mon-a-front-plank', 'front-plank', 'Front Plank', 2, 'Controlled holds', 1, {
       restSeconds: 45,
       targetRir: { rule: 'End the hold when position deteriorates.' },
       category: 'Core',
       substitutions: ['incline-plank']
-    }),
-    activity('p5d-mon-a-transition-buffer', 'transition', 'Equipment transitions and set logging', 2, { legacyVisible: false })
+    })
   ];
 
   const MONDAY_B = [
-    strength('p5d-mon-b-hip-thrust', 'hip-thrust', 'Hip Thrust or Glute Bridge', 3, '8-12', 8, {
-      restSeconds: 75,
-      targetRir: { default: 2 },
-      equipment: 'Smith Machine, Bench, or Floor',
-      substitutions: ['glute-bridge']
+    strength('p5d-mon-b-smith-bench', 'smith-machine-bench-press', 'Smith-Machine Bench Press', 3, '6-10', 9, {
+      restSeconds: 90,
+      targetRir: { default: '2-3', final: 1 },
+      equipment: 'Smith Machine'
     }),
-    strength('p5d-mon-b-split-squat', 'supported-split-squat', 'Supported Split Squat or Controlled Step-Up', 2, '8-10/side', 8, {
+    strength('p5d-mon-b-incline-db-press', 'incline-dumbbell-press', 'Incline Dumbbell or Machine Press', 3, '8-12', 7, {
       restSeconds: 75,
-      targetRir: { default: 2 },
-      equipment: 'Smith Machine, Rail, or Low Step',
-      notes: 'Use only a comfortable, knee-tolerated range.',
-      substitutions: ['controlled-step-up', 'sit-to-stand']
-    }),
-    strength('p5d-mon-b-staggered-rdl', 'staggered-stance-rdl', 'Staggered-Stance Romanian Deadlift', 2, '8-10/side', 8, {
-      restSeconds: 75,
-      targetRir: { default: 2 },
-      equipment: 'Dumbbells or Smith Machine',
-      substitutions: ['single-leg-rdl-supported']
-    }),
-    strength('p5d-mon-b-ham-curl', 'seated-hamstring-curl', 'Seated Hamstring Curl', 2, '10-15', 5, {
       targetRir: { default: 2, final: 1 },
-      equipment: 'Machine',
-      substitutions: ['lying-leg-curl']
+      equipment: 'Dumbbells or Machine'
     }),
-    strength('p5d-mon-b-calf-raise', 'machine-calf-raise', 'Calf Raise', 2, '12-15', 5, {
-      targetRir: { default: 2 },
-      equipment: 'Machine or Smith Machine',
-      substitutions: ['bodyweight-calf-raise']
+    strength('p5d-mon-b-pec-deck', 'pec-deck', 'Pec Deck', 2, '12-15', 5, {
+      restSeconds: 60,
+      targetRir: { default: '1-2', final: 1 },
+      equipment: 'Machine'
     }),
-    strength('p5d-mon-b-farmer-carry', 'farmer-carry', 'Farmer Carry', 3, 'Timed carries', 5, {
+    strength('p5d-mon-b-ez-curl', 'ez-bar-or-cable-bicep-curl', 'EZ-Bar or Cable Bicep Curl', 3, '8-12', 6, {
+      restSeconds: 60,
+      targetRir: { default: '1-2', final: '0-1' },
+      equipment: 'EZ Bar or Cable',
+      category: 'Biceps'
+    }),
+    strength('p5d-mon-b-incline-curl', 'incline-dumbbell-curl', 'Incline Dumbbell Curl', 2, '10-15', 5, {
       restSeconds: 45,
-      targetRir: { rule: 'Stop when posture or grip control deteriorates.' },
       equipment: 'Dumbbells',
-      category: 'Core',
-      substitutions: ['suitcase-carry']
+      category: 'Biceps',
+      targetRir: { default: 1, final: '0-1' }
     }),
-    strength('p5d-mon-b-wood-chop', 'cable-wood-chop', 'Cable Wood Chop', 2, '8-12/side', 5, {
+    strength('p5d-mon-b-wood-chop', 'cable-wood-chop', 'Cable Wood Chop', 2, '8-12/side', 4, {
       restSeconds: 45,
       targetRir: { rule: 'Use controlled trunk rotation without forcing range.' },
       equipment: 'Cable',
@@ -143,6 +160,19 @@
       targetRir: { rule: 'End the hold when hip or trunk position deteriorates.' },
       category: 'Core',
       substitutions: ['modified-side-plank']
+    }),
+    strength('p5d-mon-b-dead-bug', 'dead-bug', 'Dead Bug', 2, '8-10/side', 3, {
+      restSeconds: 45,
+      targetRir: { rule: 'Stop when the lower back or rib position cannot be controlled.' },
+      category: 'Core',
+      substitutions: ['bird-dog']
+    }),
+    strength('p5d-mon-b-pallof', 'pallof-press', 'Pallof Press', 1, '8-12/side', 2, {
+      restSeconds: 45,
+      targetRir: { rule: 'Stop when trunk position or control deteriorates.' },
+      equipment: 'Cable',
+      category: 'Core',
+      substitutions: ['band-pallof-press']
     })
   ];
 
@@ -245,17 +275,17 @@
   ];
 
   const THURSDAY_A = [
-    strength('p5d-thu-a-lat-pulldown', 'lat-pulldown', 'Lat Pulldown', 3, '8-12', 9, {
+    strength('p5d-thu-a-lat-pulldown', 'lat-pulldown', 'Lat Pulldown', 3, '8-12', 8, {
       restSeconds: 75,
       targetRir: { default: 2, final: 1 },
       equipment: 'Machine'
     }),
-    strength('p5d-thu-a-seated-row', 'seated-cable-row', 'Seated Cable Row', 3, '8-12', 9, {
+    strength('p5d-thu-a-seated-row', 'seated-cable-row', 'Seated Cable Row', 3, '8-12', 8, {
       restSeconds: 75,
       targetRir: { default: 2, final: 1 },
       equipment: 'Cable'
     }),
-    strength('p5d-thu-a-reverse-pec', 'reverse-pec-deck', 'Reverse Pec Deck', 3, '12-15', 7, {
+    strength('p5d-thu-a-reverse-pec', 'reverse-pec-deck', 'Reverse Pec Deck', 2, '12-15', 6, {
       restSeconds: 60,
       targetRir: { default: '1-2', final: 1 },
       equipment: 'Machine'
@@ -265,47 +295,44 @@
       targetRir: { default: 2 },
       equipment: 'Cable'
     }),
-    strength('p5d-thu-a-pushdown', 'rope-triceps-pushdown', 'Rope Triceps Pushdown', 3, '10-15', 7, {
+    strength('p5d-thu-a-shoulder-press', 'machine-shoulder-press', 'Machine Shoulder Press', 3, '8-12', 7, {
+      restSeconds: 75,
+      targetRir: { default: 2, final: 1 },
+      equipment: 'Machine',
+      category: 'Shoulders'
+    }),
+    strength('p5d-thu-a-lateral-raise', 'cable-lateral-raise', 'Cable Lateral Raise', 2, '12-15', 4, {
+      restSeconds: 45,
+      targetRir: { default: '1-2', final: '0-1' },
+      equipment: 'Cable',
+      category: 'Shoulders'
+    }),
+    strength('p5d-thu-a-pushdown', 'rope-triceps-pushdown', 'Rope Triceps Pushdown', 3, '10-15', 5, {
       restSeconds: 60,
       targetRir: { default: '1-2', final: '0-1' },
       equipment: 'Cable',
       category: 'Triceps'
     }),
-    strength('p5d-thu-a-spider-curl', 'spider-curl', 'Spider Curl or Chest-Supported Curl', 3, '8-12', 7, {
-      restSeconds: 60,
-      targetRir: { default: '1-2', final: '0-1' },
-      equipment: 'Dumbbells and Bench',
-      category: 'Biceps'
-    }),
-    strength('p5d-thu-a-cable-curl', 'cable-curl', 'Cable Curl', 2, '10-15', 5, {
+    strength('p5d-thu-a-overhead-triceps', 'overhead-cable-triceps-extension', 'Overhead Cable Triceps Extension', 2, '10-15', 2, {
       restSeconds: 45,
       targetRir: { default: 1, final: '0-1' },
       equipment: 'Cable',
-      category: 'Biceps'
-    }),
-    activity('p5d-thu-a-transition-buffer', 'transition', 'Equipment transitions and set logging', 11, { legacyVisible: false }),
-    strength('p5d-thu-a-hammer-finisher', 'hammer-curl', 'Optional Hammer Curl Finisher', 2, '10-15', 0, {
-      required: false,
-      restSeconds: 45,
-      targetRir: { final: '0-1' },
-      equipment: 'Dumbbells',
-      category: 'Biceps',
-      notes: 'Only when time remains; never required for mission completion.'
+      category: 'Triceps'
     })
   ];
 
   const THURSDAY_B = [
-    strength('p5d-thu-b-assisted-pullup', 'assisted-pull-up', 'Assisted Pull-Up or Alternate Pulldown', 3, '6-10', 9, {
+    strength('p5d-thu-b-assisted-pullup', 'assisted-pull-up', 'Assisted Pull-Up or Alternate Pulldown', 3, '6-10', 8, {
       restSeconds: 75,
       targetRir: { default: 2, final: 1 },
       equipment: 'Assisted Pull-Up or Pulldown Machine'
     }),
-    strength('p5d-thu-b-chest-row', 'chest-supported-row', 'Chest-Supported Row', 3, '8-12', 9, {
+    strength('p5d-thu-b-chest-row', 'chest-supported-row', 'Chest-Supported Row', 3, '8-12', 8, {
       restSeconds: 75,
       targetRir: { default: 2, final: 1 },
       equipment: 'Machine or Bench and Dumbbells'
     }),
-    strength('p5d-thu-b-single-row', 'single-arm-cable-row', 'Single-Arm Cable or Machine Row', 2, '8-12/side', 9, {
+    strength('p5d-thu-b-single-row', 'single-arm-cable-row', 'Single-Arm Cable or Machine Row', 2, '8-12/side', 6, {
       restSeconds: 60,
       targetRir: { default: 2, final: 1 },
       equipment: 'Cable or Machine'
@@ -315,32 +342,29 @@
       targetRir: { default: '1-2', final: 1 },
       equipment: 'Machine or Cable'
     }),
-    strength('p5d-thu-b-overhead-triceps', 'overhead-cable-triceps-extension', 'Overhead Cable Triceps Extension', 3, '10-15', 7, {
+    strength('p5d-thu-b-arnold-press', 'landmine-press-or-db-arnold-press', 'Landmine Press or DB Arnold Press', 3, '8-12', 7, {
+      restSeconds: 75,
+      targetRir: { default: 2, final: 1 },
+      equipment: 'Landmine or Dumbbells',
+      category: 'Shoulders'
+    }),
+    strength('p5d-thu-b-face-pull', 'face-pulls-rope-attachment', 'Face Pulls', 2, '12-15', 4, {
+      restSeconds: 45,
+      targetRir: { default: 2 },
+      equipment: 'Cable',
+      category: 'Shoulders'
+    }),
+    strength('p5d-thu-b-overhead-triceps', 'overhead-cable-triceps-extension', 'Overhead Cable Triceps Extension', 3, '10-15', 5, {
       restSeconds: 60,
       targetRir: { default: '1-2', final: '0-1' },
       equipment: 'Cable',
       category: 'Triceps'
     }),
-    strength('p5d-thu-b-preacher-curl', 'preacher-curl', 'Preacher Curl', 3, '8-12', 7, {
-      restSeconds: 60,
-      targetRir: { default: '1-2', final: '0-1' },
-      equipment: 'Machine, Cable, or EZ Bar',
-      category: 'Biceps'
-    }),
-    strength('p5d-thu-b-hammer-curl', 'hammer-curl', 'Hammer Curl', 3, '10-15', 7, {
-      restSeconds: 60,
-      targetRir: { default: '1-2', final: '0-1' },
-      equipment: 'Dumbbells or Rope Cable',
-      category: 'Biceps'
-    }),
-    activity('p5d-thu-b-transition-buffer', 'transition', 'Equipment transitions and set logging', 7, { legacyVisible: false }),
-    strength('p5d-thu-b-cable-finisher', 'high-rep-cable-curl', 'Optional High-Repetition Cable Curl', 1, '15-20', 0, {
-      required: false,
+    strength('p5d-thu-b-rope-pushdown', 'rope-triceps-pushdown', 'Rope Triceps Pushdown', 2, '10-15', 2, {
       restSeconds: 45,
-      targetRir: { final: '0-1' },
+      targetRir: { default: 1, final: '0-1' },
       equipment: 'Cable',
-      category: 'Biceps',
-      notes: 'One controlled set only when time remains; never required for mission completion.'
+      category: 'Triceps'
     })
   ];
 
@@ -348,47 +372,32 @@
     Monday: {
       id: 'p5d-mission-monday-foundation',
       weekday: 'Monday',
-      name: 'Build the Foundation',
-      description: 'Build knee-tolerant lower-body strength, core control, hip stability, and grip.',
-      location: 'Planet Fitness',
-      locationType: 'gym',
+      name: 'Track + Push Foundation',
+      description: 'Start with controlled track laps, then build chest, biceps, and core strength.',
+      location: 'Outdoor track and Planet Fitness',
+      locationType: 'track-and-gym',
       startTime: '04:30',
       endTime: '06:00',
       required: true,
-      focus: ['Lower-body strength', 'Core strength', 'Hip stability', 'Knee support', 'Temporary unloading and decompression sensation'],
-      pillars: ['strength', 'core', 'mobility'],
-      goalIds: ['goal-knee-health', 'goal-core-stability', 'goal-mobility'],
-      progressTarget: 'Complete controlled lower-body work at the prescribed RIR and record knee comfort, hang duration, and core performance.',
-      safetyNote: 'Use a comfortable range and stop if joint pain occurs. Hanging should stop for sharp shoulder pain, numbness, tingling, dizziness, or worsening symptoms.',
+      focus: ['Track intervals', 'Chest', 'Biceps', 'Core', 'Controlled pacing'],
+      pillars: ['cardio', 'strength', 'core'],
+      goalIds: ['goal-running-endurance', 'goal-bicep-size', 'goal-core-stability'],
+      progressTarget: 'Record both timed run laps and complete chest, biceps, and core work with controlled effort.',
+      safetyNote: 'Keep track laps controlled. Stop for sharp knee pain, instability, swelling, dizziness, or concerning symptoms.',
       fasting: { id: 'p5d-fast-mon-12h', type: '12-hour overnight', required: true, start: 'Sunday 19:30', end: 'Monday 07:30', notes: 'Recommended target. Eat a protein-rich breakfast after training and adjust as needed.' },
       meditation: { required: false, minutes: 0 },
-      journalPrompt: 'What physical foundation did I strengthen today?',
+      journalPrompt: 'How did the track work affect my pressing and core session?',
       phases: [
-        phase('p5d-mon-orientation', 'Daily Orientation', '04:30', '04:35', [activity('p5d-mon-orientation-review', 'orientation', 'Review today’s mission, fasting target, goals, and safety reminder', 5, { legacyVisible: false })]),
-        phase('p5d-mon-warmup', 'Warm-Up and Mobility', '04:35', '04:45', [
-          activity('p5d-mon-easy-cardio', 'warmup', 'Easy Treadmill or Stationary Bike', 4, { exerciseId: 'easy-treadmill-or-bike', equipment: 'Treadmill or Bike' }),
-          activity('p5d-mon-hip-circles', 'warmup', 'Hip Circles', 1, { exerciseId: 'hip-circles' }),
-          activity('p5d-mon-leg-swings', 'warmup', 'Leg Swings', 1, { exerciseId: 'leg-swings' }),
-          activity('p5d-mon-sit-stand', 'warmup', 'Controlled Sit-to-Stand or Squat-to-Bench', 1, { exerciseId: 'sit-to-stand' }),
-          activity('p5d-mon-dynamic-hamstring', 'warmup', 'Dynamic Hamstring Movement', 1, { exerciseId: 'dynamic-hamstring-movement' }),
-          activity('p5d-mon-calf-ankle-prep', 'warmup', 'Calf and Ankle Preparation', 1, { exerciseId: 'calf-ankle-preparation' }),
-          activity('p5d-mon-shoulder-prep', 'warmup', 'Shoulder Preparation for Hanging', 1, { exerciseId: 'shoulder-preparation-for-hanging' })
+        phase('p5d-mon-track', 'Track Session', '04:30', '05:00', trackLapSequence('p5d-mon-track')),
+        phase('p5d-mon-strength-core', 'Chest, Biceps, and Core', '05:00', '05:45', [], { variations: { A: MONDAY_A, B: MONDAY_B } }),
+        phase('p5d-mon-cooldown', 'Cooldown Mobility', '05:45', '05:55', [
+          activity('p5d-mon-chest-stretch', 'mobility', 'Chest Stretch', 2, { exerciseId: 'chest-stretch' }),
+          activity('p5d-mon-biceps-stretch', 'mobility', 'Biceps Stretch', 2, { exerciseId: 'biceps-stretch' }),
+          activity('p5d-mon-shoulder-mobility', 'mobility', 'Shoulder Mobility', 2, { exerciseId: 'shoulder-mobility' }),
+          activity('p5d-mon-hip-flexor-reset', 'mobility', 'Hip-Flexor Reset', 2, { exerciseId: 'hip-flexor-stretch' }),
+          activity('p5d-mon-breathing', 'cooldown', 'Light Breathing', 2, { exerciseId: 'light-breathing' })
         ]),
-        phase('p5d-mon-hang', 'Hanging and Decompression', '04:45', '04:52', [activity('p5d-mon-hang-sets', 'hang', 'Passive or Supported Hang', 7, {
-          exerciseId: 'passive-or-supported-hang', sets: '2-3', duration: '20-30 sec', restSeconds: '30-45', progression: 'Progress toward 45 seconds per set.',
-          variants: ['full-passive', 'feet-supported', 'neutral-grip'], metrics: ['duration-seconds', 'grip', 'support-type', 'comfort-rating'],
-          notes: 'Supports grip, shoulder mobility, thoracic opening, and a temporary unloading sensation. It does not permanently lengthen or repair the spine.'
-        })]),
-        phase('p5d-mon-strength-core', 'Lower Body and Core', '04:52', '05:40', [], { variations: { A: MONDAY_A, B: MONDAY_B } }),
-        phase('p5d-mon-mobility', 'Lower-Body Mobility', '05:40', '05:55', [
-          activity('p5d-mon-hip-flexor-stretch', 'mobility', 'Hip-Flexor Stretch', 3, { exerciseId: 'hip-flexor-stretch' }),
-          activity('p5d-mon-hamstring-stretch', 'mobility', 'Hamstring Stretch', 3, { exerciseId: 'hamstring-stretch' }),
-          activity('p5d-mon-figure-four', 'mobility', 'Figure-Four Glute Stretch', 3, { exerciseId: 'figure-four-glute-stretch' }),
-          activity('p5d-mon-calf-stretch', 'mobility', 'Calf Stretch', 2, { exerciseId: 'calf-stretch' }),
-          activity('p5d-mon-ankle-mobility', 'mobility', 'Ankle Mobility', 2, { exerciseId: 'ankle-mobility' }),
-          activity('p5d-mon-quad-stretch', 'mobility', 'Gentle Quad Stretch', 2, { exerciseId: 'gentle-quad-stretch', notes: 'Avoid forcing a painful range.' })
-        ]),
-        phase('p5d-mon-checkin', 'Completion Check', '05:55', '06:00', [activity('p5d-mon-checkin-record', 'check-in', 'Record knee comfort, hip mobility, energy, hang time, core performance, and completion', 5, { metrics: ['knee-comfort', 'hip-mobility', 'energy', 'hang-duration', 'core-performance'], legacyVisible: false })])
+        phase('p5d-mon-checkin', 'Completion Check', '05:55', '06:00', [activity('p5d-mon-checkin-record', 'check-in', 'Record lap times, chest performance, bicep effort, core control, energy, and knee comfort', 5, { metrics: ['lap-times', 'chest-performance', 'bicep-effort', 'core-control', 'energy', 'knee-comfort'], legacyVisible: false })])
       ]
     },
     Tuesday: {
@@ -441,20 +450,23 @@
           activity('p5d-wed-hip-circles', 'warmup', 'Hip Circles', 1, { exerciseId: 'hip-circles' }),
           activity('p5d-wed-pace-build', 'warmup', 'Gradual Pace Increase', 2, { exerciseId: 'gradual-pace-increase' })
         ]),
-        phase('p5d-wed-track', 'Track Session', '04:50', '05:25', [
-          activity('p5d-wed-lap-1', 'run-lap', 'Lap 1 — Brisk Walk', 7, { lapNumber: 1, paceType: 'brisk-walk' }),
-          activity('p5d-wed-lap-2', 'run-lap', 'Lap 2 — Light Jog', 7, { lapNumber: 2, paceType: 'light-jog', timed: true }),
-          activity('p5d-wed-lap-3', 'run-lap', 'Lap 3 — Brisk Walk', 7, { lapNumber: 3, paceType: 'brisk-walk' }),
-          activity('p5d-wed-lap-4', 'run-lap', 'Lap 4 — Light Jog', 7, { lapNumber: 4, paceType: 'light-jog', timed: true }),
-          activity('p5d-wed-lap-5', 'run-lap', 'Lap 5 — Cooldown Walk', 7, { lapNumber: 5, paceType: 'cooldown-walk', metrics: ['lap-time', 'total-distance', 'effort', 'knee-comfort', 'breathing-difficulty', 'pace-consistency'] })
+        phase('p5d-wed-track', 'Track Session', '04:50', '05:15', [
+          ...trackLapSequence('p5d-wed-track'),
+          trackLap('p5d-wed-track-cooldown-walk', 'Optional Cooldown Walk', 5, 'cooldown-walk', {
+            required: false,
+            notes: 'Optional only. Use this as an easy cooldown when time and knee comfort allow; it is not one of the four required laps.'
+          })
         ]),
-        phase('p5d-wed-mobility', 'Post-Track Mobility', '05:25', '05:45', [
+        phase('p5d-wed-mobility', 'Post-Track Mobility, Knee Stability, and Core', '05:15', '05:45', [
           activity('p5d-wed-calf-stretch', 'mobility', 'Calves', 3, { exerciseId: 'calf-stretch' }),
           activity('p5d-wed-hamstring-stretch', 'mobility', 'Hamstrings', 4, { exerciseId: 'hamstring-stretch' }),
           activity('p5d-wed-hip-flexor', 'mobility', 'Hip Flexors', 4, { exerciseId: 'hip-flexor-stretch' }),
           activity('p5d-wed-quad-stretch', 'mobility', 'Quadriceps', 3, { exerciseId: 'gentle-quad-stretch' }),
           activity('p5d-wed-glute-stretch', 'mobility', 'Glutes', 3, { exerciseId: 'figure-four-glute-stretch' }),
-          activity('p5d-wed-ankle-mobility', 'mobility', 'Ankles', 3, { exerciseId: 'ankle-mobility' })
+          activity('p5d-wed-ankle-mobility', 'mobility', 'Ankles', 3, { exerciseId: 'ankle-mobility' }),
+          activity('p5d-wed-knee-stability', 'mobility', 'Knee Stability Control', 4, { exerciseId: 'controlled-sit-to-stand', notes: 'Slow, pain-free control only.' }),
+          activity('p5d-wed-dead-bug', 'strength', 'Dead Bug', 3, { exerciseId: 'dead-bug', sets: '2', reps: '8-10/side', category: 'Core' }),
+          activity('p5d-wed-side-plank', 'strength', 'Side Plank', 3, { exerciseId: 'side-plank', sets: '2', reps: 'Controlled holds/side', category: 'Core' })
         ]),
         phase('p5d-wed-journal', 'Short Journal', '05:45', '05:55', [activity('p5d-wed-journal-entry', 'journal', 'Attention Reflection', 10, { prompt: 'What distracted me today, and how effectively did I return my attention?', privateResponse: true })]),
         phase('p5d-wed-checkin', 'Completion Check', '05:55', '06:00', [activity('p5d-wed-checkin-record', 'check-in', 'Record meditation, lap times, effort, knee comfort, energy, and mood', 5, { metrics: ['meditation-completion', 'lap-times', 'effort', 'knee-comfort', 'energy', 'mood'], legacyVisible: false })])
@@ -462,31 +474,25 @@
     },
     Thursday: {
       id: 'p5d-mission-thursday-strength', weekday: 'Thursday', name: 'Build Strength',
-      description: 'Build back and arm strength while delivering the second weekly bicep stimulus.',
-      location: 'Planet Fitness', locationType: 'gym', startTime: '04:30', endTime: '06:00', required: true,
-      focus: ['Back', 'Rear shoulders', 'Triceps', 'Biceps', 'Second weekly bicep stimulus'],
-      pillars: ['strength'], goalIds: ['goal-bicep-size', 'goal-upper-strength'],
-      progressTarget: 'Improve one controlled back or bicep performance marker while matching the prescribed RIR.',
-      safetyNote: 'Keep pulling and arm work controlled. Technical failure is optional only on safe isolation work.',
+      description: 'Start with controlled track laps, then train back, shoulders, and triceps.',
+      location: 'Outdoor track and Planet Fitness', locationType: 'track-and-gym', startTime: '04:30', endTime: '06:00', required: true,
+      focus: ['Track intervals', 'Back', 'Shoulders', 'Triceps', 'Rear shoulders'],
+      pillars: ['cardio', 'strength'], goalIds: ['goal-running-endurance', 'goal-upper-strength'],
+      progressTarget: 'Record both timed run laps and improve one controlled back, shoulder, or triceps performance marker.',
+      safetyNote: 'Keep track laps controlled and keep pulling, shoulder, and triceps work strict. Stop if pain or concerning symptoms occur.',
       fasting: { id: 'p5d-fast-thu-12h', type: '12-hour overnight', required: true, start: 'Wednesday 19:30', end: 'Thursday 07:30', notes: 'Recommended target. Eat a protein-rich breakfast after training and adjust as needed.' },
       meditation: { required: false, minutes: 0 }, journalPrompt: 'Where did I improve compared with my previous workout?',
       phases: [
-        phase('p5d-thu-orientation', 'Daily Orientation', '04:30', '04:35', [activity('p5d-thu-orientation-review', 'orientation', 'Review upper-body targets, bicep goal, RIR, and variation', 5, { legacyVisible: false })]),
-        phase('p5d-thu-warmup', 'Upper-Body Warm-Up', '04:35', '04:45', [
-          activity('p5d-thu-easy-cardio', 'warmup', 'Easy Cardio', 3, { exerciseId: 'easy-cardio' }),
-          activity('p5d-thu-scapular', 'warmup', 'Scapular Mobility', 2, { exerciseId: 'scapular-mobility' }),
-          activity('p5d-thu-shoulder-prep', 'warmup', 'Shoulder Preparation', 2, { exerciseId: 'shoulder-preparation' }),
-          activity('p5d-thu-pull-warmup', 'warmup', 'Light Pulldown or Row Warm-Up Sets', 3, { exerciseId: 'pull-warmup-sets' })
-        ]),
-        phase('p5d-thu-strength', 'Strength Training', '04:45', '05:45', [], { variations: { A: THURSDAY_A, B: THURSDAY_B } }),
+        phase('p5d-thu-track', 'Track Session', '04:30', '05:00', trackLapSequence('p5d-thu-track')),
+        phase('p5d-thu-strength', 'Back, Shoulders, and Triceps', '05:00', '05:45', [], { variations: { A: THURSDAY_A, B: THURSDAY_B } }),
         phase('p5d-thu-cooldown', 'Cooldown', '05:45', '05:55', [
           activity('p5d-thu-lat-stretch', 'mobility', 'Lat Stretch', 2, { exerciseId: 'lat-stretch' }),
-          activity('p5d-thu-biceps-stretch', 'mobility', 'Biceps Stretch', 2, { exerciseId: 'biceps-stretch' }),
+          activity('p5d-thu-chest-opener', 'mobility', 'Chest and Shoulder Opener', 2, { exerciseId: 'chest-and-shoulder-static-stretch' }),
           activity('p5d-thu-triceps-stretch', 'mobility', 'Triceps Stretch', 2, { exerciseId: 'triceps-stretch' }),
           activity('p5d-thu-thoracic', 'mobility', 'Thoracic Rotation', 2, { exerciseId: 'thoracic-rotation' }),
           activity('p5d-thu-shoulder-mobility', 'mobility', 'Shoulder Mobility', 2, { exerciseId: 'shoulder-mobility' })
         ]),
-        phase('p5d-thu-checkin', 'Completion Check', '05:55', '06:00', [activity('p5d-thu-checkin-record', 'check-in', 'Record strength progress, bicep volume, RIR accuracy, energy, and recovery', 5, { metrics: ['strength-progress', 'bicep-volume', 'rir-accuracy', 'energy', 'recovery-status'], legacyVisible: false })])
+        phase('p5d-thu-checkin', 'Completion Check', '05:55', '06:00', [activity('p5d-thu-checkin-record', 'check-in', 'Record lap times, strength progress, RIR accuracy, energy, and recovery', 5, { metrics: ['lap-times', 'strength-progress', 'rir-accuracy', 'energy', 'recovery-status'], legacyVisible: false })])
       ]
     },
     Friday: {
@@ -545,7 +551,7 @@
     rotation: { type: 'week-parity', odd: 'A', even: 'B' },
     reviewIntervalWeeks: REVIEW_INTERVAL_WEEKS,
     requiredWeekdays: REQUIRED_WEEKDAYS,
-    activityTypes: ['orientation', 'strength', 'warmup', 'mobility', 'cooldown', 'hang', 'meditation', 'walk', 'run-lap', 'journal', 'reflection', 'check-in', 'transition'],
+    activityTypes: ['orientation', 'strength', 'warmup', 'mobility', 'cooldown', 'hang', 'meditation', 'walk', 'run-lap', 'outdoor-track-lap', 'journal', 'reflection', 'check-in', 'transition'],
     goals: [
       { id: 'goal-bicep-size', name: 'Increase bicep size' },
       { id: 'goal-core-stability', name: 'Improve core strength and stability' },
@@ -621,8 +627,10 @@
           const phaseEnd = timeToMinutes(item.endTime);
           if (phaseStart !== cursor) errors.push(`${weekday} ${variation} has a phase gap or overlap before ${item.id}.`);
           cursor = phaseEnd;
+          const distanceBased = (item.activities || []).some(entry => entry.type === 'outdoor-track-lap' && entry.lengthLabel);
           const requiredBudget = (item.activities || []).filter(entry => entry.required !== false).reduce((sum, entry) => sum + (Number(entry.durationMinutes) || 0), 0);
-          if (requiredBudget !== phaseMinutes(item)) errors.push(`${weekday} ${variation} phase ${item.id} budgets ${requiredBudget} minutes but has ${phaseMinutes(item)} minutes.`);
+          if (!distanceBased && requiredBudget !== phaseMinutes(item)) errors.push(`${weekday} ${variation} phase ${item.id} budgets ${requiredBudget} minutes but has ${phaseMinutes(item)} minutes.`);
+          if (distanceBased && requiredBudget > phaseMinutes(item)) errors.push(`${weekday} ${variation} phase ${item.id} exceeds its estimated session window.`);
           (item.activities || []).forEach(entry => addId(`${entry.id}-${variation}`, `${weekday} ${variation} activity`));
         });
         if (cursor !== end) errors.push(`${weekday} ${variation} does not end at 06:00.`);
@@ -646,6 +654,7 @@
 
   function legacyPhaseFor(entry) {
     if (entry.required === false) return 'Bonus (Optional)';
+    if (entry.type === 'outdoor-track-lap') return 'Track';
     if (['warmup', 'mobility', 'cooldown'].includes(entry.type)) return 'Pre-Workout Stretch';
     return 'Main Workout';
   }
@@ -654,13 +663,13 @@
     const mission = getMission(weekday, programWeek);
     if (!mission) return [];
     const rows = [];
-    const compatibleTypes = new Set(['strength', 'warmup', 'mobility', 'cooldown', 'hang', 'meditation', 'walk', 'run-lap']);
+    const compatibleTypes = new Set(['strength', 'warmup', 'mobility', 'cooldown', 'hang', 'meditation', 'walk', 'run-lap', 'outdoor-track-lap']);
     mission.phases.forEach(item => {
       item.activities.forEach(entry => {
         if (entry.legacyVisible === false || !compatibleTypes.has(entry.type)) return;
         const exerciseId = entry.exerciseId || entry.id;
         const sets = entry.sets || '1';
-        const reps = entry.reps || entry.duration || `${entry.durationMinutes} min`;
+        const reps = entry.lengthLabel || entry.reps || entry.duration || (entry.durationMinutes ? `${entry.durationMinutes} min` : '');
         const alternatives = (entry.substitutions || []).join(' or ');
         const notes = `${entry.notes || ''}${alternatives ? `${entry.notes ? ' ' : ''}SUB: ${alternatives}` : ''}`.trim();
         rows.push({
@@ -680,7 +689,14 @@
           category: entry.category || (entry.type === 'mobility' ? 'Stretches' : ['warmup', 'walk', 'run-lap'].includes(entry.type) ? 'Cardio' : entry.type === 'meditation' ? 'Yoga' : 'Strength'),
           targetRir: entry.targetRir || null,
           required: entry.required !== false,
-          budgetMinutes: entry.durationMinutes
+          optional: entry.required === false,
+          budgetMinutes: entry.durationMinutes,
+          lengthLabel: entry.lengthLabel || '',
+          lapNumber: entry.lapNumber || null,
+          paceType: entry.paceType || '',
+          timed: entry.timed === true,
+          timingRequired: entry.timingRequired === true,
+          outdoorTrack: entry.type === 'outdoor-track-lap'
         });
       });
     });

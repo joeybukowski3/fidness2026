@@ -57,8 +57,9 @@
 
   function formatActivityTarget(activity = {}) {
     const parts = [];
-    if (activity.sets) parts.push(`${activity.sets} sets`);
-    if (activity.reps) parts.push(activity.reps);
+    if (activity.lengthLabel) parts.push(activity.lengthLabel);
+    if (!activity.lengthLabel && activity.sets) parts.push(`${activity.sets} sets`);
+    if (activity.reps && activity.reps !== activity.lengthLabel) parts.push(activity.reps);
     if (activity.duration) parts.push(activity.duration);
     if (!activity.sets && !activity.reps && !activity.duration && activity.durationMinutes) parts.push(`${activity.durationMinutes} min`);
     if (activity.restSeconds) parts.push(`${activity.restSeconds} sec rest`);
@@ -87,6 +88,10 @@
       metrics: Array.isArray(activity.metrics) ? activity.metrics.map(humanizeIdentifier) : [],
       prompts: Array.isArray(activity.prompts) ? activity.prompts : [],
       paceType: activity.paceType || '',
+      lengthLabel: activity.lengthLabel || '',
+      lapNumber: activity.lapNumber || null,
+      timed: activity.timed === true,
+      isTrackLap: activity.type === 'outdoor-track-lap',
       durationMinutes: Number(activity.durationMinutes) || 0,
       privateResponse: activity.privateResponse === true,
       deferredNote: activity.id === 'p5d-fri-summary-review'
@@ -197,7 +202,7 @@
     return `<span class="mission-badge ${className}">${escapeHtml(label)}</span>`;
   }
 
-  function renderActivity(activity) {
+  function renderActivity(activity, options = {}) {
     const classes = activity.optional ? ' mission-activity-optional' : '';
     const requirement = activity.optional ? badge('Optional finisher', 'optional') : badge('Required', 'required');
     const substitutions = activity.substitutions.length
@@ -215,27 +220,31 @@
     const deferredNote = activity.deferredNote
       ? `<div class="mission-private-note">${escapeHtml(activity.deferredNote)}</div>`
       : '';
-    return `<div class="mission-activity${classes}">
+    const lapControls = options.interactiveLapControls && activity.isTrackLap
+      ? `<div class="mission-track-lap-control" data-track-lap-control="${escapeHtml(activity.id)}"></div>`
+      : '';
+    return `<div class="mission-activity${classes}" data-activity-id="${escapeHtml(activity.id)}">
       <div class="mission-activity-heading"><div><span class="mission-activity-type">${escapeHtml(activity.typeLabel)}</span><h4>${escapeHtml(activity.title)}</h4></div>${requirement}</div>
       ${activity.target ? `<div class="mission-target">${escapeHtml(activity.target)}</div>` : ''}
       ${activity.rir ? `<div class="mission-rir"><strong>RIR guidance:</strong> ${escapeHtml(activity.rir)}</div>` : ''}
       ${activity.notes ? `<div class="mission-activity-note">${escapeHtml(activity.notes)}</div>` : ''}
-      ${substitutions}${metrics}${prompts}${privateNote}${deferredNote}
+      ${substitutions}${metrics}${prompts}${privateNote}${deferredNote}${lapControls}
     </div>`;
   }
 
-  function renderPhase(phase) {
+  function renderPhase(phase, options = {}) {
     const counts = [
       phase.requiredCount ? `${phase.requiredCount} required` : '',
       phase.optionalCount ? `${phase.optionalCount} optional` : ''
     ].filter(Boolean).join(' • ');
-    return `<details class="mission-phase" id="mission-phase-${escapeHtml(phase.id)}" data-required-phase="${phase.requiredCount > 0}" ${phase.initiallyOpen ? 'open' : ''}>
+    const idPrefix = options.phaseIdPrefix ? `${escapeHtml(options.phaseIdPrefix)}-` : '';
+    return `<details class="mission-phase" id="mission-phase-${idPrefix}${escapeHtml(phase.id)}" data-required-phase="${phase.requiredCount > 0}" ${phase.initiallyOpen ? 'open' : ''}>
       <summary>
         <span class="mission-phase-time">${escapeHtml(phase.startLabel)}–${escapeHtml(phase.endLabel)}</span>
         <span class="mission-phase-title">${escapeHtml(phase.title)}</span>
         <span class="mission-phase-meta">${phase.durationMinutes} min${counts ? ` • ${escapeHtml(counts)}` : ''}</span>
       </summary>
-      <div class="mission-phase-body">${phase.activities.map(renderActivity).join('')}</div>
+      <div class="mission-phase-body">${phase.activities.map(activity => renderActivity(activity, options)).join('')}</div>
     </details>`;
   }
 
@@ -282,7 +291,7 @@
 
       <div class="mission-timeline" id="todayMissionTimeline">
         <div class="mission-section-heading"><div><span>Morning plan</span><h2>Complete timeline</h2></div><strong>${escapeHtml(model.timeWindow)}</strong></div>
-        ${model.phases.length ? model.phases.map(renderPhase).join('') : '<div class="mission-empty">This optional day is flexible. Choose recovery movement or full rest without penalty.</div>'}
+        ${model.phases.length ? model.phases.map(phase => renderPhase(phase, { interactiveLapControls: true })).join('') : '<div class="mission-empty">This optional day is flexible. Choose recovery movement or full rest without penalty.</div>'}
       </div>
 
       <details class="mission-guidance" id="todayMissionGuidance" open>
@@ -346,7 +355,7 @@
       <p class="schedule-preview-purpose">${escapeHtml(model.description)}</p>
       <div class="schedule-preview-facts"><span><strong>Time:</strong> ${escapeHtml(model.timeWindow)}</span><span><strong>Location:</strong> ${escapeHtml(model.location)}</span><span><strong>Fast:</strong> ${escapeHtml(model.fasting)}</span><span><strong>Meditation:</strong> ${escapeHtml(model.meditation)}</span></div>
       ${trackNote}
-      <div class="mission-timeline">${model.phases.length ? model.phases.map(renderPhase).join('') : '<div class="mission-empty">Optional flexible recovery or full rest.</div>'}</div>
+      <div class="mission-timeline">${model.phases.length ? model.phases.map(phase => renderPhase(phase, { phaseIdPrefix: 'schedule-preview' })).join('') : '<div class="mission-empty">Optional flexible recovery or full rest.</div>'}</div>
       <button class="schedule-back schedule-back-bottom" onclick="returnToWeeklySchedule('${escapeHtml(model.weekday)}')">← Back to Weekly Schedule</button>
     </section>`;
   }

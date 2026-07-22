@@ -12,7 +12,7 @@
 <title>Pro Trainer Elite</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/mission-dashboard.css?v=2">
+<link rel="stylesheet" href="css/mission-dashboard.css?v=3">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 if ('serviceWorker' in navigator) {
@@ -658,10 +658,10 @@ body{padding-bottom:104px}
 </div>
 
 <script src="js/state-schema.js?v=2"></script>
-<script src="js/performance-program.js?v=1"></script>
+<script src="js/performance-program.js?v=2"></script>
 <script src="js/program-data.js?v=9"></script>
 <script src="js/mission-records.js?v=2"></script>
-<script src="js/mission-dashboard.js?v=2"></script>
+<script src="js/mission-dashboard.js?v=3"></script>
 <script>
 const APP_VERSION = 'v2026.07.17-mission-dashboard-mobile';
 // ============ WORKOUT DATA ============
@@ -1542,6 +1542,7 @@ function getExerciseCategory(exercise) {
   const name = (exercise.exercise || '').toLowerCase();
   const notes = (exercise.notes || '').toLowerCase();
 
+  if (exercise.outdoorTrack || exercise.activityType === 'outdoor-track-lap') return 'Cardio';
   if (phase.includes('stretch') || name.includes('stretch')) return 'Stretches';
   if (name.includes('yoga') || name.includes('pose') || notes.includes('yoga')) return 'Yoga';
   if (name.includes('walk') || name.includes('bike') || name.includes('elliptical') || notes.includes('cardio')) return 'Cardio';
@@ -1727,8 +1728,26 @@ function renderTodayDashboard() {
     programWeek: context.programWeek
   });
   container.innerHTML = FidnessMissionDashboard.renderToday(model);
+  renderTodayTrackLapControls(context.mission);
   configureMissionGuidance();
   configureMissionStickyActions();
+}
+
+function renderTodayTrackLapControls(mission) {
+  const placeholders = document.querySelectorAll('[data-track-lap-control]');
+  if (!mission || placeholders.length === 0) return;
+  const workouts = getWorkoutsForDay(mission.weekday);
+  placeholders.forEach(placeholder => {
+    const activityId = placeholder.getAttribute('data-track-lap-control');
+    const idx = workouts.findIndex(row => row && row.activityId === activityId);
+    if (idx < 0) {
+      placeholder.innerHTML = '<div class="track-lap-note">Open Workout to log this lap.</div>';
+      return;
+    }
+    const ex = workouts[idx];
+    const s = getExState(mission.weekday, idx);
+    placeholder.innerHTML = renderTrackLapControlHtml(mission.weekday, idx, ex, s, 'today', true);
+  });
 }
 
 function updateTodayMission(action) {
@@ -2103,6 +2122,153 @@ function isCardioExercise(ex) {
   return (getExerciseCategory(ex) || '').toLowerCase() === 'cardio';
 }
 
+function escapeAttr(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
+}
+
+function isOutdoorTrackLap(ex) {
+  return !!ex && (ex.outdoorTrack === true || ex.activityType === 'outdoor-track-lap');
+}
+
+function parseStoredLapTime(value) {
+  if (value === '' || value === null || value === undefined) return null;
+  if (Number.isFinite(value) && value >= 0) return Math.floor(value);
+  const text = String(value).trim();
+  const match = /^(\d+):([0-5]\d)$/.exec(text);
+  if (match) return (parseInt(match[1], 10) * 60) + parseInt(match[2], 10);
+  return null;
+}
+
+function getLapTimeSeconds(stateRecord = {}) {
+  const direct = parseStoredLapTime(stateRecord.lapTimeSeconds);
+  if (direct !== null) return direct;
+  return parseStoredLapTime(stateRecord.time);
+}
+
+function formatLapTime(seconds) {
+  const total = parseStoredLapTime(seconds);
+  if (total === null) return '';
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+}
+
+function splitLapTime(seconds) {
+  const total = parseStoredLapTime(seconds);
+  return total === null ? { minutes: '', seconds: '' } : { minutes: String(Math.floor(total / 60)), seconds: String(total % 60).padStart(2, '0') };
+}
+
+function getLapTimeParts(source, day, idx) {
+  const fields = Array.from(document.querySelectorAll(`[data-lap-source="${source}"][data-lap-day="${day}"][data-lap-idx="${idx}"]`));
+  const minutes = fields.find(field => field.dataset.lapPart === 'minutes')?.value ?? '';
+  const seconds = fields.find(field => field.dataset.lapPart === 'seconds')?.value ?? '';
+  return { minutes, seconds };
+}
+
+function parseLapTimeInput(minutes, seconds) {
+  const rawMinutes = String(minutes ?? '').trim();
+  const rawSeconds = String(seconds ?? '').trim();
+  if (!rawMinutes && !rawSeconds) return { valid: true, value: null };
+  if (!/^\d+$/.test(rawMinutes || '0') || !/^\d+$/.test(rawSeconds || '0')) return { valid: false, error: 'Use whole positive numbers for lap time.' };
+  const parsedMinutes = parseInt(rawMinutes || '0', 10);
+  const parsedSeconds = parseInt(rawSeconds || '0', 10);
+  if (parsedMinutes < 0 || parsedSeconds < 0) return { valid: false, error: 'Lap time cannot be negative.' };
+  if (parsedSeconds > 59) return { valid: false, error: 'Seconds must be 0-59.' };
+  return { valid: true, value: (parsedMinutes * 60) + parsedSeconds };
+}
+
+function renderLapTimeFields(day, idx, ex, s, source) {
+  if (!ex.timed) return '<div class="track-lap-note">Check off when this walk lap is complete.</div>';
+  const stored = getLapTimeSeconds(s);
+  const parts = splitLapTime(stored);
+  const status = renderLapTimeStatus(s);
+  return `<div class="track-time-grid" data-track-time-grid="${source}" data-lap-day="${escapeAttr(day)}" data-lap-idx="${idx}">
+    <label class="log-field"><span>Min</span><input data-lap-source="${source}" data-lap-day="${day}" data-lap-idx="${idx}" data-lap-part="minutes" type="number" min="0" step="1" inputmode="numeric" value="${parts.minutes}" placeholder="3" onclick="event.stopPropagation();" onchange="setTrackLapTimeFromInputs('${source}','${day}',${idx}); event.stopPropagation();"></label>
+    <label class="log-field"><span>Sec</span><input data-lap-source="${source}" data-lap-day="${day}" data-lap-idx="${idx}" data-lap-part="seconds" type="number" min="0" max="59" step="1" inputmode="numeric" value="${parts.seconds}" placeholder="42" onclick="event.stopPropagation();" onchange="setTrackLapTimeFromInputs('${source}','${day}',${idx}); event.stopPropagation();"></label>
+    <div class="track-lap-status" data-lap-status>${status}</div>
+  </div>`;
+}
+
+function renderLapTimeStatus(s) {
+  const stored = getLapTimeSeconds(s);
+  const recorded = stored !== null ? `<div class="track-lap-note">Recorded: ${formatLapTime(stored)}</div>` : '';
+  const warning = s.done && stored === null ? '<div class="track-lap-warning">Completed with no lap time yet.</div>' : '';
+  const error = s.lapTimeError ? `<div class="track-lap-error">${escapeAttr(s.lapTimeError)}</div>` : '';
+  return `${recorded}${warning}${error}`;
+}
+
+function renderTrackLapControlHtml(day, idx, ex, s, source, includeCompletion = false) {
+  const checked = s.done ? ' checked' : '';
+  const pace = ex.timed ? 'Timed run' : 'Walk';
+  const completion = includeCompletion
+    ? `<button type="button" class="track-lap-check${checked}" onclick="toggleTrackLapCompletion('${day}',${idx},'${source}'); event.stopPropagation();">${s.done ? 'Done' : 'Mark Done'}</button>`
+    : '';
+  return `<div class="track-lap-logger" data-track-lap-logger="${source}" data-activity-id="${escapeAttr(ex.activityId || ex.id || '')}">
+    <div class="track-lap-meta"><strong>${escapeAttr(ex.lengthLabel || ex.reps || '1 lap')}</strong><span>${escapeAttr(pace)}</span></div>
+    ${completion}
+    ${renderLapTimeFields(day, idx, ex, s, source)}
+  </div>`;
+}
+
+function renderExerciseInputs(day, ex, s, nameToFind, previousWeight) {
+  if (isOutdoorTrackLap(ex)) return renderTrackLapControlHtml(day, ex._idx, ex, s, 'workout', false);
+  if (isCardioExercise(ex)) return `<div class="log-field"><span>Speed</span><input type="number" step="0.1" value="${s.speed || ''}" placeholder="mph" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'speed',this.value); event.stopPropagation();"></div><div class="log-field"><span>Incline</span><input type="number" step="0.5" value="${s.incline || ''}" placeholder="%" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'incline',this.value); event.stopPropagation();"></div><div class="log-field"><span>Dist</span><input type="number" step="0.1" value="${s.distance || ''}" placeholder="mi" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'distance',this.value); event.stopPropagation();"></div><div class="log-field"><span>Time</span><input type="text" value="${s.time || ''}" placeholder="min" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'time',this.value); event.stopPropagation();"></div>`;
+  if (isTrackableWorkoutExercise(ex)) return `${!isBodyweightOnly(nameToFind) ? '<div class="log-field"><span>Weight</span><select onchange="setWeight(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();" onclick="event.stopPropagation();">' + buildWeightOptionsHtml(parseFloat(s.weight) || previousWeight || 0) + '</select></div>' : ''}<div class="log-field"><span>${isTimeBased(nameToFind) ? 'Seconds' : 'Reps'}</span><select onchange="setReps('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();" onclick="event.stopPropagation();">${renderRepsOptions(s.reps || ex._defaultReps)}</select></div><div class="log-field"><span>Sets</span><select onchange="setSets('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();" onclick="event.stopPropagation();">${renderSetOptions(s.sets, ex.sets)}</select></div>`;
+  return '<div class="log-field"><span>Sets</span><select onclick="event.stopPropagation();" onchange="setSets(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();">' + renderSetOptions(s.sets, ex.sets) + '</select></div><div class="log-field"><span>Time</span><input type="text" value="' + (s.reps || '') + '" placeholder="' + ex.reps + '" onclick="event.stopPropagation();" onchange="setReps(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();"></div>';
+}
+
+function refreshAfterTrackLapChange(day) {
+  renderTabs();
+  updateWeekHeader();
+  if (uiActiveTab === 'today') renderTodayDashboard();
+  else if (uiActiveTab === 'workout') renderDay(day);
+}
+
+function updateTrackLapTimeStatus(source, day, idx, s) {
+  const selector = `[data-track-time-grid="${source}"][data-lap-day="${escapeAttr(day)}"][data-lap-idx="${idx}"]`;
+  document.querySelectorAll(selector).forEach(grid => {
+    const status = grid.querySelector('[data-lap-status]');
+    if (status) status.innerHTML = renderLapTimeStatus(s);
+  });
+}
+
+function setTrackLapTimeFromInputs(source, day, idx) {
+  const ex = getExerciseForDayIndex(day, idx);
+  if (!isOutdoorTrackLap(ex)) return;
+  const parts = getLapTimeParts(source, day, idx);
+  const result = parseLapTimeInput(parts.minutes, parts.seconds);
+  const s = getExState(day, idx);
+  if (!result.valid) {
+    s.lapTimeError = result.error;
+    s.lastUpdated = new Date().toISOString();
+    setExState(day, idx, s);
+    updateTrackLapTimeStatus(source, day, idx, s);
+    return;
+  }
+  delete s.lapTimeError;
+  if (result.value === null) {
+    delete s.lapTimeSeconds;
+    delete s.time;
+  } else {
+    s.lapTimeSeconds = result.value;
+    s.time = formatLapTime(result.value);
+  }
+  s.exercise = ex.exercise || s.exercise;
+  s.lastUpdated = new Date().toISOString();
+  setExState(day, idx, s);
+  updateTrackLapTimeStatus(source, day, idx, s);
+}
+
+function toggleTrackLapCompletion(day, idx, source = 'today') {
+  const ex = getExerciseForDayIndex(day, idx);
+  if (!isOutdoorTrackLap(ex)) return;
+  const s = getExState(day, idx);
+  s.done = !s.done;
+  s.collapsed = s.done ? true : false;
+  s.exercise = ex.exercise || s.exercise;
+  s.lastUpdated = new Date().toISOString();
+  setExState(day, idx, s);
+  refreshAfterTrackLapChange(day);
+}
+
 async function openExerciseDetail(day, idx, week = state.week, programId = getActiveProgramId()) {
   const ex = getExerciseForDayIndex(day, idx, programId, week);
   if (!ex) return;
@@ -2429,12 +2595,17 @@ function renderDay(day) {
         const collapsedClass = s.collapsed ? ' collapsed' : '';
         
         const nameToFind = s.swapped ? getAlternative(ex.notes) : ex.exercise;
-        const last = getLatestHistoryEntry(nameToFind);
-        const lastText = formatLastResult(last, s.sets || ex.sets);
+        const isTrackLap = isOutdoorTrackLap(ex);
+        const lapSeconds = isTrackLap ? getLapTimeSeconds(s) : null;
+        const last = isTrackLap ? null : getLatestHistoryEntry(nameToFind);
+        const lastText = isTrackLap
+          ? (lapSeconds !== null ? `Recorded: ${formatLapTime(lapSeconds)}` : (ex.timed ? 'Recorded: No lap time yet' : 'Completion checkbox only'))
+          : formatLastResult(last, s.sets || ex.sets);
         const previousWeight = getPreviousExerciseWeight(nameToFind);
         const targetWeight = s.weight || (previousWeight !== null ? formatWeightOption(previousWeight) : '--');
         const targetSets = s.sets || ex.sets;
-        const targetText = `${targetWeight} lbs x ${s.reps || ex._defaultReps} x ${targetSets}`;
+        const targetText = isTrackLap ? `${ex.lengthLabel || ex.reps || '1 lap'}${ex.timed ? ' timed lap' : ' walk lap'}` : `${targetWeight} lbs x ${s.reps || ex._defaultReps} x ${targetSets}`;
+        const inlineTarget = isTrackLap ? (ex.lengthLabel || ex.reps || '1 lap') : `${ex.sets}×${ex.reps}`;
         const totalSets = Math.max(parseInt(ex.sets, 10) || 1, 1);
         const doneSets = s.done ? totalSets : 0;
         let dots = '';
@@ -2449,21 +2620,21 @@ function renderDay(day) {
               ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alt</div>' : (getAlternative(ex.notes) ? '<div class="ex-swap-indicator" style="color:var(--text3);">&#9733; Sub</div>' : '')}
               <div class="ex-name-row">
                 <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
-                <span class="ex-target-inline">${ex.sets}×${ex.reps}</span>
+                <span class="ex-target-inline">${inlineTarget}</span>
               </div>
               <div class="ex-last-result">${lastText}</div>
             </div>
           </div>
           <div class="ex-details">
             <div class="ex-inputs-panel">
-              ${isCardioExercise(ex) ? `<div class="log-field"><span>Speed</span><input type="number" step="0.1" value="${s.speed || ''}" placeholder="mph" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'speed',this.value); event.stopPropagation();"></div><div class="log-field"><span>Incline</span><input type="number" step="0.5" value="${s.incline || ''}" placeholder="%" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'incline',this.value); event.stopPropagation();"></div><div class="log-field"><span>Dist</span><input type="number" step="0.1" value="${s.distance || ''}" placeholder="mi" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'distance',this.value); event.stopPropagation();"></div><div class="log-field"><span>Time</span><input type="text" value="${s.time || ''}" placeholder="min" onclick="event.stopPropagation();" onchange="setCardioField('${day}',${ex._idx},'time',this.value); event.stopPropagation();"></div>` : isTrackableWorkoutExercise(ex) ? `${!isBodyweightOnly(nameToFind) ? '<div class="log-field"><span>Weight</span><select onchange="setWeight(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();" onclick="event.stopPropagation();">' + buildWeightOptionsHtml(parseFloat(s.weight) || previousWeight || 0) + '</select></div>' : ''}<div class="log-field"><span>${isTimeBased(nameToFind) ? 'Seconds' : 'Reps'}</span><select onchange="setReps('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();" onclick="event.stopPropagation();">${renderRepsOptions(s.reps || ex._defaultReps)}</select></div><div class="log-field"><span>Sets</span><select onchange="setSets('${day}',${ex._idx},'${nameToFind.replace(/'/g, "\\'")}',this.value); event.stopPropagation();" onclick="event.stopPropagation();">${renderSetOptions(s.sets, ex.sets)}</select></div>` : '<div class="log-field"><span>Sets</span><select onclick="event.stopPropagation();" onchange="setSets(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();">' + renderSetOptions(s.sets, ex.sets) + '</select></div><div class="log-field"><span>Time</span><input type="text" value="' + (s.reps || '') + '" placeholder="' + ex.reps + '" onclick="event.stopPropagation();" onchange="setReps(\'' + day + '\',' + ex._idx + ',\'' + nameToFind.replace(/'/g, "\\'") + '\',this.value); event.stopPropagation();"></div>'}
+              ${renderExerciseInputs(day, ex, s, nameToFind, previousWeight)}
             </div>
             <div class="ex-info-grid">
               <div class="ex-info-cell"><b>Last</b><span>${lastText}</span></div>
               <div class="ex-info-cell"><b>Target</b><span>${targetText}</span></div>
             </div>
             <div class="ex-dot-row">${dots}</div>
-            <button class="ex-log-btn" type="button" onclick="openSetLogger('${day}',${ex._idx}); event.stopPropagation();">${isTrackableWorkoutExercise(ex) ? 'Set Logger' : 'Log Stretch'}</button>
+            ${isTrackLap ? '' : `<button class="ex-log-btn" type="button" onclick="openSetLogger('${day}',${ex._idx}); event.stopPropagation();">${isTrackableWorkoutExercise(ex) ? 'Set Logger' : 'Log Stretch'}</button>`}
           </div>
         </div>`;
       });

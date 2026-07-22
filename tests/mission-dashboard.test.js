@@ -23,10 +23,10 @@ function missionModel(weekday, week = 1, record = null) {
 
 test('Monday through Friday render the correct mission titles, locations, times, and fasting data', () => {
   const expected = {
-    Monday: ['Build the Foundation', 'Planet Fitness', '12-hour overnight'],
+    Monday: ['Track + Push Foundation', 'Outdoor track and Planet Fitness', '12-hour overnight'],
     Tuesday: ['Build Muscle', 'Planet Fitness', '12-hour overnight'],
     Wednesday: ['Build Endurance', 'Track across from Planet Fitness or another outdoor track', '16:8'],
-    Thursday: ['Build Strength', 'Planet Fitness', '12-hour overnight'],
+    Thursday: ['Build Strength', 'Outdoor track and Planet Fitness', '12-hour overnight'],
     Friday: ['Recover and Reflect', 'Home, track, neighborhood, gym stretching area, or another low-intensity setting', '16:8']
   };
   Object.entries(expected).forEach(([weekday, [title, location, fasting]]) => {
@@ -39,21 +39,31 @@ test('Monday through Friday render the correct mission titles, locations, times,
   });
 });
 
-test('Wednesday is a track mission with the prescribed controlled five-lap structure', () => {
+test('Wednesday is a track mission with four required laps and optional cooldown', () => {
   const model = missionModel('Wednesday');
   assert.equal(model.locationType, 'outdoor-track');
   assert.equal(model.isWednesdayTrack, true);
   assert.notEqual(model.location, 'Planet Fitness');
   const track = model.phases.find(phase => phase.title === 'Track Session');
-  assert.deepEqual(track.activities.map(activity => activity.title), [
+  const required = track.activities.filter(activity => activity.required);
+  assert.deepEqual(required.map(activity => activity.title), [
     'Lap 1 — Brisk Walk',
-    'Lap 2 — Light Jog',
+    'Lap 2 — Timed Light Run/Jog',
     'Lap 3 — Brisk Walk',
-    'Lap 4 — Light Jog',
-    'Lap 5 — Cooldown Walk'
+    'Lap 4 — Timed Light Run/Jog'
   ]);
+  assert.deepEqual(required.map(activity => activity.target), [
+    '1 lap',
+    '1 lap • record lap time',
+    '1 lap',
+    '1 lap • record lap time'
+  ]);
+  assert.equal(track.activities.filter(activity => activity.optional).length, 1);
+  assert.equal(track.activities.find(activity => activity.optional).title, 'Optional Cooldown Walk');
   assert.equal(track.activities.filter(activity => activity.target.includes('record lap time')).length, 2);
+  assert.equal(track.activities.some(activity => /7 min/.test(activity.target)), false);
   assert.match(dashboard.renderToday(model), /not a weekly race/i);
+  assert.equal((dashboard.renderToday(model).match(/data-track-lap-control=/g) || []).length, 5);
 });
 
 test('Friday shows meditation, guided mobility, easy walking, reflection prompts, and weekly completion', () => {
@@ -89,7 +99,7 @@ test('A/B variation is visible and strength activities expose read-only targets 
 });
 
 test('required work and optional finishers are distinguished', () => {
-  for (const weekday of ['Tuesday', 'Thursday']) {
+  for (const weekday of ['Tuesday']) {
     const model = missionModel(weekday);
     const activities = model.phases.flatMap(phase => phase.activities);
     assert.ok(activities.some(activity => activity.required));
@@ -124,7 +134,7 @@ test('mobile sticky actions reflect mission status and strength-day logger prior
   const completed = dashboard.renderToday(missionModel('Friday', 1, { status: 'completed' }));
   assert.match(notStarted, /mission-sticky-actions[\s\S]*Start Mission/);
   assert.match(strengthInProgress, /mission-sticky-actions[\s\S]*Open Workout Logger[\s\S]*Complete Mission/);
-  assert.match(trackInProgress, /mission-sticky-actions[\s\S]*Resume Mission[\s\S]*Complete Mission/);
+  assert.match(trackInProgress, /mission-sticky-actions[\s\S]*Open Workout Logger[\s\S]*Complete Mission/);
   assert.match(completed, /mission-sticky-actions[\s\S]*View Completed Mission[\s\S]*Reopen Mission/);
 });
 
@@ -189,6 +199,25 @@ test('schedule rendering includes previews and does not expose completion contro
   assert.match(html, /Optional weekend recovery/);
   assert.equal((html.match(/Back to Weekly Schedule/g) || []).length, 2);
   assert.doesNotMatch(html, /startTodayMission|completeTodayMission/);
+});
+
+test('schedule preview phase ids do not collide with Today phase ids', () => {
+  const today = dashboard.renderToday(missionModel('Wednesday', 1));
+  const schedule = dashboard.buildScheduleModel({
+    programWeek: 1,
+    referenceDate: '2026-07-20',
+    todayDate: '2026-07-22',
+    previewWeekday: 'Wednesday',
+    getMission: performance.getMission,
+    getWeekDateISO: records.getWeekDateISO,
+    getRecord: () => null
+  });
+  const html = `${today}${dashboard.renderSchedule(schedule, missionModel('Wednesday', 1))}`;
+  const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map(match => match[1]);
+  const duplicateIds = ids.filter((id, index) => ids.indexOf(id) !== index);
+  assert.deepEqual(duplicateIds, []);
+  assert.match(html, /id="mission-phase-p5d-wed-track"/);
+  assert.match(html, /id="mission-phase-schedule-preview-p5d-wed-track"/);
 });
 
 test('core mobile navigation CSS supports five touch-safe tabs without Coach-injected nav rules', () => {

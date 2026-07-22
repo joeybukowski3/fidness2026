@@ -1,14 +1,14 @@
-const CACHE_NAME = 'pro-trainer-elite-v15-schedule-fasting-merge';
+const CACHE_NAME = 'pro-trainer-elite-v16-track-lap-logging';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json?v=7',
-  './css/mission-dashboard.css?v=2',
+  './css/mission-dashboard.css?v=3',
   './js/state-schema.js?v=2',
-  './js/performance-program.js?v=1',
+  './js/performance-program.js?v=2',
   './js/program-data.js?v=9',
   './js/mission-records.js?v=2',
-  './js/mission-dashboard.js?v=2',
+  './js/mission-dashboard.js?v=3',
   './js/coach.js?v=2',
   './assets/diagrams/placeholder.svg'
 ];
