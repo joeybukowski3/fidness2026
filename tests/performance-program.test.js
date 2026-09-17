@@ -8,6 +8,7 @@ const schema = require('../js/state-schema');
 function buildRegistry() {
   global.window = global;
   global.FidnessPerformanceProgram = performance;
+  global.FidnessWeightLossProgram = require("../js/weight-loss-program");
   delete require.cache[require.resolve('../js/program-data')];
   require('../js/program-data');
   return global.buildProgramData({});
@@ -15,8 +16,8 @@ function buildRegistry() {
 
 test('registry uses an explicit default instead of array position', () => {
   const registry = buildRegistry();
-  assert.equal(registry.PROGRAMS[0].id, 'joey-12wk-knee-safe');
-  assert.equal(registry.DEFAULT_PROGRAM_ID, 'performance-5day-v1');
+  assert.equal(registry.PROGRAMS[0].id, 'weight-loss-strength-v1');
+  assert.equal(registry.DEFAULT_PROGRAM_ID, 'weight-loss-strength-v1');
   assert.ok(registry.PROGRAMS.some(program => program.id === 'joey-12wk-knee-safe'));
   assert.ok(registry.PROGRAMS.some(program => program.id === 'performance-5day-v1'));
 });

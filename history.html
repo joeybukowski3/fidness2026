@@ -83,7 +83,7 @@ strong{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:0.04e
             <div class="ex-name">${item.exercise}</div>
             <div class="ex-meta">${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
           </div>
-          ${hideInputs ? '<div style="font-size:0.75rem;color:var(--accent);font-weight:700;">Completed</div>' : `<div class="ex-meta"><strong>${item.weight || '-'}</strong> lbs x <strong>${item.reps || '-'}</strong> reps</div>`}
+          ${hideInputs ? `<div style="font-size:0.75rem;color:var(--accent);font-weight:700;">${item.time ? item.time + ' min' : 'Completed'}${item.speed ? ' · ' + item.speed + ' mph' : ''}${item.incline ? ' · ' + item.incline + '%' : ''}${item.distance ? ' · ' + item.distance + ' mi' : ''}</div>` : `<div class="ex-meta"><strong>${item.weight || '-'}</strong> lbs x <strong>${item.reps || '-'}</strong> reps</div>`}
         </div>
       `;
     });

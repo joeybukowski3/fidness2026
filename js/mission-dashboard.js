@@ -38,6 +38,7 @@
   }
 
   function formatFasting(fasting = {}) {
+    if (!fasting.type) return 'No fasting requirement';
     const optional = fasting.required === false;
     const prefix = optional ? 'Optional' : 'Recommended';
     const window = fasting.start && fasting.end
@@ -186,8 +187,9 @@
       };
     });
     return {
+      programName: options.programName || 'Five-Day Performance System',
       programWeek: Math.max(1, parseInt(options.programWeek, 10) || 1),
-      variation: Math.max(1, parseInt(options.programWeek, 10) || 1) % 2 === 0 ? 'B' : 'A',
+      variation: options.variation || (Math.max(1, parseInt(options.programWeek, 10) || 1) % 2 === 0 ? 'B' : 'A'),
       weekdays: days.slice(0, 5),
       weekend: days.slice(5)
     };
@@ -325,7 +327,7 @@
 
   function renderSchedule(schedule, previewModel) {
     return `<section class="mission-schedule" aria-labelledby="weeklyScheduleTitle">
-      <div class="schedule-heading"><div><span>Five-Day Performance System</span><h2 id="weeklyScheduleTitle">Week ${schedule.programWeek} Schedule</h2></div>${badge(`Variation ${schedule.variation}`, 'variation')}</div>
+      <div class="schedule-heading"><div><span>${escapeHtml(schedule.programName)}</span><h2 id="weeklyScheduleTitle">Week ${schedule.programWeek} Schedule</h2></div>${badge(`Variation ${schedule.variation}`, 'variation')}</div>
       <div class="schedule-weekdays">${schedule.weekdays.map(renderScheduleCard).join('')}</div>
       <details class="schedule-weekend">
         <summary>Optional weekend recovery</summary>
