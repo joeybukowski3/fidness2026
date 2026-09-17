@@ -6,7 +6,7 @@
   'use strict';
 
   const SCHEMA_VERSION = 2;
-  const DEFAULT_PROGRAM_ID = 'performance-5day-v1';
+  const DEFAULT_PROGRAM_ID = 'weight-loss-strength-v1';
   const LEGACY_PROGRAM_ID = 'joey-12wk-knee-safe';
   const BACKUP_KEY = 'wt_state_backup_schema_v1';
   const PRIVATE_JOURNAL_KEY = 'wt_private_journal_v1';

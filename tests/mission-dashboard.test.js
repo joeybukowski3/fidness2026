@@ -204,6 +204,7 @@ test('core mobile navigation CSS supports five touch-safe tabs without Coach-inj
 test('legacy and unknown programs remain compatible with exact registry resolution', () => {
   global.window = global;
   global.FidnessPerformanceProgram = performance;
+  global.FidnessWeightLossProgram = require("../js/weight-loss-program");
   delete require.cache[require.resolve('../js/program-data')];
   require('../js/program-data');
   const registry = global.buildProgramData({});

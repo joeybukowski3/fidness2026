@@ -383,7 +383,9 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   // ── PROGRAMS ──────────────────────────────────────────────────────
   const performance = window.FidnessPerformanceProgram;
   if (!performance) throw new Error('FidnessPerformanceProgram must load before program-data.js.');
-  const DEFAULT_PROGRAM_ID = performance.PROGRAM_ID;
+  const weightLoss = window.FidnessWeightLossProgram;
+  if (!weightLoss) throw new Error("Weight loss program must load before program-data.js.");
+  const DEFAULT_PROGRAM_ID = weightLoss.PROGRAM_ID;
   const performanceWeek = week => ({
     Monday: performance.toLegacyWorkout('Monday', week),
     Tuesday: performance.toLegacyWorkout('Tuesday', week),
@@ -395,6 +397,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   });
 
   const PROGRAMS = [
+    { id: weightLoss.PROGRAM_ID, name: weightLoss.PROGRAM.name, type: "ongoing", ongoing: true, cycleWeeks: 6, reviewIntervalWeeks: 6 },
     { id: 'joey-12wk-knee-safe', name: '12-Week Knee-Safe Upper Focus', weeks: 12, ongoing: false },
     {
       id: performance.PROGRAM_ID,
@@ -417,6 +420,15 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   }
 
   const PROGRAM_GUIDES = {
+    [weightLoss.PROGRAM_ID]: `<h2>Weight Loss + Strength</h2>
+<p>Goal: from near 210 lb toward staying below 200 lb while preserving/building muscle. Biceps hypertrophy, core strength, and hip/lower-body mobility remain priorities.</p>
+<p><strong>Monday 5:00–6:00 AM; Tuesday–Friday 4:30–6:00 AM.</strong> Ongoing program with a six-week review/deload cycle. No running, track intervals, HIIT, or required fasting.</p>
+<ul><li>Monday: Light upper + arms + 15–18 min conditioning; keep 2–3 RIR.</li><li>Tuesday: Knee-friendly lower + core + 20 min steady bike.</li><li>Wednesday: Upper A + biceps + core + 18 min knee-tolerated conditioning.</li><li>Thursday: Recovery-oriented conditioning (5 easy / 35 steady / 5 easy), mobility, core, easy finish.</li><li>Friday: Upper B + arms + light lower frequency work + approximately 15 min conditioning.</li><li>Weekend: optional easy recovery or rest.</li></ul>
+<h2>Progression and Review</h2><p>Double progression: increase load next session only after reaching the top of the assigned rep range on all prescribed sets with clean technique and appropriate RIR. Return toward the lower rep limit after increasing load. No fixed weekly weights or required failure.</p>
+<p>Weeks 1–2: establish loads and knee tolerance, 2–3 RIR. Weeks 3–4: progressive overload, 1–2 RIR on appropriate final sets. Week 5: strongest normal week, 1–2 RIR where appropriate. Monday, Thursday core, and Friday light lower remain lower-fatigue.</p>
+<p>Week 6: working sets reduce by approximately one-third (3→2, 2→1); reduce load approximately 10–15% where appropriate. Keep conditioning easy/moderate and retain mobility. Review progress, recovery, and knee tolerance, then repeat rather than terminate.</p>
+<h2>Knee-Tolerant Conditioning</h2><p>Stationary or recumbent bike is the default low-impact fallback. Incline walking is optional: approximately 2.5–3.2 mph and 3–6% incline, RPE 5–6, only when tolerated. Use pain-free/tolerated range, avoid forcing deep knee flexion, and stop/substitute for sharp pain. Substitute tolerated glute bridges for leg press or skip it if neither is comfortable. This program does not diagnose or treat knee pain.</p>
+<p>Timing audit: approximately 47–57 min Monday, 69–87 min Tuesday, 69–87 min Wednesday, 77–87 min Thursday, and 64–81 min Friday, including realistic setup/logging time and a five-minute delay allowance. Thursday easy movement can fill remaining time until 6:00. Rest and cardio durations are preserved; no supersets are assumed. Monday shoulder work uses two sets each; Tuesday leg press, hip abduction, calves, Pallof press, and dead bug use two sets each. Thursday retains every mobility pattern at one round/side and core at two sets each. Friday omits pec deck and uses two sets for shoulder press, lateral raise, and pressdown. Finish by 6:00 without rushing technique. Log cardio duration, speed/incline for treadmill, and optional distance. Bike resistance is not supported by the current logger.</p>`,
     'joey-12wk-knee-safe': `
 <h2>12-Week Knee-Safe Upper Body + Core Focus</h2>
 <p><strong>Goal:</strong> Lean muscle (chest, biceps, shoulders, upper body), cardio fitness, core strength, mobility, knee stability, and gradual fat loss while protecting prior ACL/meniscus injuries.</p>
@@ -497,6 +509,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
   };
 
   const PROGRAM_TEMPLATES = {
+    [weightLoss.PROGRAM_ID]: { ongoing: true, cycleWeeks: 6, weeks: Object.fromEntries(Array.from({length:6}, (_,i) => [i+1, Object.fromEntries(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(day => [day, weightLoss.toLegacyWorkout(day,i+1)]))])) },
     'joey-12wk-knee-safe': {
       weeks: {
         1: w1, 2: w2, 3: w3, 4: w4, 5: w5, 6: w6,
@@ -521,6 +534,7 @@ window.buildProgramData = function buildProgramData(legacyWorkouts) {
     PROGRAM_TEMPLATES,
     PROGRAM_MISSIONS: performance.PROGRAM.missions,
     getPerformanceMission: performance.getMission,
+    getProgramMission: (id, day, week) => id === weightLoss.PROGRAM_ID ? weightLoss.getMission(day, week) : id === performance.PROGRAM_ID ? performance.getMission(day, week) : null,
     resolveProgramById
   };
 };

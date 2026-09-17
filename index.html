@@ -191,7 +191,7 @@ body{overflow-x:hidden; width:100%; position:relative;}
 
 /* Header */
 .header{background:var(--bg2);border-bottom:1px solid var(--border);padding:0.75rem 1rem;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
-.header-top{display:flex;justify-content:space-between;align-items:center;max-width:900px;margin:0 auto}
+.header-top{display:flex;flex-wrap:wrap;gap:0.5rem;justify-content:space-between;align-items:center;max-width:900px;margin:0 auto}
 .logo{display:flex;align-items:center;gap:0.6rem}
 .logo-mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0f172a,#16a34a);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;font-weight:800;letter-spacing:0.08em}
 .logo-text{display:flex;flex-direction:column;line-height:1}
@@ -612,7 +612,7 @@ body{padding-bottom:104px}
     
     <div style="margin-bottom:2rem;text-align:center;">
       <div style="font-family:var(--font-display);font-size:2rem;letter-spacing:0.06em;color:var(--text);margin-bottom:0.5rem;">Today’s Mission Is Ready</div>
-      <div style="font-size:0.8rem;line-height:1.5;color:var(--text3);margin:0 auto 1.5rem;max-width:300px;">Your 4:30–6:00 AM plan, location, targets, and coaching guidance in one place.</div>
+      <div style="font-size:0.8rem;line-height:1.5;color:var(--text3);margin:0 auto 1.5rem;max-width:300px;">Your current plan, training window, targets, and coaching guidance in one place.</div>
       <button type="button" onclick="event.stopPropagation();handleLandingAction('today');" style="display:block;width:240px;min-height:50px;margin:0 auto 0.75rem;padding:0.8rem 0;border-radius:14px;border:2px solid var(--accent);background:var(--accent);color:#10140d;font-family:var(--font-display);font-size:1.35rem;letter-spacing:0.08em;cursor:pointer;">Open Today</button>
       <button type="button" onclick="document.getElementById('clutchScreen')?.classList.add('active');" style="display:block;width:220px;margin:0 auto;padding:0.8rem 0;border-radius:14px;border:2px solid var(--border);background:var(--bg3);color:var(--text2);font-family:var(--font-display);font-size:1.4rem;letter-spacing:0.08em;cursor:pointer;">No, I’m not clutch</button>
     </div>
@@ -657,13 +657,14 @@ body{padding-bottom:104px}
   <div class="set-sheet-card" id="setSheetCard"></div>
 </div>
 
-<script src="js/state-schema.js?v=2"></script>
+<script src="js/state-schema.js?v=3"></script>
 <script src="js/performance-program.js?v=1"></script>
-<script src="js/program-data.js?v=9"></script>
+<script src="js/weight-loss-program.js?v=2"></script>
+<script src="js/program-data.js?v=11"></script>
 <script src="js/mission-records.js?v=2"></script>
-<script src="js/mission-dashboard.js?v=2"></script>
+<script src="js/mission-dashboard.js?v=3"></script>
 <script>
-const APP_VERSION = 'v2026.07.17-mission-dashboard-mobile';
+const APP_VERSION = 'v2026.09.17-weight-loss-strength-timing';
 // ============ WORKOUT DATA ============
 const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','Weight Log'];
 const WORKOUTS = {
@@ -813,6 +814,7 @@ const {
   PROGRAM_TEMPLATES,
   PROGRAM_MISSIONS,
   getPerformanceMission,
+  getProgramMission,
   resolveProgramById: resolveRegisteredProgramById
 } = buildProgramData(WORKOUTS);
 
@@ -1353,7 +1355,7 @@ let state = migrateRuntimeState(FidnessStateSchema.safeParseState(localStorage.g
     return day === getActiveEditableWorkoutDay();
   }
   function getExState(day, idx) {
-    return state.data[getKey(day, idx)] || state.data[getLegacyKey(day, idx)] || { done: false, weight: '', reps: '', collapsed: true, exercise: '', swapped: false };
+    return state.data[getKey(day, idx)] || (getActiveProgramId() === 'joey-12wk-knee-safe' ? state.data[getLegacyKey(day, idx)] : null) || { done: false, weight: '', reps: '', collapsed: true, exercise: '', swapped: false };
   }
   function setExState(day, idx, val) {
     state.data[getKey(day, idx)] = val;
@@ -1452,7 +1454,7 @@ function renderHistory() {
     
     html += `<div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:0.5rem 0;">
       <div><strong>${item.exercise}</strong><div style="font-size:0.7rem;color:var(--text3)">${date.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div></div>
-      ${hideInputs ? '<div style="font-size:0.75rem;color:var(--accent);font-weight:600;">Completed</div>' : `<div style="font-size:0.85rem">${item.weight || '-'} lbs x ${item.reps || '-'} reps</div>`}
+      ${hideInputs ? `<div style="font-size:0.75rem;color:var(--accent);font-weight:600;">${item.time ? item.time + ' min' : 'Completed'}${item.speed ? ' · ' + item.speed + ' mph' : ''}${item.incline ? ' · ' + item.incline + '%' : ''}${item.distance ? ' · ' + item.distance + ' mi' : ''}</div>` : `<div style="font-size:0.85rem">${item.weight || '-'} lbs x ${item.reps || '-'} reps</div>`}
     </div>`;
   });
   html += '</div><div style="text-align:center;margin-top:2rem;"><button class="reset-btn" style="font-size:0.8rem;" onclick="fullReset()">Hard Reset (Wipe All Data)</button></div>';
@@ -1568,6 +1570,7 @@ function getExerciseId(name) {
 }
 function isBodyweightOnly(exName) {
   const n = (exName || '').toLowerCase();
+  if (n.includes('cable crunch') || n.includes('smith hip thrust')) return false;
   return n.includes('plank') || n.includes('crunch') || n.includes('sit-up') || n.includes('bird dog') || n.includes('dead bug') || n.includes('bridge') || n.includes('march') || n.includes('scorpion') || n.includes('yoga') || n.includes('stretch') || n.includes('meditation') || n.includes('hang');
 }
 
@@ -1649,8 +1652,7 @@ function getCurrentProgramWeek() {
 }
 
 function getMissionDefinition(weekday, programWeek = getCurrentProgramWeek()) {
-  if (getActiveProgramId() !== DEFAULT_PROGRAM_ID) return null;
-  return getPerformanceMission(weekday, programWeek);
+  return getProgramMission(getActiveProgramId(), weekday, programWeek);
 }
 
 function getMissionRecordIdentity(mission, localDate) {
@@ -1686,7 +1688,7 @@ function renderTodayDashboard() {
     return;
   }
   const model = FidnessMissionDashboard.buildMissionModel({
-    program: FidnessPerformanceProgram.PROGRAM,
+    program: getActiveProgramId() === 'weight-loss-strength-v1' ? FidnessWeightLossProgram.PROGRAM : FidnessPerformanceProgram.PROGRAM,
     mission: context.mission,
     record: context.record,
     localDate: context.localDate,
@@ -1808,11 +1810,13 @@ function returnToWeeklySchedule(weekday) {
 }
 
 function buildActiveScheduleView() {
-  if (getActiveProgramId() !== DEFAULT_PROGRAM_ID) return null;
+  if (!getMissionDefinition('Monday')) return null;
   const today = new Date();
   const todayDate = FidnessMissionRecords.localDateISO(today);
   const programWeek = getCurrentProgramWeek();
   const schedule = FidnessMissionDashboard.buildScheduleModel({
+    programName: getActiveProgram().name,
+    variation: getMissionDefinition("Monday", programWeek).variation,
     programWeek,
     referenceDate: today,
     todayDate,
@@ -1827,7 +1831,7 @@ function buildActiveScheduleView() {
     ? schedule.weekdays.concat(schedule.weekend).find(day => day.weekday === schedulePreviewDay)
     : null;
   const previewModel = previewDay?.mission ? FidnessMissionDashboard.buildMissionModel({
-    program: FidnessPerformanceProgram.PROGRAM,
+    program: getActiveProgramId() === 'weight-loss-strength-v1' ? FidnessWeightLossProgram.PROGRAM : FidnessPerformanceProgram.PROGRAM,
     mission: previewDay.mission,
     record: FidnessMissionRecords.getMissionRecord(state, getMissionRecordIdentity(previewDay.mission, previewDay.localDate)),
     localDate: previewDay.localDate,
@@ -2018,12 +2022,17 @@ function saveWorkoutHistory(list) {
   save();
 }
 
+function getHistoryExerciseIdentity(name) {
+  const ex = getWorkoutsForDay(state.day).find(ex => ex.exercise === name || getAlternative(ex.notes) === name);
+  return ex ? { activityId: ex.activityId, exerciseId: ex.exerciseId } : {};
+}
+
 function logWorkoutHistory(exercise, weight, reps) {
   if (!exercise) return;
   const w = String(weight || '').trim();
   const r = String(reps || '').trim();
   if (!w && !r) return;
-  const entry = { exercise, weight: w, reps: r, ts: new Date().toISOString() };
+  const entry = { exercise, weight: w, reps: r, programId: getActiveProgramId(), programWeek: state.week, ...getHistoryExerciseIdentity(exercise), ts: new Date().toISOString() };
   const list = getWorkoutHistory();
   list.push(entry);
   saveWorkoutHistory(list);
@@ -2297,6 +2306,10 @@ function toggleDetailGuide(mode) {
 }
 
 function renderDayOverview(day) {
+  if (getActiveProgramId() === 'weight-loss-strength-v1') {
+    const mission = getMissionDefinition(day, state.week);
+    return mission ? `<div class="day-overview"><h3>${mission.name}</h3><p>${day === 'Monday' ? '5:00–6:00 AM' : '4:30–6:00 AM'} · No running · Cycle week ${mission.cycleWeek}/6</p><p>Bike default; incline walking only when knee-tolerated. ${mission.cycleWeek === 6 ? 'Deload: reduced sets, approximately 10–15% less load; review before repeating.' : 'Double progression with clean technique and appropriate RIR.'}</p></div>` : '';
+  }
   if (getActiveProgramId() !== 'joey-12wk-knee-safe') return '';
   const overview =
     typeof DAY_OVERVIEWS !== 'undefined' && DAY_OVERVIEWS
@@ -2393,7 +2406,7 @@ function renderDay(day) {
         const previousWeight = getPreviousExerciseWeight(nameToFind);
         const targetWeight = s.weight || (previousWeight !== null ? formatWeightOption(previousWeight) : '--');
         const targetSets = s.sets || ex.sets;
-        const targetText = `${targetWeight} lbs x ${s.reps || ex._defaultReps} x ${targetSets}`;
+        const targetText = isCardioExercise(ex) ? ex.reps : `${targetWeight} lbs x ${s.reps || ex._defaultReps} x ${targetSets}`;
         const totalSets = Math.max(parseInt(ex.sets, 10) || 1, 1);
         const doneSets = s.done ? totalSets : 0;
         let dots = '';
@@ -2408,9 +2421,9 @@ function renderDay(day) {
               ${s.swapped ? '<div class="ex-swap-indicator">&#8646; Alt</div>' : (getAlternative(ex.notes) ? '<div class="ex-swap-indicator" style="color:var(--text3);">&#9733; Sub</div>' : '')}
               <div class="ex-name-row">
                 <button class="ex-link ex-link-btn" type="button" onclick="openExerciseDetail('${day}',${ex._idx}); event.stopPropagation();">${s.swapped ? getAlternative(ex.notes) : ex.exercise}</button>
-                <span class="ex-target-inline">${ex.sets}×${ex.reps}</span>
+                <span class="ex-target-inline"${getActiveProgramId() === "weight-loss-strength-v1" ? ' style="display:inline;white-space:normal"' : ""}>${ex.sets}×${ex.reps}</span>
               </div>
-              <div class="ex-last-result">${lastText}</div>
+              <div class="ex-last-result">${lastText}</div><div class="ex-last-result">${ex.rest ? ex.rest + " sec rest · " : ""}${FidnessMissionDashboard.formatRir(ex.targetRir)}</div>
             </div>
           </div>
           <div class="ex-details">
@@ -2422,7 +2435,7 @@ function renderDay(day) {
               <div class="ex-info-cell"><b>Target</b><span>${targetText}</span></div>
             </div>
             <div class="ex-dot-row">${dots}</div>
-            <button class="ex-log-btn" type="button" onclick="openSetLogger('${day}',${ex._idx}); event.stopPropagation();">${isTrackableWorkoutExercise(ex) ? 'Set Logger' : 'Log Stretch'}</button>
+            <button class="ex-log-btn" type="button" onclick="openSetLogger('${day}',${ex._idx}); event.stopPropagation();">${isCardioExercise(ex) ? 'Log Cardio' : isTrackableWorkoutExercise(ex) ? 'Set Logger' : 'Log Stretch'}</button>
           </div>
         </div>`;
       });
@@ -2517,7 +2530,7 @@ function renderUnavailableProgram(c, resolution) {
     <div class="program-meta"><strong>Saved program ID:</strong> <span id="unavailableProgramId"></span></div>
     <div class="program-meta">Choose a replacement only when you are ready. Nothing changes until you select one below.</div>
     <div class="program-row" style="margin-top:1rem;align-items:stretch">
-      <button class="program-btn primary" onclick="recoverUnavailableProgram('${DEFAULT_PROGRAM_ID}')">Use Five-Day Performance System</button>
+      <button class="program-btn primary" onclick="recoverUnavailableProgram('${DEFAULT_PROGRAM_ID}')">Use Weight Loss + Strength</button>
       <button class="program-btn" onclick="recoverUnavailableProgram('joey-12wk-knee-safe')">Use 12-Week Knee-Safe Program</button>
     </div>
   </div>`;
@@ -2631,6 +2644,7 @@ function filterMasterList(query) {
 
 function changeProgram(id) {
   if (!getProgramResolution(id).available) return;
+  closeSetLogger();
   state = FidnessStateSchema.markProgramSelected(state, id, { setDefault: false });
   state.activeWorkoutTab = 'pre';
   activeWorkoutTab = 'pre';
@@ -2761,6 +2775,18 @@ function setCardioField(day, idx, field, val) {
   save();
 }
 
+function logCardioActivity(day, idx) {
+  const ex = getExerciseForDayIndex(day, idx);
+  const s = getExState(day, idx);
+  if (!ex || !isCardioExercise(ex)) return;
+  if (!Number.isFinite(Number(s.time)) || Number(s.time) <= 0) { alert('Enter completed cardio duration in minutes first.'); return; }
+  const list = getWorkoutHistory();
+  list.push({ exercise: ex.exercise, category: 'Cardio', programId: getActiveProgramId(), programWeek: state.week, activityId: ex.activityId, exerciseId: ex.exerciseId, time: s.time, speed: s.speed || '', incline: s.incline || '', distance: s.distance || '', ts: new Date().toISOString() });
+  saveWorkoutHistory(list);
+  s.done = true; s.collapsed = true;
+  setExState(day, idx, s); renderDay(day);
+}
+
 let currentSetLogger = null;
 
 function parseDefaultRepValue(repText) {
@@ -2817,6 +2843,7 @@ function buildSetPills(sets, selected) {
 }
 
 function openSetLogger(day, idx) {
+  if (isCardioExercise(getExerciseForDayIndex(day, idx))) { logCardioActivity(day, idx); return; }
   const ex = getExerciseForDayIndex(day, idx);
   if (!ex) return;
   const s = getExState(day, idx);

@@ -1,0 +1,1495 @@
+{
+  "Monday": {
+    "id": "wls-mission-monday",
+    "weekday": "Monday",
+    "name": "Light Upper + Arms + Conditioning",
+    "startTime": "05:00",
+    "endTime": "06:00",
+    "required": true,
+    "location": "Gym",
+    "locationType": "gym",
+    "focus": [
+      "Light Upper + Arms + Conditioning"
+    ],
+    "pillars": [
+      "strength",
+      "core",
+      "mobility",
+      "cardio"
+    ],
+    "goalIds": [
+      "goal-weight-loss",
+      "goal-biceps",
+      "goal-core",
+      "goal-mobility"
+    ],
+    "description": "From near 210 lb toward staying below 200 lb while preserving/building muscle.",
+    "progressTarget": "Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+    "safetyNote": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+    "phases": [
+      {
+        "id": "wls-mon-warmup",
+        "title": "Warm-Up",
+        "startTime": "05:00",
+        "endTime": "05:05",
+        "activities": [
+          {
+            "id": "wls-mon-easy-cardio",
+            "exerciseId": "easy-cardio",
+            "title": "Easy Bike or Treadmill Walk",
+            "type": "walk",
+            "category": "Cardio",
+            "durationMinutes": 5,
+            "equipment": "Stationary Bike / Recumbent Bike / Treadmill",
+            "notes": "Easy effort. No running or HIIT. Bike is the default low-impact fallback; incline walking is optional only when knee-tolerated. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [
+              "Recumbent Bike"
+            ],
+            "metrics": [
+              "time",
+              "speed",
+              "incline",
+              "distance"
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "wls-mon-strength",
+        "title": "Light Upper + Arms",
+        "startTime": "05:05",
+        "endTime": "05:42",
+        "activities": [
+          {
+            "id": "wls-mon-machine-shoulder-press",
+            "exerciseId": "machine-shoulder-press",
+            "title": "Machine Shoulder Press",
+            "type": "strength",
+            "durationMinutes": 4.45,
+            "sets": 3,
+            "reps": "10-12",
+            "restSeconds": 75,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-mon-reverse-pec-deck",
+            "exerciseId": "reverse-pec-deck",
+            "title": "Reverse Pec Deck",
+            "type": "strength",
+            "durationMinutes": 3.95,
+            "sets": 3,
+            "reps": "12-15",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-mon-cable-lateral-raise",
+            "exerciseId": "cable-lateral-raise",
+            "title": "Cable Lateral Raise",
+            "type": "strength",
+            "durationMinutes": 4.5,
+            "sets": 3,
+            "reps": "12-15/side",
+            "restSeconds": 45,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Cable",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-mon-cable-curl",
+            "exerciseId": "cable-curl",
+            "title": "Cable Curl",
+            "type": "strength",
+            "durationMinutes": 3.95,
+            "sets": 3,
+            "reps": "10-15",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Cable",
+            "category": "Biceps",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-mon-rope-hammer-curl",
+            "exerciseId": "rope-hammer-curl",
+            "title": "Rope Hammer Curl",
+            "type": "strength",
+            "durationMinutes": 2.3,
+            "sets": 2,
+            "reps": "10-15",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Cable",
+            "category": "Biceps",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-mon-rope-triceps-pushdown",
+            "exerciseId": "rope-triceps-pushdown",
+            "title": "Rope Triceps Pressdown",
+            "type": "strength",
+            "durationMinutes": 2.3,
+            "sets": 2,
+            "reps": "10-15",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Cable",
+            "category": "Triceps",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "wls-mon-conditioning",
+        "title": "Conditioning",
+        "startTime": "05:42",
+        "endTime": "06:00",
+        "activities": [
+          {
+            "id": "wls-mon-conditioning",
+            "exerciseId": "conditioning",
+            "title": "Stationary Bike or Incline Treadmill",
+            "type": "walk",
+            "category": "Cardio",
+            "durationMinutes": 18,
+            "equipment": "Stationary Bike / Recumbent Bike / Treadmill",
+            "notes": "15-18 min, RPE 5-6. No running or HIIT. Bike is the default low-impact fallback; incline walking is optional only when knee-tolerated. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [
+              "Recumbent Bike"
+            ],
+            "metrics": [
+              "time",
+              "speed",
+              "incline",
+              "distance"
+            ],
+            "required": true
+          }
+        ]
+      }
+    ],
+    "programId": "weight-loss-strength-v1",
+    "programWeek": 1,
+    "cycleWeek": 1,
+    "variation": "Standard"
+  },
+  "Tuesday": {
+    "id": "wls-mission-tuesday",
+    "weekday": "Tuesday",
+    "name": "Knee-Friendly Lower Body + Core + Bike",
+    "startTime": "04:30",
+    "endTime": "06:00",
+    "required": true,
+    "location": "Gym",
+    "locationType": "gym",
+    "focus": [
+      "Knee-Friendly Lower Body + Core + Bike"
+    ],
+    "pillars": [
+      "strength",
+      "core",
+      "mobility",
+      "cardio"
+    ],
+    "goalIds": [
+      "goal-weight-loss",
+      "goal-biceps",
+      "goal-core",
+      "goal-mobility"
+    ],
+    "description": "From near 210 lb toward staying below 200 lb while preserving/building muscle.",
+    "progressTarget": "Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+    "safetyNote": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+    "phases": [
+      {
+        "id": "wls-tue-warmup",
+        "title": "Warm-Up",
+        "startTime": "04:30",
+        "endTime": "04:40",
+        "activities": [
+          {
+            "id": "wls-tue-easy-bike",
+            "exerciseId": "easy-bike",
+            "title": "Easy Stationary Bike",
+            "type": "walk",
+            "category": "Cardio",
+            "durationMinutes": 5,
+            "equipment": "Stationary Bike / Recumbent Bike / Treadmill",
+            "notes": "Easy effort. No running or HIIT. Bike is the default low-impact fallback; incline walking is optional only when knee-tolerated. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [
+              "Recumbent Bike"
+            ],
+            "metrics": [
+              "time",
+              "speed",
+              "incline",
+              "distance"
+            ],
+            "required": true
+          },
+          {
+            "id": "wls-tue-glute-bridge",
+            "exerciseId": "glute-bridge",
+            "title": "Glute Bridge",
+            "type": "warmup",
+            "durationMinutes": 2,
+            "sets": 1,
+            "reps": "12",
+            "restSeconds": 0,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Warm-up",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-tue-bodyweight-hip-hinge",
+            "exerciseId": "bodyweight-hip-hinge",
+            "title": "Bodyweight Hip Hinge",
+            "type": "warmup",
+            "durationMinutes": 2,
+            "sets": 1,
+            "reps": "10",
+            "restSeconds": 0,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Warm-up",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-tue-leg-swings",
+            "exerciseId": "leg-swings",
+            "title": "Leg Swings",
+            "type": "warmup",
+            "durationMinutes": 2,
+            "sets": 1,
+            "reps": "10/side",
+            "restSeconds": 0,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Warm-up",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-tue-ankle-rocks",
+            "exerciseId": "ankle-rocks",
+            "title": "Ankle Rocks",
+            "type": "warmup",
+            "durationMinutes": 2,
+            "sets": 1,
+            "reps": "10/side",
+            "restSeconds": 0,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Warm-up",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "wls-tue-strength",
+        "title": "Lower Body + Core",
+        "startTime": "04:40",
+        "endTime": "05:40",
+        "activities": [
+          {
+            "id": "wls-tue-seated-hamstring-curl",
+            "exerciseId": "seated-hamstring-curl",
+            "title": "Seated or Lying Hamstring Curl",
+            "type": "strength",
+            "durationMinutes": 4.45,
+            "sets": 3,
+            "reps": "10-15",
+            "restSeconds": 75,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [
+              "Lying Leg Curl"
+            ],
+            "required": true
+          },
+          {
+            "id": "wls-tue-hip-thrust",
+            "exerciseId": "hip-thrust",
+            "title": "Smith Hip Thrust or Glute Bridge",
+            "type": "strength",
+            "durationMinutes": 4.95,
+            "sets": 3,
+            "reps": "8-12",
+            "restSeconds": 90,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Smith Machine / Floor",
+            "category": "Strength",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [
+              "Glute Bridge"
+            ],
+            "required": true
+          },
+          {
+            "id": "wls-tue-leg-press",
+            "exerciseId": "leg-press",
+            "title": "Leg Press",
+            "type": "strength",
+            "durationMinutes": 4.95,
+            "sets": 3,
+            "reps": "10-15",
+            "restSeconds": 90,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain. Substitute a tolerated glute bridge, or skip if neither is comfortable; do not make up painful sets. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [
+              "Glute Bridge"
+            ],
+            "required": true
+          },
+          {
+            "id": "wls-tue-dumbbell-romanian-deadlift",
+            "exerciseId": "dumbbell-romanian-deadlift",
+            "title": "Dumbbell Romanian Deadlift",
+            "type": "strength",
+            "durationMinutes": 4.95,
+            "sets": 3,
+            "reps": "8-12",
+            "restSeconds": 90,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Dumbbells",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-tue-hip-abduction-machine",
+            "exerciseId": "hip-abduction-machine",
+            "title": "Hip Abduction Machine",
+            "type": "strength",
+            "durationMinutes": 3.95,
+            "sets": 3,
+            "reps": "15-20",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-tue-machine-calf-raise",
+            "exerciseId": "machine-calf-raise",
+            "title": "Calf Raise",
+            "type": "strength",
+            "durationMinutes": 3.95,
+            "sets": 3,
+            "reps": "12-20",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-tue-cable-crunch",
+            "exerciseId": "cable-crunch",
+            "title": "Cable Crunch",
+            "type": "strength",
+            "durationMinutes": 3.45,
+            "sets": 3,
+            "reps": "10-15",
+            "restSeconds": 45,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Cable",
+            "category": "Core",
+            "notes": "Stop the set when trunk position or control deteriorates. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-tue-pallof-press",
+            "exerciseId": "pallof-press",
+            "title": "Pallof Press",
+            "type": "strength",
+            "durationMinutes": 4.5,
+            "sets": 3,
+            "reps": "10/side",
+            "restSeconds": 45,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Cable",
+            "category": "Core",
+            "notes": "Stop the set when trunk position or control deteriorates. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-tue-dead-bug",
+            "exerciseId": "dead-bug",
+            "title": "Dead Bug",
+            "type": "strength",
+            "durationMinutes": 4.5,
+            "sets": 3,
+            "reps": "8/side",
+            "restSeconds": 45,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Core",
+            "notes": "Stop the set when trunk position or control deteriorates. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "wls-tue-conditioning",
+        "title": "Steady Bike",
+        "startTime": "05:40",
+        "endTime": "06:00",
+        "activities": [
+          {
+            "id": "wls-tue-conditioning",
+            "exerciseId": "conditioning",
+            "title": "Stationary Bike",
+            "type": "walk",
+            "category": "Cardio",
+            "durationMinutes": 20,
+            "equipment": "Stationary Bike / Recumbent Bike / Treadmill",
+            "notes": "3 min easy + 15 min moderate + 2 min easy. No HIIT. No running or HIIT. Bike is the default low-impact fallback; incline walking is optional only when knee-tolerated. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [
+              "Recumbent Bike"
+            ],
+            "metrics": [
+              "time",
+              "speed",
+              "incline",
+              "distance"
+            ],
+            "required": true
+          }
+        ]
+      }
+    ],
+    "programId": "weight-loss-strength-v1",
+    "programWeek": 1,
+    "cycleWeek": 1,
+    "variation": "Standard"
+  },
+  "Wednesday": {
+    "id": "wls-mission-wednesday",
+    "weekday": "Wednesday",
+    "name": "Upper Body A + Biceps + Conditioning",
+    "startTime": "04:30",
+    "endTime": "06:00",
+    "required": true,
+    "location": "Gym",
+    "locationType": "gym",
+    "focus": [
+      "Upper Body A + Biceps + Conditioning"
+    ],
+    "pillars": [
+      "strength",
+      "core",
+      "mobility",
+      "cardio"
+    ],
+    "goalIds": [
+      "goal-weight-loss",
+      "goal-biceps",
+      "goal-core",
+      "goal-mobility"
+    ],
+    "description": "From near 210 lb toward staying below 200 lb while preserving/building muscle.",
+    "progressTarget": "Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+    "safetyNote": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+    "phases": [
+      {
+        "id": "wls-wed-warmup",
+        "title": "Warm-Up",
+        "startTime": "04:30",
+        "endTime": "04:38",
+        "activities": [
+          {
+            "id": "wls-wed-easy-cardio",
+            "exerciseId": "easy-cardio",
+            "title": "Easy Bike or Treadmill Walk",
+            "type": "walk",
+            "category": "Cardio",
+            "durationMinutes": 5,
+            "equipment": "Stationary Bike / Recumbent Bike / Treadmill",
+            "notes": "Easy effort. No running or HIIT. Bike is the default low-impact fallback; incline walking is optional only when knee-tolerated. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [
+              "Recumbent Bike"
+            ],
+            "metrics": [
+              "time",
+              "speed",
+              "incline",
+              "distance"
+            ],
+            "required": true
+          },
+          {
+            "id": "wls-wed-shoulder-mobility",
+            "exerciseId": "shoulder-mobility",
+            "title": "Shoulder Mobility / Warm-Up Sets",
+            "type": "warmup",
+            "durationMinutes": 3,
+            "sets": 1,
+            "reps": "Controlled warm-up",
+            "restSeconds": 0,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight / Light Weights",
+            "category": "Warm-up",
+            "notes": "Use light rehearsal sets before working loads.",
+            "substitutions": [],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "wls-wed-strength",
+        "title": "Upper Body + Biceps + Core",
+        "startTime": "04:38",
+        "endTime": "05:42",
+        "activities": [
+          {
+            "id": "wls-wed-machine-chest-press",
+            "exerciseId": "machine-chest-press",
+            "title": "Machine Chest Press",
+            "type": "strength",
+            "durationMinutes": 4.95,
+            "sets": 3,
+            "reps": "8-12",
+            "restSeconds": 90,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-wed-chest-supported-row",
+            "exerciseId": "chest-supported-row",
+            "title": "Chest-Supported Row",
+            "type": "strength",
+            "durationMinutes": 4.95,
+            "sets": 3,
+            "reps": "8-12",
+            "restSeconds": 90,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine / Dumbbells",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-wed-lat-pulldown",
+            "exerciseId": "lat-pulldown",
+            "title": "Lat Pulldown",
+            "type": "strength",
+            "durationMinutes": 4.95,
+            "sets": 3,
+            "reps": "8-12",
+            "restSeconds": 90,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-wed-incline-dumbbell-press",
+            "exerciseId": "incline-dumbbell-press",
+            "title": "Incline Dumbbell or Machine Press",
+            "type": "strength",
+            "durationMinutes": 4.45,
+            "sets": 3,
+            "reps": "10-12",
+            "restSeconds": 75,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Dumbbells / Machine",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [
+              "Incline Chest Press Machine"
+            ],
+            "required": true
+          },
+          {
+            "id": "wls-wed-cable-lateral-raise",
+            "exerciseId": "cable-lateral-raise",
+            "title": "Cable Lateral Raise",
+            "type": "strength",
+            "durationMinutes": 3.95,
+            "sets": 3,
+            "reps": "12-20",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Cable",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-wed-reverse-pec-deck",
+            "exerciseId": "reverse-pec-deck",
+            "title": "Reverse Pec Deck or Face Pull",
+            "type": "strength",
+            "durationMinutes": 2.3,
+            "sets": 2,
+            "reps": "12-20",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine / Cable",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [
+              "Face Pull"
+            ],
+            "required": true
+          },
+          {
+            "id": "wls-wed-cable-curl",
+            "exerciseId": "cable-curl",
+            "title": "Cable Curl",
+            "type": "strength",
+            "durationMinutes": 3.95,
+            "sets": 3,
+            "reps": "10-15",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Cable",
+            "category": "Biceps",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-wed-preacher-curl",
+            "exerciseId": "preacher-curl",
+            "title": "Preacher Curl",
+            "type": "strength",
+            "durationMinutes": 2.3,
+            "sets": 2,
+            "reps": "10-12",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine / EZ Bar",
+            "category": "Biceps",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-wed-reverse-crunch",
+            "exerciseId": "reverse-crunch",
+            "title": "Reverse Crunch",
+            "type": "strength",
+            "durationMinutes": 3.45,
+            "sets": 3,
+            "reps": "10-15",
+            "restSeconds": 45,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Core",
+            "notes": "Stop the set when trunk position or control deteriorates. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "wls-wed-conditioning",
+        "title": "Knee-Tolerated Conditioning",
+        "startTime": "05:42",
+        "endTime": "06:00",
+        "activities": [
+          {
+            "id": "wls-wed-conditioning",
+            "exerciseId": "conditioning",
+            "title": "Incline Treadmill or Bike",
+            "type": "walk",
+            "category": "Cardio",
+            "durationMinutes": 18,
+            "equipment": "Stationary Bike / Recumbent Bike / Treadmill",
+            "notes": "Walking option: approximately 2.5-3.2 mph, 3-6% incline, RPE 5-6. Choose bike when walking is not tolerated. No running or HIIT. Bike is the default low-impact fallback; incline walking is optional only when knee-tolerated. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [
+              "Stationary Bike",
+              "Recumbent Bike"
+            ],
+            "metrics": [
+              "time",
+              "speed",
+              "incline",
+              "distance"
+            ],
+            "required": true
+          }
+        ]
+      }
+    ],
+    "programId": "weight-loss-strength-v1",
+    "programWeek": 1,
+    "cycleWeek": 1,
+    "variation": "Standard"
+  },
+  "Thursday": {
+    "id": "wls-mission-thursday",
+    "weekday": "Thursday",
+    "name": "Conditioning + Mobility + Core",
+    "startTime": "04:30",
+    "endTime": "06:00",
+    "required": true,
+    "location": "Gym",
+    "locationType": "gym",
+    "focus": [
+      "Conditioning + Mobility + Core"
+    ],
+    "pillars": [
+      "strength",
+      "core",
+      "mobility",
+      "cardio"
+    ],
+    "goalIds": [
+      "goal-weight-loss",
+      "goal-biceps",
+      "goal-core",
+      "goal-mobility"
+    ],
+    "description": "From near 210 lb toward staying below 200 lb while preserving/building muscle.",
+    "progressTarget": "Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+    "safetyNote": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+    "phases": [
+      {
+        "id": "wls-thu-conditioning",
+        "title": "Steady Conditioning",
+        "startTime": "04:30",
+        "endTime": "05:15",
+        "activities": [
+          {
+            "id": "wls-thu-warmup-bike",
+            "exerciseId": "warmup-bike",
+            "title": "Easy Bike Warm-Up",
+            "type": "walk",
+            "category": "Cardio",
+            "durationMinutes": 5,
+            "equipment": "Stationary Bike / Recumbent Bike / Treadmill",
+            "notes": "Easy effort. No running or HIIT. Bike is the default low-impact fallback; incline walking is optional only when knee-tolerated. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [
+              "Recumbent Bike"
+            ],
+            "metrics": [
+              "time",
+              "speed",
+              "incline",
+              "distance"
+            ],
+            "required": true
+          },
+          {
+            "id": "wls-thu-steady-bike",
+            "exerciseId": "steady-bike",
+            "title": "Steady Bike or Incline Walk",
+            "type": "walk",
+            "category": "Cardio",
+            "durationMinutes": 35,
+            "equipment": "Stationary Bike / Recumbent Bike / Treadmill",
+            "notes": "RPE 5-6. No running or HIIT. Bike is the default low-impact fallback; incline walking is optional only when knee-tolerated. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [
+              "Recumbent Bike"
+            ],
+            "metrics": [
+              "time",
+              "speed",
+              "incline",
+              "distance"
+            ],
+            "required": true
+          },
+          {
+            "id": "wls-thu-cooldown-bike",
+            "exerciseId": "cooldown-bike",
+            "title": "Easy Bike Cooldown",
+            "type": "walk",
+            "category": "Cardio",
+            "durationMinutes": 5,
+            "equipment": "Stationary Bike / Recumbent Bike / Treadmill",
+            "notes": "Easy effort. No running or HIIT. Bike is the default low-impact fallback; incline walking is optional only when knee-tolerated. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [
+              "Recumbent Bike"
+            ],
+            "metrics": [
+              "time",
+              "speed",
+              "incline",
+              "distance"
+            ],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "wls-thu-mobility",
+        "title": "Hip and Lower-Body Mobility",
+        "startTime": "05:15",
+        "endTime": "05:30",
+        "activities": [
+          {
+            "id": "wls-thu-hip-flexor-stretch",
+            "exerciseId": "hip-flexor-stretch",
+            "title": "Hip Flexor Stretch",
+            "type": "mobility",
+            "durationMinutes": 2.5,
+            "sets": 2,
+            "reps": "30-45 sec/side",
+            "restSeconds": 15,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Stretches",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-thu-hamstring-stretch",
+            "exerciseId": "hamstring-stretch",
+            "title": "Hamstring Stretch",
+            "type": "mobility",
+            "durationMinutes": 2.5,
+            "sets": 2,
+            "reps": "30-45 sec/side",
+            "restSeconds": 15,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Stretches",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-thu-figure-four-glute-stretch",
+            "exerciseId": "figure-four-glute-stretch",
+            "title": "Figure-4 Glute Stretch",
+            "type": "mobility",
+            "durationMinutes": 2.5,
+            "sets": 2,
+            "reps": "30-45 sec/side",
+            "restSeconds": 15,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Stretches",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-thu-90-90-hip-rotations",
+            "exerciseId": "90-90-hip-rotations",
+            "title": "90/90 Hip Rotations",
+            "type": "mobility",
+            "durationMinutes": 2.5,
+            "sets": 2,
+            "reps": "8/side",
+            "restSeconds": 15,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Stretches",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-thu-adductor-rock-back",
+            "exerciseId": "adductor-rock-back",
+            "title": "Adductor Rock-Back",
+            "type": "mobility",
+            "durationMinutes": 2.5,
+            "sets": 2,
+            "reps": "8-10/side",
+            "restSeconds": 15,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Stretches",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-thu-knee-to-wall-ankle-rocks",
+            "exerciseId": "knee-to-wall-ankle-rocks",
+            "title": "Knee-to-Wall Ankle Rocks",
+            "type": "mobility",
+            "durationMinutes": 2.5,
+            "sets": 2,
+            "reps": "10/side",
+            "restSeconds": 15,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Stretches",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "wls-thu-core",
+        "title": "Core Control",
+        "startTime": "05:30",
+        "endTime": "05:55",
+        "activities": [
+          {
+            "id": "wls-thu-side-plank",
+            "exerciseId": "side-plank",
+            "title": "Side Plank",
+            "type": "strength",
+            "durationMinutes": 4.5,
+            "sets": 3,
+            "reps": "25-40 sec/side",
+            "restSeconds": 45,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Core",
+            "notes": "Stop the set when trunk position or control deteriorates. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-thu-bird-dog",
+            "exerciseId": "bird-dog",
+            "title": "Bird Dog",
+            "type": "strength",
+            "durationMinutes": 4.5,
+            "sets": 3,
+            "reps": "8/side",
+            "restSeconds": 45,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Core",
+            "notes": "Stop the set when trunk position or control deteriorates. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-thu-pallof-press",
+            "exerciseId": "pallof-press",
+            "title": "Pallof Press",
+            "type": "strength",
+            "durationMinutes": 4.5,
+            "sets": 3,
+            "reps": "10/side",
+            "restSeconds": 45,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Cable",
+            "category": "Core",
+            "notes": "Stop the set when trunk position or control deteriorates. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-thu-dead-bug",
+            "exerciseId": "dead-bug",
+            "title": "Dead Bug",
+            "type": "strength",
+            "durationMinutes": 4.5,
+            "sets": 3,
+            "reps": "8/side",
+            "restSeconds": 45,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Core",
+            "notes": "Stop the set when trunk position or control deteriorates. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "wls-thu-finish",
+        "title": "Easy Finish",
+        "startTime": "05:55",
+        "endTime": "06:00",
+        "activities": [
+          {
+            "id": "wls-thu-easy-stretching",
+            "exerciseId": "easy-stretching",
+            "title": "Easy Walking / Stretching Until 6:00",
+            "type": "cooldown",
+            "durationMinutes": 5,
+            "sets": 1,
+            "reps": "Easy movement",
+            "restSeconds": 0,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight",
+            "category": "Stretches",
+            "notes": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [],
+            "required": true
+          }
+        ]
+      }
+    ],
+    "programId": "weight-loss-strength-v1",
+    "programWeek": 1,
+    "cycleWeek": 1,
+    "variation": "Standard"
+  },
+  "Friday": {
+    "id": "wls-mission-friday",
+    "weekday": "Friday",
+    "name": "Upper Body B + Arms + Light Lower + Conditioning",
+    "startTime": "04:30",
+    "endTime": "06:00",
+    "required": true,
+    "location": "Gym",
+    "locationType": "gym",
+    "focus": [
+      "Upper Body B + Arms + Light Lower + Conditioning"
+    ],
+    "pillars": [
+      "strength",
+      "core",
+      "mobility",
+      "cardio"
+    ],
+    "goalIds": [
+      "goal-weight-loss",
+      "goal-biceps",
+      "goal-core",
+      "goal-mobility"
+    ],
+    "description": "From near 210 lb toward staying below 200 lb while preserving/building muscle.",
+    "progressTarget": "Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+    "safetyNote": "Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+    "phases": [
+      {
+        "id": "wls-fri-warmup",
+        "title": "Warm-Up",
+        "startTime": "04:30",
+        "endTime": "04:38",
+        "activities": [
+          {
+            "id": "wls-fri-easy-cardio",
+            "exerciseId": "easy-cardio",
+            "title": "Easy Bike or Treadmill Walk",
+            "type": "walk",
+            "category": "Cardio",
+            "durationMinutes": 5,
+            "equipment": "Stationary Bike / Recumbent Bike / Treadmill",
+            "notes": "Easy effort. No running or HIIT. Bike is the default low-impact fallback; incline walking is optional only when knee-tolerated. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [
+              "Recumbent Bike"
+            ],
+            "metrics": [
+              "time",
+              "speed",
+              "incline",
+              "distance"
+            ],
+            "required": true
+          },
+          {
+            "id": "wls-fri-shoulder-mobility",
+            "exerciseId": "shoulder-mobility",
+            "title": "Shoulder Mobility / Warm-Up Sets",
+            "type": "warmup",
+            "durationMinutes": 3,
+            "sets": 1,
+            "reps": "Controlled warm-up",
+            "restSeconds": 0,
+            "targetRir": null,
+            "tempo": "Controlled",
+            "equipment": "Bodyweight / Light Weights",
+            "category": "Warm-up",
+            "notes": "Use light rehearsal sets before working loads.",
+            "substitutions": [],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "wls-fri-strength",
+        "title": "Upper Body + Arms + Light Lower",
+        "startTime": "04:38",
+        "endTime": "05:45",
+        "activities": [
+          {
+            "id": "wls-fri-lat-pulldown",
+            "exerciseId": "lat-pulldown",
+            "title": "Lat Pulldown or Assisted Pull-Up",
+            "type": "strength",
+            "durationMinutes": 4.95,
+            "sets": 3,
+            "reps": "8-12",
+            "restSeconds": 90,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [
+              "Assisted Pull-Up"
+            ],
+            "required": true
+          },
+          {
+            "id": "wls-fri-incline-chest-press-machine",
+            "exerciseId": "incline-chest-press-machine",
+            "title": "Incline Chest Press",
+            "type": "strength",
+            "durationMinutes": 4.95,
+            "sets": 3,
+            "reps": "8-12",
+            "restSeconds": 90,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-fri-seated-cable-row",
+            "exerciseId": "seated-cable-row",
+            "title": "Seated Cable Row",
+            "type": "strength",
+            "durationMinutes": 4.95,
+            "sets": 3,
+            "reps": "10-12",
+            "restSeconds": 90,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Cable",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-fri-machine-shoulder-press",
+            "exerciseId": "machine-shoulder-press",
+            "title": "Machine Shoulder Press",
+            "type": "strength",
+            "durationMinutes": 4.45,
+            "sets": 3,
+            "reps": "8-12",
+            "restSeconds": 75,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-fri-pec-deck",
+            "exerciseId": "pec-deck",
+            "title": "Pec Deck",
+            "type": "strength",
+            "durationMinutes": 2.3,
+            "sets": 2,
+            "reps": "12-15",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-fri-lateral-raise",
+            "exerciseId": "lateral-raise",
+            "title": "Lateral Raise",
+            "type": "strength",
+            "durationMinutes": 3.95,
+            "sets": 3,
+            "reps": "12-20",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Dumbbells / Cable",
+            "category": "Strength",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-fri-preacher-curl",
+            "exerciseId": "preacher-curl",
+            "title": "Preacher Curl",
+            "type": "strength",
+            "durationMinutes": 3.95,
+            "sets": 3,
+            "reps": "8-12",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine / EZ Bar",
+            "category": "Biceps",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-fri-hammer-curl",
+            "exerciseId": "hammer-curl",
+            "title": "Hammer Curl",
+            "type": "strength",
+            "durationMinutes": 2.3,
+            "sets": 2,
+            "reps": "10-15",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Dumbbells",
+            "category": "Biceps",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-fri-rope-triceps-pushdown",
+            "exerciseId": "rope-triceps-pushdown",
+            "title": "Rope Pressdown",
+            "type": "strength",
+            "durationMinutes": 3.95,
+            "sets": 3,
+            "reps": "10-15",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Cable",
+            "category": "Triceps",
+            "notes": " Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-fri-seated-hamstring-curl",
+            "exerciseId": "seated-hamstring-curl",
+            "title": "Hamstring Curl",
+            "type": "strength",
+            "durationMinutes": 2.3,
+            "sets": 2,
+            "reps": "12-15",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Light lower",
+            "notes": "Light frequency work, keep 2-3 RIR. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          },
+          {
+            "id": "wls-fri-hip-abduction-machine",
+            "exerciseId": "hip-abduction-machine",
+            "title": "Hip Abduction",
+            "type": "strength",
+            "durationMinutes": 2.3,
+            "sets": 2,
+            "reps": "15-20",
+            "restSeconds": 60,
+            "targetRir": {
+              "default": "2-3"
+            },
+            "tempo": "Controlled",
+            "equipment": "Machine",
+            "category": "Light lower",
+            "notes": "Light frequency work, keep 2-3 RIR. Double progression: reach the top of the rep range on every prescribed set with clean technique and appropriate RIR before increasing load next session; then return toward the lower rep limit. No fixed weights or required failure.",
+            "substitutions": [],
+            "required": true
+          }
+        ]
+      },
+      {
+        "id": "wls-fri-conditioning",
+        "title": "Conditioning",
+        "startTime": "05:45",
+        "endTime": "06:00",
+        "activities": [
+          {
+            "id": "wls-fri-conditioning",
+            "exerciseId": "conditioning",
+            "title": "Bike or Knee-Tolerated Incline Walk",
+            "type": "walk",
+            "category": "Cardio",
+            "durationMinutes": 15,
+            "equipment": "Stationary Bike / Recumbent Bike / Treadmill",
+            "notes": "Approximately 15 min, RPE 5-6. No running or HIIT. Bike is the default low-impact fallback; incline walking is optional only when knee-tolerated. Use only a pain-free/tolerated range; avoid forcing deep knee flexion. Stop or substitute for sharp pain.",
+            "substitutions": [
+              "Recumbent Bike"
+            ],
+            "metrics": [
+              "time",
+              "speed",
+              "incline",
+              "distance"
+            ],
+            "required": true
+          }
+        ]
+      }
+    ],
+    "programId": "weight-loss-strength-v1",
+    "programWeek": 1,
+    "cycleWeek": 1,
+    "variation": "Standard"
+  }
+}
