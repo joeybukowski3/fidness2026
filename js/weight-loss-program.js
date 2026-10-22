@@ -28,29 +28,31 @@
   }
   const s = entry;
   const core = (d, id, title, reps, equipment = 'Bodyweight') => s(d,id,title,3,reps,45,equipment,'Core','Stop the set when trunk position or control deteriorates.');
-  const upperWarmup = d => [cardio(d,'easy-cardio','Easy Bike or Treadmill Walk',5,'Easy effort.'), {...s(d,'shoulder-mobility','Shoulder Mobility / Warm-Up Sets',1,'Controlled warm-up',0,'Bodyweight / Light Weights','Warm-up','Use light rehearsal sets before working loads.',[],'warmup'), durationMinutes: 3}];
+  const dynamicWarmup = d => s(d,'dynamic-mobility','Dynamic Stretching / Mobility',1,'3-5 min',0,'Bodyweight','Warm-up','Dynamic movements before incline walking.',[],'warmup');
+  const inclineWarmup = (d, suffix='incline-warmup') => cardio(d,suffix,'Incline Treadmill Warm-Up',10,'Easy effort, approximately 2.5-3.0 mph at 3-6% incline as tolerated. RPE 3-4.');
+  const upperWarmup = d => [dynamicWarmup(d),inclineWarmup(d), {...s(d,'shoulder-mobility','Shoulder Mobility / Warm-Up Sets',1,'Controlled warm-up',0,'Bodyweight / Light Weights','Warm-up','Use light rehearsal sets before working loads.',[],'warmup'), durationMinutes: 3}];
   const mon = [
     s('mon','machine-shoulder-press','Machine Shoulder Press',2,'10-12',75,'Machine'),
     s('mon','reverse-pec-deck','Reverse Pec Deck',2,'12-15',60,'Machine'),
     s('mon','cable-lateral-raise','Cable Lateral Raise',2,'12-15/side',45,'Cable'),
-    s('mon','cable-curl','Cable Curl',3,'10-15',60,'Cable','Biceps'),
+    s('mon','cable-curl','Cable Curl',2,'10-15',60,'Cable','Biceps'),
     s('mon','rope-hammer-curl','Rope Hammer Curl',2,'10-15',60,'Cable','Biceps'),
     s('mon','rope-triceps-pushdown','Rope Triceps Pressdown',2,'10-15',60,'Cable','Triceps')
   ];
   const tue = [
     s('tue','seated-hamstring-curl','Seated or Lying Hamstring Curl',3,'10-15',75,'Machine','Strength',knee,['Lying Leg Curl']),
     s('tue','hip-thrust','Smith Hip Thrust or Glute Bridge',3,'8-12',90,'Smith Machine / Floor','Strength',knee,['Glute Bridge']),
-    s('tue','leg-press','Leg Press',2,'10-15',90,'Machine','Strength',`${knee} Substitute a tolerated glute bridge, or skip if neither is comfortable; do not make up painful sets.`,['Glute Bridge']),
+    s('tue','leg-press','Leg Press',3,'10-15',90,'Machine','Strength',`${knee} Substitute a tolerated glute bridge, or skip if neither is comfortable; do not make up painful sets.`,['Glute Bridge']),
     s('tue','dumbbell-romanian-deadlift','Dumbbell Romanian Deadlift',3,'8-12',90,'Dumbbells'),
     s('tue','hip-abduction-machine','Hip Abduction Machine',2,'15-20',60,'Machine'),
     s('tue','machine-calf-raise','Calf Raise',2,'12-20',60,'Machine'),
-    core('tue','cable-crunch','Cable Crunch','10-15','Cable'),{...core('tue','pallof-press','Pallof Press','10/side','Cable'), sets: 2},{...core('tue','dead-bug','Dead Bug','8/side'), sets: 2}
+    {...core('tue','cable-crunch','Cable Crunch','10-15','Cable'), sets: 2},{...core('tue','pallof-press','Pallof Press','10/side','Cable'), sets: 2}
   ];
   const wed = [
     s('wed','machine-chest-press','Machine Chest Press',3,'8-12',90,'Machine'),s('wed','chest-supported-row','Chest-Supported Row',3,'8-12',90,'Machine / Dumbbells'),
     s('wed','lat-pulldown','Lat Pulldown',3,'8-12',90,'Machine'),s('wed','incline-dumbbell-press','Incline Dumbbell or Machine Press',3,'10-12',75,'Dumbbells / Machine','Strength','',['Incline Chest Press Machine']),
     s('wed','cable-lateral-raise','Cable Lateral Raise',3,'12-20',60,'Cable'),s('wed','reverse-pec-deck','Reverse Pec Deck or Face Pull',2,'12-20',60,'Machine / Cable','Strength','',['Face Pull']),
-    s('wed','cable-curl','Cable Curl',3,'10-15',60,'Cable','Biceps'),s('wed','preacher-curl','Preacher Curl',2,'10-12',60,'Machine / EZ Bar','Biceps'),core('wed','reverse-crunch','Reverse Crunch','10-15')
+    s('wed','cable-curl','Cable Curl',3,'10-15',60,'Cable','Biceps'),s('wed','preacher-curl','Preacher Curl',2,'10-12',60,'Machine / EZ Bar','Biceps'),{...core('wed','reverse-crunch','Reverse Crunch','10-15'), sets: 2}
   ];
   const mobility = [
     s('thu','hip-flexor-stretch','Hip Flexor Stretch',2,'30-45 sec/side',15),s('thu','hamstring-stretch','Hamstring Stretch',2,'30-45 sec/side',15),
@@ -61,24 +63,37 @@
     s('fri','lat-pulldown','Lat Pulldown or Assisted Pull-Up',3,'8-12',90,'Machine','Strength','',['Assisted Pull-Up']),s('fri','incline-chest-press-machine','Incline Chest Press',3,'8-12',90,'Machine'),
     s('fri','seated-cable-row','Seated Cable Row',3,'10-12',90,'Cable'),s('fri','machine-shoulder-press','Machine Shoulder Press',2,'8-12',75,'Machine'),
     s('fri','lateral-raise','Lateral Raise',2,'12-20',60,'Dumbbells / Cable'),
-    s('fri','preacher-curl','Preacher Curl',3,'8-12',60,'Machine / EZ Bar','Biceps'),s('fri','hammer-curl','Hammer Curl',2,'10-15',60,'Dumbbells','Biceps'),s('fri','rope-triceps-pushdown','Rope Pressdown',2,'10-15',60,'Cable','Triceps'),
-    s('fri','seated-hamstring-curl','Hamstring Curl',2,'12-15',60,'Machine','Light lower',`Light frequency work, keep 2-3 RIR. ${knee}`),s('fri','hip-abduction-machine','Hip Abduction',2,'15-20',60,'Machine','Light lower','Light frequency work, keep 2-3 RIR.')
+    s('fri','preacher-curl','Preacher Curl',2,'8-12',60,'Machine / EZ Bar','Biceps'),s('fri','hammer-curl','Hammer Curl',2,'10-15',60,'Dumbbells','Biceps'),s('fri','rope-triceps-pushdown','Rope Pressdown',2,'10-15',60,'Cable','Triceps'),
+    s('fri','leg-press','Leg Press (Light)',2,'12-15',90,'Machine','Light lower',`Light frequency work, keep 3 RIR. ${knee}`),s('fri','seated-hamstring-curl','Hamstring Curl',2,'12-15',60,'Machine','Light lower',`Light frequency work, keep 2-3 RIR. ${knee}`)
   ];
   function phase(day,id,title,startTime,endTime,activities) { return {id:`wls-${day}-${id}`,title,startTime,endTime,activities}; }
   function mission(day,name,startTime,phases) {
-    return {id:`wls-mission-${day.toLowerCase()}`,weekday:day,name,startTime,endTime:'06:00',required:true,location:'Gym',locationType:'gym',focus:[name],pillars:['strength','core','mobility','cardio'],goalIds:['goal-weight-loss','goal-biceps','goal-core','goal-mobility'],description:'From near 210 lb toward staying below 200 lb while preserving/building muscle.',progressTarget:progression,safetyNote:knee,phases};
+    return {id:`wls-mission-${day.toLowerCase()}`,weekday:day,name,startTime,endTime:'06:00',showClockTimes:false,required:true,location:'Gym',locationType:'gym',focus:[name],pillars:['strength','core','mobility','cardio'],goalIds:['goal-weight-loss','goal-biceps','goal-core','goal-mobility'],description:'From near 210 lb toward staying below 200 lb while preserving/building muscle.',progressTarget:progression,safetyNote:knee,phases};
   }
+  // Phase clock fields are retained for compatibility; this program displays ordered activities without clock times.
   const missions = {
     Monday: mission('Monday','Light Upper + Arms + Conditioning','05:00',[
-      phase('mon','warmup','Warm-Up','05:00','05:05',[cardio('mon','easy-cardio','Easy Bike or Treadmill Walk',5,'Easy effort.')]),phase('mon','strength','Light Upper + Arms','05:05','05:42',mon),phase('mon','conditioning','Conditioning','05:42','06:00',[cardio('mon','conditioning','Stationary Bike or Incline Treadmill',18,'15-18 min, RPE 5-6.')])]),
-    Tuesday: mission('Tuesday','Knee-Friendly Lower Body + Core + Bike','04:30',[
-      phase('tue','warmup','Warm-Up','04:30','04:42',[cardio('tue','easy-bike','Easy Stationary Bike',5,'Easy effort.'),...[[ 'glute-bridge','Glute Bridge','12'],['bodyweight-hip-hinge','Bodyweight Hip Hinge','10'],['leg-swings','Leg Swings','10/side'],['ankle-rocks','Ankle Rocks','10/side']].map(([id,title,reps]) => s('tue',id,title,1,reps,0,'Bodyweight','Warm-up',knee,[],'warmup'))]),phase('tue','strength','Lower Body + Core','04:42','05:40',tue),phase('tue','conditioning','Steady Bike','05:40','06:00',[cardio('tue','conditioning','Stationary Bike',20,'3 min easy + 15 min moderate + 2 min easy. No HIIT.')])]),
-    Wednesday: mission('Wednesday','Upper Body A + Biceps + Conditioning','04:30',[
-      phase('wed','warmup','Warm-Up','04:30','04:40',upperWarmup('wed')),phase('wed','strength','Upper Body + Biceps + Core','04:40','05:42',wed),phase('wed','conditioning','Knee-Tolerated Conditioning','05:42','06:00',[cardio('wed','conditioning','Incline Treadmill or Bike',18,'Walking option: approximately 2.5-3.2 mph, 3-6% incline, RPE 5-6. Choose bike when walking is not tolerated.',['Stationary Bike','Recumbent Bike'])])]),
+      phase('mon','warmup','Stretch + Incline Warm-Up','05:00','05:16',[dynamicWarmup('mon'),inclineWarmup('mon'),{...s('mon','shoulder-mobility','Shoulder Press Warm-Up Sets',1,'Controlled warm-up',0,'Machine','Warm-up','Rehearse movement before working sets.',[],'warmup'),durationMinutes:2}]),
+      phase('mon','strength','Light Upper + Arms','05:16','05:49',mon),
+      phase('mon','conditioning','Optional Conditioning','05:49','06:00',[cardio('mon','conditioning','Bike or Incline Walk',11,'Easy to moderate, RPE 5-6; shorten if lifting needs more time.')])]),
+    Tuesday: mission('Tuesday','Knee-Friendly Lower Body + Core','04:30',[
+      phase('tue','warmup','Stretch + Incline Warm-Up','04:30','04:47',[...[[ 'glute-bridge','Glute Bridge','12'],['bodyweight-hip-hinge','Bodyweight Hip Hinge','10'],['leg-swings','Leg Swings','10/side'],['ankle-rocks','Ankle Rocks','10/side']].map(([id,title,reps]) => s('tue',id,title,1,reps,0,'Bodyweight','Warm-up',knee,[],'warmup')),inclineWarmup('tue')]),
+      phase('tue','strength','Lower Body + Core','04:47','05:50',tue),
+      phase('tue','conditioning','Optional Bike Finish','05:50','06:00',[cardio('tue','conditioning','Stationary Bike',10,'Easy to moderate; prioritize quality lifting when time is short.')])]),
+    Wednesday: mission('Wednesday','Upper Body A + Biceps','04:30',[
+      phase('wed','warmup','Stretch + Incline Warm-Up','04:30','04:49',upperWarmup('wed')),
+      phase('wed','strength','Upper Body + Biceps + Core','04:49','05:53',wed),
+      phase('wed','conditioning','Optional Conditioning','05:53','06:00',[cardio('wed','conditioning','Bike or Incline Walk',7,'Easy to moderate, RPE 5-6; optional when time is short.')])]),
     Thursday: mission('Thursday','Conditioning + Mobility + Core','04:30',[
-      phase('thu','conditioning','Steady Conditioning','04:30','05:15',[cardio('thu','warmup-bike','Easy Bike Warm-Up',5,'Easy effort.'),cardio('thu','steady-bike','Steady Bike or Incline Walk',35,'RPE 5-6.'),cardio('thu','cooldown-bike','Easy Bike Cooldown',5,'Easy effort.')]),phase('thu','mobility','Hip and Lower-Body Mobility','05:15','05:29',mobility),phase('thu','core','Core Control','05:29','05:55',[core('thu','side-plank','Side Plank','25-40 sec/side'),core('thu','bird-dog','Bird Dog','8/side'),core('thu','pallof-press','Pallof Press','10/side','Cable'),core('thu','dead-bug','Dead Bug','8/side')].map(a => ({...a, sets: 2}))),phase('thu','finish','Easy Finish','05:55','06:00',[{...s('thu','easy-stretching','Easy Walking / Stretching Until 6:00',1,'Easy movement',0,'Bodyweight','Stretches',knee,[],'cooldown'),durationMinutes:5}])]),
-    Friday: mission('Friday','Upper Body B + Arms + Light Lower + Conditioning','04:30',[
-      phase('fri','warmup','Warm-Up','04:30','04:40',upperWarmup('fri')),phase('fri','strength','Upper Body + Arms + Light Lower','04:40','05:45',fri),phase('fri','conditioning','Conditioning','05:45','06:00',[cardio('fri','conditioning','Bike or Knee-Tolerated Incline Walk',15,'Approximately 15 min, RPE 5-6.')])])
+      phase('thu','warmup','Stretch + Incline Warm-Up','04:30','04:45',[dynamicWarmup('thu'),inclineWarmup('thu')]),
+      phase('thu','conditioning','Steady Conditioning','04:45','05:25',[cardio('thu','steady-bike','Steady Bike or Incline Walk',35,'Moderate effort, RPE 5-6.'),cardio('thu','cooldown-bike','Easy Bike Cooldown',5,'Easy effort.')]),
+      phase('thu','mobility','Hip and Lower-Body Mobility','05:25','05:39',mobility),
+      phase('thu','core','Core Control','05:39','05:55',[core('thu','side-plank','Side Plank','25-40 sec/side'),core('thu','bird-dog','Bird Dog','8/side')].map(a=>({...a,sets:2}))),
+      phase('thu','finish','Easy Finish','05:55','06:00',[{...s('thu','easy-stretching','Easy Walking / Stretching',1,'Easy movement',0,'Bodyweight','Stretches',knee,[],'cooldown'),durationMinutes:5}])]),
+    Friday: mission('Friday','Upper Body B + Arms + Light Lower','04:30',[
+      phase('fri','warmup','Stretch + Incline Warm-Up','04:30','04:49',upperWarmup('fri')),
+      phase('fri','strength','Upper Body + Arms + Light Lower','04:49','05:54',fri),
+      phase('fri','conditioning','Optional Conditioning','05:54','06:00',[cardio('fri','conditioning','Bike or Incline Walk',6,'Easy to moderate; optional when time is short.')])])
   };
   ['Saturday','Sunday'].forEach(day => { missions[day] = {id:`wls-mission-${day.toLowerCase()}`,weekday:day,name:'Optional Recovery or Rest',required:false,focus:['Recovery'],phases:[]}; });
   const PROGRAM = {id:PROGRAM_ID,name:'Weight Loss + Strength',type:'ongoing',ongoing:true,reviewIntervalWeeks:6,requiredWeekdays:weekdays,missions,goals:[{id:'goal-weight-loss',name:'Stay below 200 lb while preserving/building muscle'},{id:'goal-biceps',name:'Biceps hypertrophy'},{id:'goal-core',name:'Core strength'},{id:'goal-mobility',name:'Hip and lower-body mobility'}]};
