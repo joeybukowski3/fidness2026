@@ -108,8 +108,8 @@
         title: phase.title,
         startTime: phase.startTime,
         endTime: phase.endTime,
-        startLabel: formatClock(phase.startTime),
-        endLabel: formatClock(phase.endTime),
+        startLabel: mission.showClockTimes === false ? '' : formatClock(phase.startTime),
+        endLabel: mission.showClockTimes === false ? '' : formatClock(phase.endTime),
         durationMinutes: timeToMinutes(phase.endTime) - timeToMinutes(phase.startTime),
         activities,
         requiredCount: activities.filter(activity => activity.required).length,
@@ -132,7 +132,7 @@
       locationType: mission.locationType,
       startTime: mission.startTime,
       endTime: mission.endTime,
-      timeWindow: hasTimeWindow ? `${formatClock(mission.startTime)}–${formatClock(mission.endTime)}` : 'Flexible',
+      timeWindow: mission.showClockTimes === false ? 'Flexible workout' : hasTimeWindow ? `${formatClock(mission.startTime)}–${formatClock(mission.endTime)}` : 'Flexible',
       required: mission.required !== false,
       requiredMinutes,
       focus: mission.focus || [],
@@ -233,7 +233,7 @@
     ].filter(Boolean).join(' • ');
     return `<details class="mission-phase" id="mission-phase-${escapeHtml(phase.id)}" data-required-phase="${phase.requiredCount > 0}" ${phase.initiallyOpen ? 'open' : ''}>
       <summary>
-        <span class="mission-phase-time">${escapeHtml(phase.startLabel)}–${escapeHtml(phase.endLabel)}</span>
+        ${phase.startLabel && phase.endLabel ? `<span class="mission-phase-time">${escapeHtml(phase.startLabel)}–${escapeHtml(phase.endLabel)}</span>` : ""}
         <span class="mission-phase-title">${escapeHtml(phase.title)}</span>
         <span class="mission-phase-meta">${phase.durationMinutes} min${counts ? ` • ${escapeHtml(counts)}` : ''}</span>
       </summary>
@@ -321,7 +321,7 @@
       <div class="schedule-card-top"><span>${escapeHtml(day.weekday)}</span><div>${day.labels.map(label => badge(label, label.toLowerCase().replace(/\s+/g, '-'))).join('')}</div></div>
       <h3>${escapeHtml(mission.name)}</h3>
       <p>${escapeHtml((mission.focus || []).slice(0, 3).join(' • '))}</p>
-      <div class="schedule-card-meta"><span>${escapeHtml(mission.location)}</span><span>${mission.startTime && mission.endTime ? `${formatClock(mission.startTime)}–${formatClock(mission.endTime)}` : 'Flexible timing'}</span><span>${escapeHtml(mission.fasting?.type || '')}</span><span>${mission.meditation?.required ? `${mission.meditation.minutes} min meditation` : 'No meditation assigned'}</span></div>
+      <div class="schedule-card-meta"><span>${escapeHtml(mission.location)}</span><span>${mission.showClockTimes === false ? 'Flexible workout' : mission.startTime && mission.endTime ? `${formatClock(mission.startTime)}–${formatClock(mission.endTime)}` : 'Flexible timing'}</span><span>${escapeHtml(mission.fasting?.type || '')}</span><span>${mission.meditation?.required ? `${mission.meditation.minutes} min meditation` : 'No meditation assigned'}</span></div>
     </button>`;
   }
 
