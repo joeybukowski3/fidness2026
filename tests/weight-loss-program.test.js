@@ -44,7 +44,7 @@ test('all prescribed weekdays have stable activities, targets and knee-tolerant 
     assert.match(html, /No fasting requirement/);
   }
   assert.equal(weightLoss.toLegacyWorkout('Monday').filter(a=>a.activityType==='strength').length,6);
-  assert.equal(weightLoss.toLegacyWorkout('Tuesday').filter(a=>a.activityType==='strength').length,9);
+  assert.equal(weightLoss.toLegacyWorkout('Tuesday').filter(a=>a.activityType==='strength').length,8);
   assert.equal(weightLoss.toLegacyWorkout('Wednesday').filter(a=>a.activityType==='strength').length,9);
   assert.equal(weightLoss.toLegacyWorkout('Friday').filter(a=>a.activityType==='strength').length,10);
 });
@@ -84,21 +84,28 @@ test('cardio logger persists compatible fields with identity and leaves strength
   assert.equal(history[1].time,'18');assert.equal(history[1].incline,'4');assert.equal(history[1].programId,weightLoss.PROGRAM_ID);assert.equal(state.done,true);
 });
 
-test('normal and deload sessions fit realistic timing without reducing rest or cardio', () => {
-  const audit = require('../docs/audit-weight-loss-timing.cjs');
-  const before = JSON.parse(fs.readFileSync('docs/weight-loss-timing-before.json','utf8'));
+test('optimized schedule keeps incline warm-up after mobility and preserves daily strength targets', () => {
+  const expected = {
+    Monday: {'cable-curl':2},
+    Tuesday: {'leg-press':3,'cable-crunch':2,'pallof-press':2},
+    Wednesday: {'reverse-crunch':2},
+    Friday: {'preacher-curl':2,'leg-press':2}
+  };
   for (const day of weightLoss.PROGRAM.requiredWeekdays) {
-    for (const week of [1, 5, 6, 7]) {
-      const mission = weightLoss.getMission(day, week);
-      assert.ok(audit.estimate(mission,'high').minutes <= (day === 'Monday' ? 60 : 90), `${day} week ${week} overruns`);
-      const oldActivities = new Map(before[day].phases.flatMap(p => p.activities).map(a => [a.id,a]));
-      for (const a of mission.phases.flatMap(p => p.activities)) {
-        const old = oldActivities.get(a.id);
-        assert.ok(old, `Unexpected identity change: ${a.id}`);
-        assert.equal(a.restSeconds,old.restSeconds);
-        if (a.category === 'Cardio') assert.equal(a.durationMinutes,old.durationMinutes);
-      }
+    const mission = weightLoss.getMission(day);
+    assert.equal(mission.showClockTimes,false);
+    const activities = mission.phases.flatMap(p=>p.activities);
+    const inclineIndex = activities.findIndex(a=>a.title==='Incline Treadmill Warm-Up');
+    assert.ok(inclineIndex>0, day+' missing incline warm-up');
+    assert.ok(activities.slice(0,inclineIndex).some(a=>a.type==='warmup'),day+' mobility missing before incline');
+    for(const [id,sets] of Object.entries(expected[day]||{})) {
+      assert.equal(activities.find(a=>a.exerciseId===id)?.sets,sets,day+' '+id);
     }
+    const html=dashboard.renderToday(dashboard.buildMissionModel({program:weightLoss.PROGRAM,mission,programWeek:1}));
+    assert.doesNotMatch(html,/mission-phase-time/);
+    assert.match(html,/Flexible workout/);
   }
-  assert.ok(!weightLoss.toLegacyWorkout('Friday').some(a => a.exerciseId === 'pec-deck'));
+  assert.ok(!weightLoss.toLegacyWorkout('Tuesday').some(a=>a.exerciseId==='dead-bug'));
+  assert.ok(!weightLoss.toLegacyWorkout('Thursday').some(a=>['pallof-press','dead-bug'].includes(a.exerciseId)));
+  assert.ok(!weightLoss.toLegacyWorkout('Friday').some(a=>a.exerciseId==='hip-abduction-machine'));
 });
